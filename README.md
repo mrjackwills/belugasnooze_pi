@@ -14,7 +14,7 @@
 <p align="center">
 	Built in <a href='https://www.rust-lang.org/' target='_blank' rel='noopener noreferrer'>Rust</a>, with <a href='https://www.sqlite.org/' target='_blank' rel='noopener noreferrer'>SQLite</a>
 	<br>
-	<sub> See typescript branch for original typescript version</sub>
+	<sub> See typescript branch for original, now not maintained, typescript version</sub>
 </p>
 
 
