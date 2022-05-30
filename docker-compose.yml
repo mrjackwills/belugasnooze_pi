@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  belugasnooze_pi_client:
+    image: belugasnooze_pi_client:0.1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DOCKER_UID=${DOCKER_UID}
+        - DOCKER_GUID=${DOCKER_GUID}
+        - DOCKER_TIME_CONT=${DOCKER_TIME_CONT}
+        - DOCKER_TIME_CITY=${DOCKER_TIME_CITY}
+    container_name: belugasnooze
+    env_file: .env
+    volumes:
+       - $HOME/belugasnooze/db_data:/db_data
+       - /ramdrive/ip.addr:/ip_address/ip.addr:ro
+    cap_drop:
+      - all
+    group_add:
+      - ${DOCKER_GPIO}
+    security_opt:
+      - no-new-privileges
+    ipc: private
+    restart: always
+    devices:
+    - "/dev/gpiomem"
+    - "dev/gpiochip0"
+    networks:
+      - belugasnooze_net
+    logging:
+      options:
+        max-size: 4mb
+    deploy:
+      resources:
+        limits:
+          memory: 16mb
+networks:
+  belugasnooze_net:
+    name: belugasnooze_net
