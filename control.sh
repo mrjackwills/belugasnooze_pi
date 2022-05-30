@@ -22,7 +22,6 @@ if ! [ -x "$(command -v dialog)" ]; then
 	error_close "dialog is not installed"
 fi
 
-# TODO mkdir db_data
 
 production_up () {
 	DOCKER_GUID=${DOCKER_GUID} \
@@ -45,6 +44,7 @@ production_down () {
 }
 
 production_rebuild () {
+	make_all_directories
 	DOCKER_GUID=${DOCKER_GUID} \
 	DOCKER_UID=${DOCKER_UID} \
 	DOCKER_TIME_CONT=${DOCKER_TIME_CONT} \

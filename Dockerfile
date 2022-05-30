@@ -1,4 +1,5 @@
-FROM alpine:3.16
+# pi zero can't use > 3.12!
+FROM node:16-alpine3.12
 
 ARG DOCKER_GUID=1000 \
 	DOCKER_UID=1000 \
@@ -10,20 +11,32 @@ ARG DOCKER_GUID=1000 \
 ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
-RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
+RUN deluser --remove-home node \
+	&& addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 	&& adduser -u ${DOCKER_UID} -S -G ${DOCKER_APP_GROUP} ${DOCKER_APP_USER} \
-	&& apk --no-cache add --virtual ${VIRT} tzdata \
+	&& apk --no-cache add --virtual ${VIRT} tzdata python3 make g++ 'su-exec=>0.2' \
 	&& cp /usr/share/zoneinfo/${TZ} /etc/localtime \
-	&& echo ${TZ} > /etc/timezone \
-	&& apk del ${VIRT}
+	&& echo ${TZ} > /etc/timezone
+
+RUN npm install -g npm@latest
 
 WORKDIR /app
 
-RUN mkdir /db_data \
-	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app /db_data
+RUN mkdir /ip_address /logs \
+	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app /ip_address /logs
 
-COPY --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} belugasnooze ./
+COPY --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} package*.json tsconfig*.json .eslintignore .eslintrc.js ./
+
+RUN su-exec ${DOCKER_APP_USER} npm install
+
+RUN apk del ${VIRT}
 
 USER ${DOCKER_APP_USER}
 
-CMD [ "./belugasnooze"]
+COPY --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} src /app/src
+
+RUN npm run build \
+	&& npm prune --production \
+	&& npm cache clean --force
+
+CMD [ "node", "dist/index.js"]
