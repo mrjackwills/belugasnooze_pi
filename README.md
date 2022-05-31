@@ -8,7 +8,9 @@
 	A pi based wake up light sunrise alarm clock
 </p>
 <p align="center">
- The backend pi client that executes instructions from <a href='https://www.belugasnooze.com' target='_blank' rel='noopener noreferrer'>belugasnooze.com</a>, powered by <a href='https://www.staticpi.com' target='_blank' rel='noopener noreferrer'>staticPi.com</a>
+	The backend pi client that executes instructions from <a href='https://www.belugasnooze.com' target='_blank' rel='noopener noreferrer'>belugasnooze.com</a>, powered by <a href='https://www.staticpi.com' target='_blank' rel='noopener noreferrer'>staticPi.com</a>
+	<br>
+	See the frontend Vue & Typescript site source <a href='https://www.github.com/mrjackwills/belugasnooze_vue' target='_blank' rel='noopener noreferrer'>here</a>
 </p>
 
 <p align="center">
