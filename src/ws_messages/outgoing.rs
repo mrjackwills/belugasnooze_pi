@@ -9,7 +9,7 @@ pub struct PiStatus {
     pub alarms: Vec<ModelAlarm>,
     pub internal_ip: String,
     pub time_zone: String,
-    pub uptime_app: String,
+    pub uptime_app: u64,
     pub connected_for: u64,
     pub uptime: usize,
     pub version: String,
