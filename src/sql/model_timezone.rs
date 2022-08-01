@@ -93,7 +93,7 @@ mod tests {
 
     async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
         let na = String::from("na");
-        let location_sqlite = format!("/ramdrive/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let env = AppEnv {
             trace: false,
             location_ip_address: na.clone(),
@@ -115,14 +115,14 @@ mod tests {
     }
 
     fn cleanup() {
-        fs::remove_dir_all("/ramdrive/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap()
     }
 
     #[tokio::test]
     async fn model_timezone_get_empty_with_init() {
         // FIXTURES
         let na = String::from("na");
-        let location_sqlite = String::from("/ramdrive/test_db_files/model_timezone_insert_ok.db");
+        let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
             trace: false,
             location_ip_address: na.clone(),
@@ -156,7 +156,7 @@ mod tests {
     async fn model_timezone_insert_ok() {
         // FIXTURES
         let na = String::from("na");
-        let location_sqlite = String::from("/ramdrive/test_db_files/model_timezone_insert_ok.db");
+        let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
             trace: false,
             location_ip_address: na.clone(),

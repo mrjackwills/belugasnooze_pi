@@ -75,7 +75,7 @@ mod tests {
     use super::*;
 
     async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/ramdrive/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let na = String::from("na");
         let env = AppEnv {
             trace: false,
@@ -98,7 +98,7 @@ mod tests {
     }
 
     fn cleanup() {
-        fs::remove_dir_all("/ramdrive/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap()
     }
 
     #[tokio::test]
