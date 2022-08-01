@@ -62,7 +62,7 @@ impl AlarmSchedule {
                     time_zone.offset_second,
                 ) {
                     self.offset = offset;
-                    self.time_zone = time_zone
+                    self.time_zone = time_zone;
                 }
             }
             None => (),
@@ -119,7 +119,7 @@ impl CronAlarm {
                         .to_offset(offset)
                         .weekday()
                         .number_days_from_monday();
-                    for i in self.alarm_schedule.lock().await.alarms.iter() {
+                    for i in &self.alarm_schedule.lock().await.alarms {
                         if i.day == current_weekday
                             && i.hour == current_time.hour()
                             && i.minute == current_time.minute()

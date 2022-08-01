@@ -68,7 +68,7 @@ impl WSSender {
                     ParsedMessage::Restart => self.restart().await,
                     ParsedMessage::TimeZone(timezone) => self.time_zone(timezone.zone).await,
                     ParsedMessage::AddAlarm(data) => {
-                        self.add_alarm(data.days, data.hour, data.minute).await
+                        self.add_alarm(data.days, data.hour, data.minute).await;
                     }
                     ParsedMessage::Light { status } => self.toggle_light(status).await,
                     ParsedMessage::Status => self.send_status().await,

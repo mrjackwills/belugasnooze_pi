@@ -40,7 +40,7 @@ fn file_exists(filename: &str) {
 }
 
 /// Open Sqlite pool connection, and return
-/// max_connections need to be 1, see https://github.com/launchbadge/sqlx/issues/816
+/// `max_connections` need to be 1, see https://github.com/launchbadge/sqlx/issues/816
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
@@ -94,6 +94,7 @@ pub enum ModelError {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 /// Sql Test
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
@@ -103,7 +104,7 @@ mod tests {
     use time::UtcOffset;
 
     fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
     fn gen_args(timezone: String, hour_offset: i8, location_sqlite: String) -> AppEnv {
@@ -158,7 +159,7 @@ mod tests {
         assert!(dir_exists);
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 
     #[tokio::test]
@@ -192,7 +193,7 @@ mod tests {
         assert!(fs::metadata(&sql_wal).is_ok());
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 
     #[tokio::test]
@@ -223,6 +224,6 @@ mod tests {
         assert_eq!(result.4, 0);
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 }

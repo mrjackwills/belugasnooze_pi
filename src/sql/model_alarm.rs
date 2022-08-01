@@ -1,8 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::{Error, SqlitePool};
+use sqlx::SqlitePool;
 use std::fmt;
-use tracing::debug;
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelAlarm {
@@ -23,25 +22,15 @@ impl fmt::Display for ModelAlarm {
 }
 
 impl ModelAlarm {
-    fn unwrap_none<A>(query: Result<A, Error>) -> Result<()> {
-        match query {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                debug!(%e);
-                Ok(())
-            }
-        }
-    }
-
-    pub async fn get_all(db: &SqlitePool) -> Result<Vec<ModelAlarm>> {
+    pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>> {
         let sql = "SELECT * FROM alarm";
-        let result = sqlx::query_as::<_, ModelAlarm>(sql).fetch_all(db).await?;
+        let result = sqlx::query_as::<_, Self>(sql).fetch_all(db).await?;
         Ok(result)
     }
 
-    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<ModelAlarm> {
+    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<Self> {
         let sql = "INSERT INTO alarm(day, hour, minute) VALUES ($1, $2, $3) RETURNING alarm_id, day, hour, minute";
-        let query = sqlx::query_as::<_, ModelAlarm>(sql)
+        let query = sqlx::query_as::<_, Self>(sql)
             .bind(data.0)
             .bind(data.1)
             .bind(data.2)
@@ -52,14 +41,14 @@ impl ModelAlarm {
 
     pub async fn delete(db: &SqlitePool, id: i64) -> Result<()> {
         let sql = "DELETE FROM alarm WHERE alarm_id = $1";
-        let query = sqlx::query(sql).bind(id).fetch_all(db).await;
-        Self::unwrap_none(query)
+        sqlx::query(sql).bind(id).execute(db).await?;
+        Ok(())
     }
 
     pub async fn delete_all(db: &SqlitePool) -> Result<()> {
         let sql = "DELETE FROM alarm";
-        let query = sqlx::query(sql).fetch_all(db).await;
-        Self::unwrap_none(query)
+        sqlx::query(sql).execute(db).await?;
+        Ok(())
     }
 }
 
@@ -67,6 +56,7 @@ impl ModelAlarm {
 //
 /// cargo watch -q -c -w src/ -x 'test model_alarm -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use crate::{sql::init_db, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
@@ -98,7 +88,7 @@ mod tests {
     }
 
     fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
     #[tokio::test]

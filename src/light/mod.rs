@@ -24,7 +24,7 @@ enum LimitMinutes {
 }
 
 impl LimitMinutes {
-    fn get_sec(&self) -> u64 {
+    const fn get_sec(&self) -> u64 {
         match self {
             Self::Five => 60 * 5,
             Self::FortyFive => 60 * 45,
@@ -43,8 +43,8 @@ impl fmt::Display for LimitMinutes {
 }
 
 impl LightControl {
-    /// whilst light_status is true, set all lights to on
-    /// use light_limit to make sure led is only on for 5 minutes max
+    /// whilst `light_status` is true, set all lights to on
+    /// use `light_limit` to make sure led is only on for 5 minutes max
     pub async fn turn_on(light_status: Arc<AtomicBool>, sx: &Sender<InternalMessage>) {
         let start = Instant::now();
         if let Ok(mut led_strip) = Blinkt::new() {
@@ -72,7 +72,7 @@ impl LightControl {
     }
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
-    /// Will stop if the light_status atomic bool is changed elsewhere during the execution
+    /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
     pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::SeqCst);
         sx.send(InternalMessage::Light).unwrap_or_default();

@@ -42,18 +42,18 @@ impl Default for ModelTimezone {
 }
 
 impl ModelTimezone {
-    pub async fn get(db: &SqlitePool) -> Option<ModelTimezone> {
+    pub async fn get(db: &SqlitePool) -> Option<Self> {
         let sql = "SELECT * FROM timezone";
-        let result = sqlx::query_as::<_, ModelTimezone>(sql).fetch_one(db).await;
+        let result = sqlx::query_as::<_, Self>(sql).fetch_one(db).await;
         match result {
             Ok(data) => Some(data),
             Err(_) => None,
         }
     }
 
-    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<ModelTimezone> {
+    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self> {
         let sql = "INSERT INTO timezone (zone_name, offset_hour, offset_minute, offset_second) VALUES($1, $2, $3, $4) RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
-        let query = sqlx::query_as::<_, ModelTimezone>(sql)
+        let query = sqlx::query_as::<_, Self>(sql)
             .bind(&app_envs.timezone)
             .bind(app_envs.utc_offset.whole_hours())
             .bind(app_envs.utc_offset.minutes_past_hour())
@@ -63,13 +63,9 @@ impl ModelTimezone {
         Ok(query)
     }
 
-    pub async fn update(
-        db: &SqlitePool,
-        zone_name: &str,
-        offset: UtcOffset,
-    ) -> Result<ModelTimezone> {
+    pub async fn update(db: &SqlitePool, zone_name: &str, offset: UtcOffset) -> Result<Self> {
         let sql = "UPDATE timezone SET zone_name = $1, offset_hour = $2, offset_minute = $3, offset_second = $4 RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
-        let query = sqlx::query_as::<_, ModelTimezone>(sql)
+        let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)
             .bind(offset.whole_hours())
             .bind(offset.minutes_past_hour())
@@ -84,6 +80,7 @@ impl ModelTimezone {
 ///
 /// cargo watch -q -c -w src/ -x 'test model_timezone -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use crate::sql::{create_tables, file_exists, get_db, init_db};
     use std::{fs, sync::Arc, time::SystemTime};
@@ -115,7 +112,7 @@ mod tests {
     }
 
     fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
     #[tokio::test]
@@ -188,7 +185,7 @@ mod tests {
         assert_eq!(result_timezone.offset_minute, 0);
         assert_eq!(result_timezone.offset_second, 0);
         assert_eq!(result_timezone.zone_name, "Europe/Berlin");
-        cleanup()
+        cleanup();
     }
 
     #[tokio::test]

@@ -46,8 +46,8 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
         let message_timeout =
             tokio::time::timeout(std::time::Duration::from_secs(45), reader.try_next()).await;
 
-        match message_timeout {
-            Ok(some_message) => match some_message {
+        if let Ok(some_message) = message_timeout {
+            match some_message {
                 Ok(Some(m)) => {
                     tokio::spawn(async move {
                         match m {
@@ -69,12 +69,11 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
                     ws.close().await;
                     break;
                 }
-            },
-            Err(_) => {
-                trace!("timeout error");
-                ws.close().await;
-                break;
             }
+        } else {
+            trace!("timeout error");
+            ws.close().await;
+            break;
         }
     }
 }
