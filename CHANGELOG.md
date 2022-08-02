@@ -1,3 +1,6 @@
+### Fixes
++ create_release.sh Dockerfile location 
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.0.2'>v0.0.2</a>
 ### 2022-08-02
 
