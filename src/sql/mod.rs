@@ -40,7 +40,7 @@ fn file_exists(filename: &str) {
 }
 
 /// Open Sqlite pool connection, and return
-/// `max_connections` need to be 1, see https://github.com/launchbadge/sqlx/issues/816
+/// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)

@@ -1,3 +1,10 @@
+### Features
++ Dockerfile download binary from github, [6490866919bc36640cdbc5fb33ca9a7ba5b9d895]
+
+### Fixes
++ Aggressive linting, [82b2ea1b8a0effa7264e66e050c5ffb7555571ac]
+
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.0.1'>v0.0.1</a>
 ### 2022-05-30
 
