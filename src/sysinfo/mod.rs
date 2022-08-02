@@ -42,7 +42,7 @@ impl SysInfo {
             uptime: Self::get_uptime().await,
             uptime_app: match std::time::SystemTime::now().duration_since(app_envs.start_time) {
                 Ok(value) => value.as_secs(),
-                Err(_) => 0
+                Err(_) => 0,
             },
             version: env!("CARGO_PKG_VERSION").into(),
         }
@@ -53,6 +53,7 @@ impl SysInfo {
 //
 /// cargo watch -q -c -w src/ -x 'test sysinfo -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use crate::sql::init_db;
     use std::{fs, sync::Arc, time::SystemTime};
@@ -64,7 +65,7 @@ mod tests {
         file_name: &str,
         location_ip_address: String,
     ) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/ramdrive/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let na = String::from("na");
         let env = AppEnv {
             trace: false,
@@ -87,13 +88,13 @@ mod tests {
     }
 
     fn cleanup() {
-        fs::remove_dir_all("/ramdrive/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
     #[tokio::test]
     async fn sysinfo_getuptime_ok() {
         // FIXTURES
-        let _ = setup_test_db("sysinfo_getuptime_ok", "".to_owned()).await;
+        setup_test_db("sysinfo_getuptime_ok", "".to_owned()).await;
 
         // ACTIONS
         let result = SysInfo::get_uptime().await;

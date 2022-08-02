@@ -40,7 +40,7 @@ fn file_exists(filename: &str) {
 }
 
 /// Open Sqlite pool connection, and return
-/// max_connections need to be 1, see https://github.com/launchbadge/sqlx/issues/816
+/// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
@@ -94,6 +94,7 @@ pub enum ModelError {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 /// Sql Test
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
@@ -103,7 +104,7 @@ mod tests {
     use time::UtcOffset;
 
     fn cleanup() {
-        fs::remove_dir_all("/ramdrive/test_db_files/").unwrap()
+        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
     fn gen_args(timezone: String, hour_offset: i8, location_sqlite: String) -> AppEnv {
@@ -145,7 +146,7 @@ mod tests {
     #[tokio::test]
     async fn sql_mod_exists_nested_created() {
         // FIXTURES
-        let path = "/ramdrive/test_db_files/";
+        let path = "/dev/shm/test_db_files/";
         let name = format!("{path}/testing_file.db");
 
         // ACTION
@@ -158,7 +159,7 @@ mod tests {
         assert!(dir_exists);
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 
     #[tokio::test]
@@ -177,7 +178,7 @@ mod tests {
     #[tokio::test]
     async fn sql_mod_db_created() {
         // FIXTURES
-        let sql_name = String::from("/ramdrive/test_db_files/sql_file_db_created.db");
+        let sql_name = String::from("/dev/shm/test_db_files/sql_file_db_created.db");
         let sql_sham = format!("{sql_name}-shm");
         let sql_wal = format!("{sql_name}-wal");
 
@@ -192,13 +193,13 @@ mod tests {
         assert!(fs::metadata(&sql_wal).is_ok());
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 
     #[tokio::test]
     async fn sql_mod_db_created_with_timezone() {
         // FIXTURES
-        let sql_name = String::from("/ramdrive/test_db_files/sql_file_db_created_with_timezone.db");
+        let sql_name = String::from("/dev/shm/test_db_files/sql_file_db_created_with_timezone.db");
         let timezone = "America/New_York";
         let args = gen_args(timezone.into(), -5, sql_name.clone());
         init_db(&args).await.unwrap();
@@ -223,6 +224,6 @@ mod tests {
         assert_eq!(result.4, 0);
 
         // CLEANUP
-        cleanup()
+        cleanup();
     }
 }

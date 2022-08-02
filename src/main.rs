@@ -1,3 +1,11 @@
+#![forbid(unsafe_code)]
+// Warning - These are indeed pedantic
+
+// #![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
+// #![warn(clippy::pedantic)]
+// #![warn(clippy::nursery)]
+// #![allow(clippy::module_name_repetitions, clippy::doc_markdown)]
+
 mod alarm_schedule;
 mod env;
 mod light;
@@ -26,7 +34,7 @@ fn close_signal(light_status: Arc<AtomicBool>) {
         light_status.store(false, Ordering::SeqCst);
         std::thread::sleep(std::time::Duration::from_millis(250));
         std::process::exit(1);
-    })
+    });
 }
 
 fn setup_tracing(app_envs: &AppEnv) {

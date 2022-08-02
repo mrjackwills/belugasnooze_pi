@@ -30,7 +30,7 @@ impl IncomingSerializer {
         if parsed.len() > 7 {
             return Err(de::Error::custom("too many days"));
         }
-        for i in parsed.iter() {
+        for i in &parsed {
             if !range.contains(i) {
                 return Err(de::Error::custom(format!("{} not in range {:?}", i, range)));
             }
@@ -85,6 +85,7 @@ impl IncomingSerializer {
 ///
 /// cargo watch -q -c -w src/ -x 'test incoming_serializer -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use serde::de::value::{Error as ValueError, StringDeserializer, U8Deserializer};
     use serde::de::{

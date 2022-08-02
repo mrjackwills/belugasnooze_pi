@@ -8,13 +8,13 @@ pub enum Color {
 }
 
 impl Color {
-    pub fn get(self) -> &'static str {
+    pub const fn get(self) -> &'static str {
         match self {
-            Color::BgRed => "\x1b[41m",
-            Color::Green => "\x1b[32m",
-            Color::Magenta => "\x1b[35m",
-            Color::Red => "\x1b[31m",
-            Color::Yellow => "\x1b[33m",
+            Self::BgRed => "\x1b[41m",
+            Self::Green => "\x1b[32m",
+            Self::Magenta => "\x1b[35m",
+            Self::Red => "\x1b[31m",
+            Self::Yellow => "\x1b[33m",
         }
     }
 }
@@ -27,7 +27,7 @@ pub enum FontName {
 }
 
 impl FontName {
-    pub fn get(self) -> &'static str {
+    pub const fn get(self) -> &'static str {
         match self {
             Self::Block => Self::get_block(),
             Self::Colossal => Self::get_colossal(),
@@ -35,7 +35,7 @@ impl FontName {
         }
     }
 
-    fn get_block() -> &'static str {
+    const fn get_block() -> &'static str {
         r#"flf2a$ 7 7 13 0 7 0 64 0
     Font Author: ?
     
@@ -760,7 +760,7 @@ impl FontName {
     @@"#
     }
 
-    fn get_roman() -> &'static str {
+    const fn get_roman() -> &'static str {
         r##"flf2a$ 10 10 30 -1 7
 Roman by Nick Miners N.M.Miners@durham.ac.uk
 June 1994
@@ -1791,7 +1791,7 @@ o888o Y8' $#
           $#"##
     }
 
-    fn get_colossal() -> &'static str {
+    const fn get_colossal() -> &'static str {
         r#"flf2a$ 11 8 20 32 13
 Colossal.flf (Jonathon - jon@mq.edu.au)
 8 June 1994

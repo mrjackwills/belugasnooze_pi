@@ -61,28 +61,22 @@ pub enum ErrorData {
 
 pub fn to_struct(input: &str) -> Option<MessageValues> {
     let user_serialized = serde_json::from_str::<StructuredMessage>(input);
-    match user_serialized {
-        Ok(data) => {
-            if let Some(data) = data.error {
-                return Some(MessageValues::Invalid(data));
-            }
-            if let Some(data) = data.data {
-                return Some(MessageValues::Valid(data));
-            }
-            None
+    if let Ok(data) = user_serialized {
+        if let Some(data) = data.error {
+            return Some(MessageValues::Invalid(data));
         }
-        Err(_) => {
-            let error_serialized = serde_json::from_str::<ErrorData>(input);
-            match error_serialized {
-                Ok(data) => {
-                    debug!("Matched error_serialized data");
-                    Some(MessageValues::Invalid(data))
-                }
-                Err(_) => {
-                    debug!("not a known input message");
-                    None
-                }
-            }
+        if let Some(data) = data.data {
+            return Some(MessageValues::Valid(data));
+        }
+        None
+    } else {
+        let error_serialized = serde_json::from_str::<ErrorData>(input);
+        if let Ok(data) = error_serialized {
+            debug!("Matched error_serialized data");
+            Some(MessageValues::Invalid(data))
+        } else {
+            debug!("not a known input message");
+            None
         }
     }
 }
@@ -91,6 +85,7 @@ pub fn to_struct(input: &str) -> Option<MessageValues> {
 ///
 /// cargo watch -q -c -w src/ -x 'test message_incoming -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

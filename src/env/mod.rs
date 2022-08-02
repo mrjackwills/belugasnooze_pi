@@ -88,7 +88,7 @@ impl AppEnv {
     fn parse_timezone(map: &EnvHashMap) -> String {
         if let Some(data) = map.get("TIMEZONE") {
             if timezones::get_by_name(data).is_some() {
-                return data.to_owned();
+                return data.clone();
             }
         }
         "Etc/UTC".to_owned()
@@ -106,7 +106,7 @@ impl AppEnv {
         default
     }
 
-    /// Load, and parse .env file, return AppEnv
+    /// Load, and parse .env file, return `AppEnv`
     async fn generate() -> Result<Self, EnvError> {
         let env_map = env::vars()
             .into_iter()
@@ -137,7 +137,7 @@ impl AppEnv {
 
     pub async fn get() -> Self {
         dotenv().ok();
-        match AppEnv::generate().await {
+        match Self::generate().await {
             Ok(s) => s,
             Err(e) => {
                 println!("\n\x1b[31m{}\x1b[0m\n", e);
@@ -151,6 +151,7 @@ impl AppEnv {
 ///
 /// cargo watch -q -c -w src/ -x 'test env_ -- --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -291,7 +292,7 @@ mod tests {
         let result = AppEnv::parse_offset(&map);
 
         // CHECK
-        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap())
+        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
     }
 
     #[tokio::test]
@@ -312,7 +313,7 @@ mod tests {
         let result = AppEnv::parse_offset(&map);
 
         // CHECK
-        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap())
+        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
     }
 
     #[tokio::test]

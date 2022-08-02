@@ -79,6 +79,7 @@ pub async fn ws_upgrade(app_envs: &AppEnv) -> Result<WsStream> {
 ///
 /// cargo watch -q -c -w src/ -x 'test ws_connect -- --test-threads=1 --nocapture'
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

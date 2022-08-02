@@ -31,6 +31,10 @@
 	</a>
 </p>
 
+## Required services
+
+1) <a href='https://www.staticpi.com/' target='_blank' rel='noopener noreferrer'>staticPi</a> - the simple and secure messaging service
+
 ## Required software
 
 1) <a href='https://www.docker.com/' target='_blank' rel='noopener noreferrer'>Docker</a> - container runner
