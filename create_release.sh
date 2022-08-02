@@ -121,11 +121,16 @@ update_release_body_and_changelog () {
 # update version in cargo.toml + docker-compose.yml, to match selected current version
 
 update_version_number_in_files () {
+	# Update Cargo.toml version
 	sed -i "s|^version = .*|version = \"${MAJOR}.${MINOR}.${PATCH}\"|" Cargo.toml
 
 	# update docker compose image version
 	sed -i -r -E "s=image: (\w+):[0-9]+\.[0-9]+\.[0-9]+=image: \1:${MAJOR}.${MINOR}.${PATCH}=g" .docker-compose.yml
+
+	# Update version number on api dockerfile, to download latest release from github
+	sed -i -r -E "s=download/v[0-9]+.[0-9]+.[0-9]+=download/v${MAJOR}.${MINOR}.${PATCH}=g" ./docker/dockerfile/api.Dockerfile
 }
+
 
 # Work out the current version, based on git tags
 # create new semver version based on user input
