@@ -125,7 +125,7 @@ impl AppEnv {
 
     pub async fn get() -> Self {
         let local_env = ".env";
-        let app_env = "/app_env/.api.env";
+        let app_env = "/app_env/.env";
 
         let env_path = if std::fs::metadata(app_env).is_ok() {
             app_env
