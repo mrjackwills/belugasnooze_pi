@@ -6,21 +6,28 @@ use std::fs;
 pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
-use anyhow::Result;
-use sqlx::{ConnectOptions, SqlitePool};
+use sqlx::{sqlite::SqliteJournalMode, ConnectOptions, SqlitePool};
 use tracing::error;
 
 use crate::env::AppEnv;
 
 /// If file doesn't exist on disk, create
+/// Probably can be removes, as sqlx has a setting to create file if not found
 fn file_exists(filename: &str) {
-    if !filename.ends_with(".db") {
+    if !std::path::Path::new(filename)
+        .extension()
+        .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+    {
         return;
     }
     if fs::metadata(filename).is_err() {
         let path = filename
             .split_inclusive('/')
-            .filter(|f| !f.ends_with(".db"))
+            .filter(|f| {
+                !std::path::Path::new(f)
+                    .extension()
+                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+            })
             .collect::<String>();
         match fs::create_dir_all(&path) {
             Ok(_) => (),
@@ -44,7 +51,7 @@ fn file_exists(filename: &str) {
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
-        .serialized(true);
+        .journal_mode(SqliteJournalMode::Wal);
     if !app_envs.trace {
         connect_options.disable_statement_logging();
     }
@@ -110,20 +117,18 @@ mod tests {
     fn gen_args(timezone: String, hour_offset: i8, location_sqlite: String) -> AppEnv {
         let na = String::from("na");
         AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone,
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone,
+            trace: false,
             utc_offset: UtcOffset::from_hms(hour_offset, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         }
     }
 
@@ -186,7 +191,6 @@ mod tests {
 
         // ACTION
         init_db(&args).await.unwrap();
-
         // CHECK
         assert!(fs::metadata(&sql_name).is_ok());
         assert!(fs::metadata(&sql_sham).is_ok());

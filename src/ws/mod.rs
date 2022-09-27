@@ -22,8 +22,8 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info, trace};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, env::AppEnv, light::LightControl, sql::ModelTimezone,
-    ws::ws_sender::WSSender,
+    alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, env::AppEnv,
+    light::LightControl, ws::ws_sender::WSSender,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -37,23 +37,22 @@ pub enum InternalMessage {
     Light,
 }
 
-/// handle each incoming ws message
+/// Handle each incoming ws message
 async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     loop {
         let mut ws = ws_sender.clone();
 
-        // server sends a ping every 30 seconds, so just wait 45 seconds for any message, if not received then break
+        // server sends a ping every 30 seconds, so just wait 40 seconds for any message, if not received then break
         let message_timeout =
-            tokio::time::timeout(std::time::Duration::from_secs(45), reader.try_next()).await;
+            tokio::time::timeout(std::time::Duration::from_secs(40), reader.try_next()).await;
 
         if let Ok(some_message) = message_timeout {
             match some_message {
                 Ok(Some(m)) => {
                     tokio::spawn(async move {
                         match m {
-                            m if m.is_close() => ws.close().await,
-                            m if m.is_text() => ws.on_text(m.to_string().as_str()).await,
-                            m if m.is_ping() => ws.ping().await,
+                            Message::Text(message) =>  ws.on_text(message).await,
+                            Message::Close(_) => ws.close().await,
                             _ => (),
                         };
                     });
@@ -78,6 +77,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     }
 }
 
+/// Send pi status message , and light status message to connect client, for when light turns off
 async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
     ws_sender.send_status().await;
     ws_sender.led_status().await;
@@ -86,7 +86,7 @@ async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sen
     }
 }
 
-// need to spawn a new receiver on each connect
+/// need to spawn a new receiver on each connect
 /// try to open WS connection, and spawn a ThreadChannel message handler
 pub async fn open_connection(
     cron_alarm: Arc<TokioMutex<AlarmSchedule>>,
@@ -94,13 +94,11 @@ pub async fn open_connection(
     db: Arc<SqlitePool>,
     light_status: Arc<AtomicBool>,
     sx: Sender<InternalMessage>,
-) {
+) -> Result<(), AppError> {
     let mut connection_details = ConnectionDetails::new();
     loop {
         info!("in connection loop, awaiting delay then try to connect");
         connection_details.reconnect_delay().await;
-
-        // something here with is_alive
 
         match ws_upgrade(&app_envs).await {
             Ok(socket) => {
@@ -115,14 +113,11 @@ pub async fn open_connection(
                 let allowable = 7u8..=22;
                 if allowable.contains(
                     &OffsetDateTime::now_utc()
-                        .to_offset(
-                            UtcOffset::from_hms(
-                                db_timezone.offset_hour,
-                                db_timezone.offset_minute,
-                                db_timezone.offset_second,
-                            )
-                            .unwrap(),
-                        )
+                        .to_offset(UtcOffset::from_hms(
+                            db_timezone.offset_hour,
+                            db_timezone.offset_minute,
+                            db_timezone.offset_second,
+                        )?)
                         .hour(),
                 ) {
                     LightControl::rainbow(Arc::clone(&light_status)).await;

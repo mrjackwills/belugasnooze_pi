@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-	Built in <a href='https://www.rust-lang.org/' target='_blank' rel='noopener noreferrer'>Rust</a>, with <a href='https://www.sqlite.org/' target='_blank' rel='noopener noreferrer'>SQLite</a>
+	Built in <a href='https://www.rust-lang.org/' target='_blank' rel='noopener noreferrer'>Rust</a>, using <a href='https://www.sqlite.org/' target='_blank' rel='noopener noreferrer'>SQLite</a>
 	<br>
 	<sub> See typescript branch for original, now not maintained, typescript version</sub>
 </p>
@@ -35,7 +35,7 @@
 
 1) <a href='https://www.staticpi.com/' target='_blank' rel='noopener noreferrer'>staticPi</a> - the simple and secure messaging service
 
-## Required software
+## Suggested software
 
 1) <a href='https://www.docker.com/' target='_blank' rel='noopener noreferrer'>Docker</a> - container runner
 
@@ -90,7 +90,7 @@ requires docker & <a href='https://github.com/cross-rs/cross' target='_blank' re
 
 ### 32bit pi (pi zero w)
 
-Designed for, tested, and fully working, and originally built for pi zero w, running Raspberry Pi OS 32 bit
+Designed for, tested, fully working, and originally built for pi zero w, running Raspberry Pi OS 32 bit
 
 ```cross build --target arm-unknown-linux-musleabihf --release```
 

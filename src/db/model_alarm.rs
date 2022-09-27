@@ -1,7 +1,8 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::fmt;
+
+use crate::app_error::AppError;
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelAlarm {
@@ -22,13 +23,14 @@ impl fmt::Display for ModelAlarm {
 }
 
 impl ModelAlarm {
-    pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>> {
+    pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>, AppError> {
         let sql = "SELECT * FROM alarm";
         let result = sqlx::query_as::<_, Self>(sql).fetch_all(db).await?;
+        // let alarms = all_alarms.into_iter().map(|i|(i.alarm_id.clone(), i)).collect::<HashMap<i64, ModelAlarm>>();
         Ok(result)
     }
 
-    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<Self> {
+    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<Self, AppError> {
         let sql = "INSERT INTO alarm(day, hour, minute) VALUES ($1, $2, $3) RETURNING alarm_id, day, hour, minute";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(data.0)
@@ -39,13 +41,13 @@ impl ModelAlarm {
         Ok(query)
     }
 
-    pub async fn delete(db: &SqlitePool, id: i64) -> Result<()> {
+    pub async fn delete(db: &SqlitePool, id: i64) -> Result<(), AppError> {
         let sql = "DELETE FROM alarm WHERE alarm_id = $1";
         sqlx::query(sql).bind(id).execute(db).await?;
         Ok(())
     }
 
-    pub async fn delete_all(db: &SqlitePool) -> Result<()> {
+    pub async fn delete_all(db: &SqlitePool) -> Result<(), AppError> {
         let sql = "DELETE FROM alarm";
         sqlx::query(sql).execute(db).await?;
         Ok(())
@@ -58,7 +60,7 @@ impl ModelAlarm {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{sql::init_db, AppEnv};
+    use crate::{db::init_db, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 
@@ -68,20 +70,18 @@ mod tests {
         let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let na = String::from("na");
         let env = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "America/New_York".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "America/New_York".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
-            ws_password: na,
-            sql_threads: 1,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
         let db = Arc::new(init_db(&env).await.unwrap());
         (db, env)
@@ -123,7 +123,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: day >= 0 AND day <= 6"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: day >= 0 AND day <= 6"
         );
         cleanup();
     }
@@ -141,7 +141,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: hour >= 0 AND hour <= 23"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: hour >= 0 AND hour <= 23"
         );
         cleanup();
     }
@@ -159,7 +159,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: minute >= 0 AND minute <= 59"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: minute >= 0 AND minute <= 59"
         );
         cleanup();
     }
@@ -190,7 +190,6 @@ mod tests {
     async fn model_alarm_delete_one_ok() {
         // FIXTURES
         let fixtures = setup_test_db("model_alarm_delete_one_ok").await;
-        // init_db(&args).await.unwrap();
         let data = (1, 10, 10);
         let alarm = ModelAlarm::add(&fixtures.0, data).await.unwrap();
 
