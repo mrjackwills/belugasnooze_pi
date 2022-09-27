@@ -1,5 +1,8 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.2'>v0.1.2</a>
+### 2022-09-27
+
 ### Fixes
-+ .env typo fix, [848a4a6b6fd5ce3ef80393bbfec190c1978e6290]
++ .env typo fix, [848a4a6b](https://github.com/mrjackwills/belugasnooze_pi/commit/848a4a6b6fd5ce3ef80393bbfec190c1978e6290),
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.1'>v0.1.1</a>
 ### 2022-09-27
