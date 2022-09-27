@@ -1,25 +1,27 @@
 #![forbid(unsafe_code)]
-// Warning - These are indeed pedantic
-
-// #![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
+#![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
+// Wanring - These are indeed pedantic
 // #![warn(clippy::pedantic)]
 // #![warn(clippy::nursery)]
 // #![allow(clippy::module_name_repetitions, clippy::doc_markdown)]
+// Only allow when debugging
+// #![allow(unused)]
 
 mod alarm_schedule;
+mod app_error;
+mod db;
 mod env;
 mod light;
-mod sql;
 mod sysinfo;
 mod word_art;
 mod ws;
 mod ws_messages;
 
 use alarm_schedule::CronAlarm;
-use anyhow::Result;
+use app_error::AppError;
+use db::init_db;
 use env::AppEnv;
 use simple_signal::{self, Signal};
-use sql::init_db;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -49,12 +51,11 @@ fn setup_tracing(app_envs: &AppEnv) {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), AppError> {
     let app_envs = AppEnv::get().await;
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
 
-    // Should probably handle this better
     let db = Arc::new(init_db(&app_envs).await?);
     let light_status = Arc::new(AtomicBool::new(false));
 
@@ -62,7 +63,7 @@ async fn main() -> Result<()> {
 
     let (sx, _keep_alive) = broadcast::channel(128);
 
-    let cron_alarm = CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await;
+    let cron_alarm = CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await?;
 
     open_connection(
         Arc::clone(&cron_alarm),
@@ -71,7 +72,7 @@ async fn main() -> Result<()> {
         Arc::clone(&light_status),
         sx,
     )
-    .await;
+    .await?;
 
     Ok(())
 }

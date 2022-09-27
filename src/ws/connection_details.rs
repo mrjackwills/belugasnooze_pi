@@ -18,7 +18,7 @@ enum Wait {
 }
 
 impl Wait {
-    const fn as_sec(&self) -> u64 {
+    const fn as_sec(&self) -> u8 {
         match self {
             Self::Short => 5,
             Self::Long => 60,
@@ -50,7 +50,7 @@ impl ConnectionDetails {
     pub async fn reconnect_delay(&self) {
         info!(self.count);
         if self.count > 0 {
-            sleep(Duration::from_secs(self.wait.as_sec())).await;
+            sleep(Duration::from_secs(u64::from(self.wait.as_sec()))).await;
         }
     }
 

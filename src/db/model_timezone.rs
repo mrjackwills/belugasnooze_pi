@@ -1,10 +1,9 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::fmt;
 use time::UtcOffset;
 
-use crate::env::AppEnv;
+use crate::{app_error::AppError, env::AppEnv};
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelTimezone {
@@ -51,7 +50,7 @@ impl ModelTimezone {
         }
     }
 
-    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self> {
+    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
         let sql = "INSERT INTO timezone (zone_name, offset_hour, offset_minute, offset_second) VALUES($1, $2, $3, $4) RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(&app_envs.timezone)
@@ -63,7 +62,11 @@ impl ModelTimezone {
         Ok(query)
     }
 
-    pub async fn update(db: &SqlitePool, zone_name: &str, offset: UtcOffset) -> Result<Self> {
+    pub async fn update(
+        db: &SqlitePool,
+        zone_name: &str,
+        offset: UtcOffset,
+    ) -> Result<Self, AppError> {
         let sql = "UPDATE timezone SET zone_name = $1, offset_hour = $2, offset_minute = $3, offset_second = $4 RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)
@@ -82,7 +85,7 @@ impl ModelTimezone {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::sql::{create_tables, file_exists, get_db, init_db};
+    use crate::db::{create_tables, file_exists, get_db, init_db};
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 
@@ -92,20 +95,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let env = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "America/New_York".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "America/New_York".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
         let db = Arc::new(init_db(&env).await.unwrap());
         (db, env)
@@ -121,20 +122,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "Europe/Berlin".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "Europe/Berlin".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         file_exists(&app_envs.location_sqlite);
@@ -155,20 +154,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "Europe/Berlin".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "Europe/Berlin".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         file_exists(&app_envs.location_sqlite);

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::{sql::ModelAlarm, sysinfo::SysInfo};
+use crate::{db::ModelAlarm, sysinfo::SysInfo};
 
 /// Basic pi info
 #[derive(Serialize, Deserialize, Debug, Clone)]
