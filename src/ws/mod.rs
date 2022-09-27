@@ -51,7 +51,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
                 Ok(Some(m)) => {
                     tokio::spawn(async move {
                         match m {
-                            Message::Text(message) =>  ws.on_text(message).await,
+                            Message::Text(message) => ws.on_text(message).await,
                             Message::Close(_) => ws.close().await,
                             _ => (),
                         };
