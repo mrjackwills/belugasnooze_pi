@@ -23,7 +23,7 @@ use tracing::{error, info, trace};
 
 use crate::{
     alarm_schedule::AlarmSchedule, env::AppEnv, light::LightControl, sql::ModelTimezone,
-    ws::ws_sender::WSSender,
+    ws::ws_sender::WSSender, app_error::AppError,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -94,7 +94,7 @@ pub async fn open_connection(
     db: Arc<SqlitePool>,
     light_status: Arc<AtomicBool>,
     sx: Sender<InternalMessage>,
-) {
+) -> Result<(), AppError> {
     let mut connection_details = ConnectionDetails::new();
     loop {
         info!("in connection loop, awaiting delay then try to connect");
@@ -121,7 +121,7 @@ pub async fn open_connection(
                                 db_timezone.offset_minute,
                                 db_timezone.offset_second,
                             )
-                            .unwrap(),
+                            ?,
                         )
                         .hour(),
                 ) {

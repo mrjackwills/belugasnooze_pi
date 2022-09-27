@@ -10,7 +10,7 @@ use tracing::trace;
 use crate::{
     light::LightControl,
     sql::{ModelAlarm, ModelTimezone},
-    ws::InternalMessage,
+    ws::InternalMessage, app_error::AppError,
 };
 
 #[derive(Debug)]
@@ -21,7 +21,7 @@ pub struct AlarmSchedule {
 }
 
 impl AlarmSchedule {
-    async fn new(db: &SqlitePool) -> Self {
+    async fn new(db: &SqlitePool) -> Result<Self, AppError> {
         let alarms = ModelAlarm::get_all(db).await.unwrap_or_default();
         let time_zone = ModelTimezone::get(db).await.unwrap_or_default();
 
@@ -29,14 +29,13 @@ impl AlarmSchedule {
             time_zone.offset_hour,
             time_zone.offset_minute,
             time_zone.offset_second,
-        )
-        .unwrap();
+        )?;
 
-        Self {
+        Ok(Self {
             alarms,
             time_zone,
             offset,
-        }
+        })
     }
 
     /// Remove all alarms from vector
@@ -89,8 +88,8 @@ impl CronAlarm {
         db: &SqlitePool,
         light_status: Arc<AtomicBool>,
         sx: Sender<InternalMessage>,
-    ) -> Arc<Mutex<AlarmSchedule>> {
-        let alarm_schedule = Arc::new(Mutex::new(AlarmSchedule::new(db).await));
+    ) -> Result<Arc<Mutex<AlarmSchedule>>, AppError> {
+        let alarm_schedule = Arc::new(Mutex::new(AlarmSchedule::new(db).await?));
         let mut looper = Self {
             alarm_schedule: Arc::clone(&alarm_schedule),
             light_status: Arc::clone(&light_status),
@@ -98,7 +97,7 @@ impl CronAlarm {
 
         tokio::spawn(async move { looper.init_loop(sx).await });
 
-        alarm_schedule
+        Ok(alarm_schedule)
     }
 
     /// loop every 1 second,check if current time & day matches alarm, and if so execute alarm illuminate

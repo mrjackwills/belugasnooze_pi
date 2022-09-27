@@ -1,22 +1,13 @@
 use dotenvy::dotenv;
 use std::{collections::HashMap, env, time::SystemTime};
-use thiserror::Error;
 use time::UtcOffset;
 use time_tz::{timezones, Offset, TimeZone};
 use tokio::fs;
-use tracing::error;
+
+use crate::app_error::AppError;
 
 type EnvHashMap = HashMap<String, String>;
 
-#[derive(Debug, Error)]
-enum EnvError {
-    #[error("missing env: '{0}'")]
-    NotFound(String),
-    #[error("'{0}' - sql file should end '.db'")]
-    DbNameInvalid(String),
-    #[error("'{0}' - file not found'")]
-    FileNotFound(String),
-}
 
 #[derive(Debug, Clone)]
 pub struct AppEnv {
@@ -38,10 +29,10 @@ pub struct AppEnv {
 
 impl AppEnv {
     /// Check a given file actually exists on the file system
-    async fn check_file_exists(filename: String) -> Result<String, EnvError> {
+    async fn check_file_exists(filename: String) -> Result<String, AppError> {
         match fs::metadata(&filename).await {
             Ok(_) => Ok(filename),
-            Err(_) => Err(EnvError::FileNotFound(filename)),
+            Err(_) => Err(AppError::FileNotFound(filename)),
         }
     }
 
@@ -54,34 +45,34 @@ impl AppEnv {
     }
 
     /// Make sure database file ends .db
-    fn parse_db_name(key: &str, map: &EnvHashMap) -> Result<String, EnvError> {
+    fn parse_db_name(key: &str, map: &EnvHashMap) -> Result<String, AppError> {
         match map.get(key) {
-            None => Err(EnvError::NotFound(key.into())),
+            None => Err(AppError::MissingEnv(key.into())),
             Some(value) => {
                 if value.ends_with(".db") {
                     return Ok(value.into());
                 }
-                Err(EnvError::DbNameInvalid(key.into()))
+                Err(AppError::DbNameInvalid(key.into()))
             }
         }
     }
 
     /// Return offset for given timezone, else utc
-    fn parse_offset(map: &EnvHashMap) -> UtcOffset {
+    fn parse_offset(map: &EnvHashMap) -> Result<UtcOffset, AppError> {
         if let Some(data) = map.get("TIMEZONE") {
             if let Some(value) = timezones::get_by_name(data) {
-                return value
+                return Ok(value
                     .get_offset_utc(&time::OffsetDateTime::now_utc())
-                    .to_utc();
+                    .to_utc())
             }
         }
-        UtcOffset::from_hms(0, 0, 0).unwrap()
+        Ok(UtcOffset::from_hms(0, 0, 0)?)
     }
 
-    fn parse_string(key: &str, map: &EnvHashMap) -> Result<String, EnvError> {
+    fn parse_string(key: &str, map: &EnvHashMap) -> Result<String, AppError> {
         match map.get(key) {
             Some(value) => Ok(value.into()),
-            None => Err(EnvError::NotFound(key.into())),
+            None => Err(AppError::MissingEnv(key.into())),
         }
     }
     /// Check that a given timezone is valid, else return UTC
@@ -107,7 +98,7 @@ impl AppEnv {
     }
 
     /// Load, and parse .env file, return `AppEnv`
-    async fn generate() -> Result<Self, EnvError> {
+    async fn generate() -> Result<Self, AppError> {
         let env_map = env::vars()
             .into_iter()
             .map(|i| (i.0, i.1))
@@ -126,7 +117,7 @@ impl AppEnv {
             debug: Self::parse_boolean("DEBUG", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
-            utc_offset: Self::parse_offset(&env_map),
+            utc_offset: Self::parse_offset(&env_map)?,
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,
             ws_token_address: Self::parse_string("WS_TOKEN_ADDRESS", &env_map)?,
@@ -241,7 +232,7 @@ mod tests {
         // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
-            EnvError::DbNameInvalid(value) => assert_eq!(value, "LOCATION_SQLITE"),
+            AppError::DbNameInvalid(value) => assert_eq!(value, "LOCATION_SQLITE"),
             _ => unreachable!(),
         }
     }
@@ -257,7 +248,7 @@ mod tests {
         // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
-            EnvError::NotFound(value) => assert_eq!(value, "LOCATION_SQLITE"),
+            AppError::MissingEnv(value) => assert_eq!(value, "LOCATION_SQLITE"),
             _ => unreachable!(),
         }
     }
@@ -270,7 +261,7 @@ mod tests {
         map.insert("TIMEZONE".to_owned(), "America/New_York".to_owned());
 
         // ACTION
-        let result = AppEnv::parse_offset(&map);
+        let result = AppEnv::parse_offset(&map).unwrap();
 
         // CHECK
         assert_eq!(result, UtcOffset::from_hms(-4, 0, 0).unwrap());
@@ -280,7 +271,7 @@ mod tests {
         map.insert("TIMEZONE".to_owned(), "Europe/Berlin".to_owned());
 
         // ACTION
-        let result = AppEnv::parse_offset(&map);
+        let result = AppEnv::parse_offset(&map).unwrap();
 
         // CHECK
         assert_eq!(result, UtcOffset::from_hms(2, 0, 0).unwrap());
@@ -289,7 +280,7 @@ mod tests {
         let map = HashMap::new();
 
         // ACTION
-        let result = AppEnv::parse_offset(&map);
+        let result = AppEnv::parse_offset(&map).unwrap();
 
         // CHECK
         assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
@@ -303,14 +294,14 @@ mod tests {
         map.insert("TIMEZONE".to_owned(), "america/New_York".to_owned());
 
         // ACTION
-        let result = AppEnv::parse_offset(&map);
+        let result = AppEnv::parse_offset(&map).unwrap();
         // CHECK
         assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
 
         // No timezone present
         // FIXTURES
         let map = HashMap::new();
-        let result = AppEnv::parse_offset(&map);
+        let result = AppEnv::parse_offset(&map).unwrap();
 
         // CHECK
         assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
@@ -403,7 +394,7 @@ mod tests {
         // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
-            EnvError::FileNotFound(value) => assert_eq!(value, "file.sql"),
+            AppError::FileNotFound(value) => assert_eq!(value, "file.sql"),
             _ => unreachable!(),
         }
     }

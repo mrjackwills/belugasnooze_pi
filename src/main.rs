@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-// #![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
+#![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
 // Wanring - These are indeed pedantic
 // #![warn(clippy::pedantic)]
 // #![warn(clippy::nursery)]
@@ -65,7 +65,7 @@ async fn main() -> Result<(), AppError> {
 
     let (sx, _keep_alive) = broadcast::channel(128);
 
-    let cron_alarm = CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await;
+    let cron_alarm = CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await?;
 
     open_connection(
         Arc::clone(&cron_alarm),
@@ -74,7 +74,7 @@ async fn main() -> Result<(), AppError> {
         Arc::clone(&light_status),
         sx,
     )
-    .await;
+    .await?;
 
     Ok(())
 }
