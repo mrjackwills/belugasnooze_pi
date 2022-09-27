@@ -11,9 +11,9 @@ services:
         - DOCKER_TIME_CONT=${DOCKER_TIME_CONT}
         - DOCKER_TIME_CITY=${DOCKER_TIME_CITY}
     container_name: belugasnooze
-    env_file: .env
     volumes:
        - $HOME/belugasnooze/db_data:/db_data
+       - $HOME/belugasnooze/.app.env:/app_env/.api.env:ro
        - /ramdrive/ip.addr:/ip_address/ip.addr:ro
     cap_drop:
       - all

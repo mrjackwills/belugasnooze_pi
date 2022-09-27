@@ -1,4 +1,3 @@
-use dotenvy::dotenv;
 use std::{collections::HashMap, env, time::SystemTime};
 use time::UtcOffset;
 use time_tz::{timezones, Offset, TimeZone};
@@ -125,7 +124,19 @@ impl AppEnv {
     }
 
     pub async fn get() -> Self {
-        dotenv().ok();
+		let local_env = ".env";
+        let app_env = "/app_env/.api.env";
+
+        let env_path = if std::fs::metadata(app_env).is_ok() {
+            app_env
+        } else if std::fs::metadata(local_env).is_ok() {
+            local_env
+        } else {
+			println!("\n\x1b[31munable to load env file\x1b[0m\n");
+			std::process::exit(1);
+        };
+
+        dotenvy::from_path(env_path).ok();
         match Self::generate().await {
             Ok(s) => s,
             Err(e) => {
@@ -366,7 +377,7 @@ mod tests {
     #[tokio::test]
     async fn env_return_appenv() {
         // FIXTURES
-        dotenv().ok();
+		dotenvy::dotenv().ok();
 
         // ACTION
         let result = AppEnv::generate().await;
