@@ -37,7 +37,7 @@ pub enum InternalMessage {
     Light,
 }
 
-/// handle each incoming ws message
+/// Handle each incoming ws message
 async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     loop {
         let mut ws = ws_sender.clone();
@@ -51,9 +51,8 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
                 Ok(Some(m)) => {
                     tokio::spawn(async move {
                         match m {
-                            m if m.is_close() => ws.close().await,
-                            m if m.is_text() => ws.on_text(m.to_string().as_str()).await,
-                            // m if m.is_ping() => ws.ping().await,
+                            Message::Text(message) =>  ws.on_text(message).await,
+                            Message::Close(_) => ws.close().await,
                             _ => (),
                         };
                     });
@@ -78,6 +77,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     }
 }
 
+/// Send pi status message , and light status message to connect client, for when light turns off
 async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
     ws_sender.send_status().await;
     ws_sender.led_status().await;
@@ -99,8 +99,6 @@ pub async fn open_connection(
     loop {
         info!("in connection loop, awaiting delay then try to connect");
         connection_details.reconnect_delay().await;
-
-        // something here with is_alive
 
         match ws_upgrade(&app_envs).await {
             Ok(socket) => {
