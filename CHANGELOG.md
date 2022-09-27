@@ -1,3 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.2'>v0.1.2</a>
+### 2022-09-27
+
+### Fixes
++ .env typo fix, [848a4a6b](https://github.com/mrjackwills/belugasnooze_pi/commit/848a4a6b6fd5ce3ef80393bbfec190c1978e6290),
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.1'>v0.1.1</a>
 ### 2022-09-27
 
@@ -16,7 +22,7 @@
 
 ### Chores
 + anyhow import removed, [e2982862](https://github.com/mrjackwills/belugasnooze_pi/commit/e2982862903d96b4e2de95b182c6adcdbcb69ff0),
-+ dependenices updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561),, [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
++ dependenices updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561), [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
 
 ### Features
 + use new staticpi protocol, [c335e530](https://github.com/mrjackwills/belugasnooze_pi/commit/c335e530f70cbf1c803552be64f766bff152ef6b),
