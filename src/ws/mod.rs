@@ -22,8 +22,8 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info, trace};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, app_error::AppError, env::AppEnv, light::LightControl,
-    db::ModelTimezone, ws::ws_sender::WSSender,
+    alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, env::AppEnv,
+    light::LightControl, ws::ws_sender::WSSender,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;

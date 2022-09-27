@@ -26,7 +26,7 @@ impl ModelAlarm {
     pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>, AppError> {
         let sql = "SELECT * FROM alarm";
         let result = sqlx::query_as::<_, Self>(sql).fetch_all(db).await?;
-		// let alarms = all_alarms.into_iter().map(|i|(i.alarm_id.clone(), i)).collect::<HashMap<i64, ModelAlarm>>();
+        // let alarms = all_alarms.into_iter().map(|i|(i.alarm_id.clone(), i)).collect::<HashMap<i64, ModelAlarm>>();
         Ok(result)
     }
 
@@ -70,20 +70,18 @@ mod tests {
         let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let na = String::from("na");
         let env = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "America/New_York".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "America/New_York".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 1,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
         let db = Arc::new(init_db(&env).await.unwrap());
         (db, env)

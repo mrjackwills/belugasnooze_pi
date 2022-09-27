@@ -10,20 +10,18 @@ type EnvHashMap = HashMap<String, String>;
 
 #[derive(Debug, Clone)]
 pub struct AppEnv {
-    pub sql_threads: u32,
-    pub trace: bool,
-    pub location_ip_address: String,
-    pub location_log_combined: String,
-    pub location_log_error: String,
-    pub location_sqlite: String,
     pub debug: bool,
+    pub location_ip_address: String,
+    pub location_sqlite: String,
+    pub sql_threads: u32,
     pub start_time: SystemTime,
     pub timezone: String,
+    pub trace: bool,
     pub utc_offset: UtcOffset,
     pub ws_address: String,
     pub ws_apikey: String,
-    pub ws_token_address: String,
     pub ws_password: String,
+    pub ws_token_address: String,
 }
 
 impl AppEnv {
@@ -107,24 +105,18 @@ impl AppEnv {
             .collect::<HashMap<String, String>>();
 
         Ok(Self {
-            trace: Self::parse_boolean("TRACE", &env_map),
-            location_ip_address: Self::check_file_exists(Self::parse_string(
-                "LOCATION_IP_ADDRESS",
-                &env_map,
-            )?)
-            .await?,
-            location_log_combined: Self::parse_string("LOCATION_LOG_COMBINED", &env_map)?,
-            location_log_error: Self::parse_string("LOCATION_LOG_ERROR", &env_map)?,
-            location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             debug: Self::parse_boolean("DEBUG", &env_map),
+            location_ip_address: Self::check_file_exists(Self::parse_string("LOCATION_IP_ADDRESS",&env_map)?).await?,
+            location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
+            sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
+            trace: Self::parse_boolean("TRACE", &env_map),
             utc_offset: Self::parse_offset(&env_map)?,
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,
-            ws_token_address: Self::parse_string("WS_TOKEN_ADDRESS", &env_map)?,
             ws_password: Self::parse_string("WS_PASSWORD", &env_map)?,
-            sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
+            ws_token_address: Self::parse_string("WS_TOKEN_ADDRESS", &env_map)?,
         })
     }
 

@@ -86,20 +86,18 @@ mod tests {
     fn word_art_display_intro_trace() {
         let na = String::from("na");
         let args = AppEnv {
-            trace: true,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            location_log_error: na.clone(),
-            timezone: na.clone(),
-            location_sqlite: na.clone(),
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite: na.clone(),
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: na.clone(),
+            trace: true,
             utc_offset: UtcOffset::from_hms(0, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na
         };
 
         let result = display_intro(&args);
@@ -111,20 +109,18 @@ mod tests {
     fn word_art_display_intro_debug() {
         let na = String::from("na");
         let args = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            location_log_error: na.clone(),
-            timezone: na.clone(),
-            location_sqlite: na.clone(),
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite: na.clone(),
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: na.clone(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(0, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         let result = display_intro(&args);
@@ -136,20 +132,18 @@ mod tests {
     fn word_art_display_intro() {
         let na = String::from("na");
         let args = AppEnv {
-            trace: false,
-            timezone: na.clone(),
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            location_log_error: na.clone(),
-            location_sqlite: na.clone(),
             debug: false,
+            location_ip_address: na.clone(),
+            location_sqlite: na.clone(),
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: na.clone(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(0, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         let result = display_intro(&args);

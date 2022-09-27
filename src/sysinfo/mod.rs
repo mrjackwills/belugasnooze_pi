@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use tokio::fs::read_to_string;
 
-use crate::{env::AppEnv, db::ModelTimezone};
+use crate::{db::ModelTimezone, env::AppEnv};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SysInfo {
@@ -68,20 +68,18 @@ mod tests {
         let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let na = String::from("na");
         let env = AppEnv {
-            trace: false,
-            location_ip_address,
-            location_log_combined: na.clone(),
-            timezone: "America/New_York".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address,
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "America/New_York".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 1,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
         let db = Arc::new(init_db(&env).await.unwrap());
         (db, env)

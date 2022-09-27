@@ -95,20 +95,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
         let env = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "America/New_York".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "America/New_York".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
         let db = Arc::new(init_db(&env).await.unwrap());
         (db, env)
@@ -124,20 +122,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "Europe/Berlin".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "Europe/Berlin".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         file_exists(&app_envs.location_sqlite);
@@ -158,20 +154,18 @@ mod tests {
         let na = String::from("na");
         let location_sqlite = String::from("/dev/shm/test_db_files/model_timezone_insert_ok.db");
         let app_envs = AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone: "Europe/Berlin".to_owned(),
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone: "Europe/Berlin".to_owned(),
+            trace: false,
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         };
 
         file_exists(&app_envs.location_sqlite);

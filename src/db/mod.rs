@@ -6,7 +6,7 @@ use std::fs;
 pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
-use sqlx::{ConnectOptions, SqlitePool, sqlite::SqliteJournalMode};
+use sqlx::{sqlite::SqliteJournalMode, ConnectOptions, SqlitePool};
 use tracing::error;
 
 use crate::env::AppEnv;
@@ -45,13 +45,12 @@ fn file_exists(filename: &str) {
     };
 }
 
-
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
-		.journal_mode(SqliteJournalMode::Wal);
+        .journal_mode(SqliteJournalMode::Wal);
     if !app_envs.trace {
         connect_options.disable_statement_logging();
     }
@@ -117,20 +116,18 @@ mod tests {
     fn gen_args(timezone: String, hour_offset: i8, location_sqlite: String) -> AppEnv {
         let na = String::from("na");
         AppEnv {
-            trace: false,
-            location_ip_address: na.clone(),
-            location_log_combined: na.clone(),
-            timezone,
-            location_log_error: na.clone(),
-            location_sqlite,
             debug: true,
+            location_ip_address: na.clone(),
+            location_sqlite,
+            sql_threads: 1,
             start_time: SystemTime::now(),
+            timezone,
+            trace: false,
             utc_offset: UtcOffset::from_hms(hour_offset, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_token_address: na.clone(),
-            ws_password: na,
-            sql_threads: 2,
+            ws_password: na.clone(),
+            ws_token_address: na,
         }
     }
 
@@ -192,7 +189,7 @@ mod tests {
         let args = gen_args("America/New_York".into(), -5, sql_name.clone());
 
         // ACTION
-		init_db(&args).await.unwrap();
+        init_db(&args).await.unwrap();
         // CHECK
         assert!(fs::metadata(&sql_name).is_ok());
         assert!(fs::metadata(&sql_sham).is_ok());

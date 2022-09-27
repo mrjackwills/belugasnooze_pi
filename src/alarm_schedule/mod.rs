@@ -9,8 +9,8 @@ use tracing::trace;
 
 use crate::{
     app_error::AppError,
-    light::LightControl,
     db::{ModelAlarm, ModelTimezone},
+    light::LightControl,
     ws::InternalMessage,
 };
 
