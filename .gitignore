@@ -2,5 +2,5 @@
 **/*.env
 belugasnooze
 ip.addr
-alarms.db
 Cargo.lock
+alarms.db*

@@ -1,3 +1,12 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.1'>v0.1.1</a>
+### 2022-09-27
+
+### Chores
++ .gitignore updated, [5002bd5c](https://github.com/mrjackwills/belugasnooze_pi/commit/5002bd5c5ad720c03233195ef91e23d0b293a8e5),
+
+### Features
++ read env from a docker Read Only mount, or local.env, [cc0adf60](https://github.com/mrjackwills/belugasnooze_pi/commit/cc0adf608fdd8637b0b9644accfdc61a6ddaab4f),
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.0'>v0.1.0</a>
 ### 2022-09-27
 

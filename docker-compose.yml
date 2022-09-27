@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   belugasnooze_pi_client:
-    image: belugasnooze_pi_client:0.1.0
+    image: belugasnooze_pi_client:0.1.1
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,9 +11,9 @@ services:
         - DOCKER_TIME_CONT=${DOCKER_TIME_CONT}
         - DOCKER_TIME_CITY=${DOCKER_TIME_CITY}
     container_name: belugasnooze
-    env_file: .env
     volumes:
        - $HOME/belugasnooze/db_data:/db_data
+       - $HOME/belugasnooze/.app.env:/app_env/.api.env:ro
        - /ramdrive/ip.addr:/ip_address/ip.addr:ro
     cap_drop:
       - all
