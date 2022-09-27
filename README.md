@@ -23,7 +23,7 @@
 ## Required Hardware
 
 1) Raspberry pi - designed for, tested, and fully working, a <a href='https://www.raspberrypi.com/products/raspberry-pi-zero-w/' target='_blank' rel='noopener noreferrer'>Raspbery pi zero w</a>
-2) Pimoroni <a href='https://shop.pimoroni.com/products/blinkt' target='_blank' rel='noopener noreferrer'>Blintk!</a> led strip
+2) Pimoroni <a href='https://shop.pimoroni.com/products/blinkt' target='_blank' rel='noopener noreferrer'>Blinkt!</a> led strip
 
 <p align="center">
 	<a href="https://raw.githubusercontent.com/mrjackwills/belugasnooze_pi/main/.github/pi_photo.jpg" target='_blank' rel='noopener noreferrer'>
