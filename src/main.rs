@@ -19,7 +19,6 @@ mod ws_messages;
 
 use alarm_schedule::CronAlarm;
 use app_error::AppError;
-// //use anyhow::Result;
 use env::AppEnv;
 use simple_signal::{self, Signal};
 use db::init_db;

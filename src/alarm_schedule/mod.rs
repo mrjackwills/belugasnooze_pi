@@ -23,7 +23,7 @@ pub struct AlarmSchedule {
 
 impl AlarmSchedule {
     async fn new(db: &SqlitePool) -> Result<Self, AppError> {
-        let alarms = ModelAlarm::get_all(db).await.unwrap_or_default();
+        let alarms = ModelAlarm::get_all(db).await?;
         let time_zone = ModelTimezone::get(db).await.unwrap_or_default();
 
         let offset = UtcOffset::from_hms(
