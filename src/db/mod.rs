@@ -12,6 +12,7 @@ use tracing::error;
 use crate::env::AppEnv;
 
 /// If file doesn't exist on disk, create
+/// Probably can be removes, as sqlx has a setting to create file if not found
 fn file_exists(filename: &str) {
     if !std::path::Path::new(filename)
         .extension()

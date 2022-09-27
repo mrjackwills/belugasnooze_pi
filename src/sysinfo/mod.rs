@@ -6,7 +6,6 @@ use crate::{db::ModelTimezone, env::AppEnv};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SysInfo {
-    // Actually only need to send time_zone, and let front end js work out the time based on timezone alone
     pub uptime: usize,
     pub version: String,
     pub internal_ip: String,

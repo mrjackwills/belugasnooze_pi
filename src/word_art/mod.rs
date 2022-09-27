@@ -97,7 +97,7 @@ mod tests {
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
-            ws_token_address: na
+            ws_token_address: na,
         };
 
         let result = display_intro(&args);

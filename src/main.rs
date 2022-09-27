@@ -56,7 +56,6 @@ async fn main() -> Result<(), AppError> {
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
 
-    // Should probably handle this better
     let db = Arc::new(init_db(&app_envs).await?);
     let light_status = Arc::new(AtomicBool::new(false));
 

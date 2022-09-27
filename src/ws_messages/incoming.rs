@@ -52,13 +52,14 @@ struct StructuredMessage {
     unique: Option<String>,
 }
 
-// TODO
+// TODO - this is, at the moment, pointless
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "snake_case", tag = "error", content = "message")]
 pub enum ErrorData {
     Something(String),
 }
 
+// Change this to a Result<MessageValues, AppError>?
 pub fn to_struct(input: &str) -> Option<MessageValues> {
     let user_serialized = serde_json::from_str::<StructuredMessage>(input);
     if let Ok(data) = user_serialized {

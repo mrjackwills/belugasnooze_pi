@@ -106,7 +106,11 @@ impl AppEnv {
 
         Ok(Self {
             debug: Self::parse_boolean("DEBUG", &env_map),
-            location_ip_address: Self::check_file_exists(Self::parse_string("LOCATION_IP_ADDRESS",&env_map)?).await?,
+            location_ip_address: Self::check_file_exists(Self::parse_string(
+                "LOCATION_IP_ADDRESS",
+                &env_map,
+            )?)
+            .await?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
