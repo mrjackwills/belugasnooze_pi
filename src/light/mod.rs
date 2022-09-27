@@ -12,6 +12,17 @@ use tokio::sync::broadcast::Sender;
 use tokio::time::{sleep, Instant};
 use tracing::debug;
 
+const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
+    (255, 0, 0),
+    (255, 127, 0),
+    (255, 255, 0),
+    (0, 255, 0),
+    (0, 0, 255),
+    (39, 0, 51),
+    (139, 0, 255),
+    (255, 255, 255),
+];
+
 pub struct LightControl;
 
 #[derive(Debug)]
@@ -149,23 +160,12 @@ impl LightControl {
     /// Loop over array of rgb colors, send each to the led strip one at a time
     pub async fn rainbow(x: Arc<AtomicBool>) {
         if !x.load(Ordering::SeqCst) {
-            let rainbow_colors = [
-                (255, 0, 0),
-                (255, 127, 0),
-                (255, 255, 0),
-                (0, 255, 0),
-                (0, 0, 255),
-                (39, 0, 51),
-                (139, 0, 255),
-                (255, 255, 255),
-            ];
-
-            for (pixel, color) in rainbow_colors.into_iter().enumerate() {
+            for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
                 Self::show_rainbow(pixel, color).await;
             }
 
-            for (pixel, color) in rainbow_colors.into_iter().rev().enumerate() {
-                Self::show_rainbow(rainbow_colors.len() - 1 - pixel, color).await;
+            for (pixel, color) in RAINBOW_COLORS.into_iter().rev().enumerate() {
+                Self::show_rainbow(RAINBOW_COLORS.len() - 1 - pixel, color).await;
             }
         }
     }
