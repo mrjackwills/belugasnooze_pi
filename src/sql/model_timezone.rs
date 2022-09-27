@@ -103,7 +103,7 @@ mod tests {
             utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
+            ws_token_address: na.clone(),
             ws_password: na,
             sql_threads: 2,
         };
@@ -132,7 +132,7 @@ mod tests {
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
+            ws_token_address: na.clone(),
             ws_password: na,
             sql_threads: 2,
         };
@@ -166,7 +166,7 @@ mod tests {
             utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
-            ws_auth_address: na.clone(),
+            ws_token_address: na.clone(),
             ws_password: na,
             sql_threads: 2,
         };

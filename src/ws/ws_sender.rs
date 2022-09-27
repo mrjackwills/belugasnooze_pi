@@ -9,7 +9,7 @@ use std::sync::{
 use std::time::Instant;
 use time_tz::{timezones, Offset, TimeZone};
 use tokio::sync::{broadcast::Sender, Mutex as TokioMutex};
-use tokio_tungstenite::{self, tungstenite::Message};
+// use tokio_tungstenite;
 use tracing::{debug, error, trace};
 
 use crate::alarm_schedule::AlarmSchedule;
@@ -76,7 +76,6 @@ impl WSSender {
             }
         }
     }
-    // }
 
     /// Add a new alarm to database, and update alarm_schedule alarm vector
     async fn add_alarm(&mut self, day: Vec<u8>, hour: u8, minute: u8) {
@@ -98,15 +97,15 @@ impl WSSender {
         self.send_status().await;
     }
 
-    // / Handle websocket close event
-    pub async fn ping(self) {
-        self.writer
-            .lock()
-            .await
-            .send(Message::Pong(vec![]))
-            .await
-            .unwrap_or(());
-    }
+    // /// Handle websocket close event
+    // pub async fn ping(self) {
+    //     self.writer
+    //         .lock()
+    //         .await
+    //         .send(Message::Pong(vec![]))
+    //         .await
+    //         .unwrap_or(());
+    // }
 
     /// Delete all alarms in database, and update alarm_schedule alarm vector
     /// If the alarm sequence has started, and you delete all alarms, the light is still on

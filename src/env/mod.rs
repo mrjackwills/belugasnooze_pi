@@ -1,4 +1,4 @@
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use std::{collections::HashMap, env, time::SystemTime};
 use thiserror::Error;
 use time::UtcOffset;
@@ -32,7 +32,7 @@ pub struct AppEnv {
     pub utc_offset: UtcOffset,
     pub ws_address: String,
     pub ws_apikey: String,
-    pub ws_auth_address: String,
+    pub ws_token_address: String,
     pub ws_password: String,
 }
 
@@ -129,7 +129,7 @@ impl AppEnv {
             utc_offset: Self::parse_offset(&env_map),
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,
-            ws_auth_address: Self::parse_string("WS_AUTH_ADDRESS", &env_map)?,
+            ws_token_address: Self::parse_string("WS_TOKEN_ADDRESS", &env_map)?,
             ws_password: Self::parse_string("WS_PASSWORD", &env_map)?,
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
         })

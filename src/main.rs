@@ -1,10 +1,11 @@
 #![forbid(unsafe_code)]
-// Warning - These are indeed pedantic
-
 // #![warn(clippy::unused_async, clippy::unwrap_used, clippy::expect_used)]
+// Wanring - These are indeed pedantic
 // #![warn(clippy::pedantic)]
 // #![warn(clippy::nursery)]
 // #![allow(clippy::module_name_repetitions, clippy::doc_markdown)]
+// Only allow when debugging
+// #![allow(unused)]
 
 mod alarm_schedule;
 mod env;

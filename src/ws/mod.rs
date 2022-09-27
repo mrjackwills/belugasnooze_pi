@@ -42,9 +42,9 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     loop {
         let mut ws = ws_sender.clone();
 
-        // server sends a ping every 30 seconds, so just wait 45 seconds for any message, if not received then break
+        // server sends a ping every 30 seconds, so just wait 40 seconds for any message, if not received then break
         let message_timeout =
-            tokio::time::timeout(std::time::Duration::from_secs(45), reader.try_next()).await;
+            tokio::time::timeout(std::time::Duration::from_secs(40), reader.try_next()).await;
 
         if let Ok(some_message) = message_timeout {
             match some_message {
@@ -53,7 +53,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
                         match m {
                             m if m.is_close() => ws.close().await,
                             m if m.is_text() => ws.on_text(m.to_string().as_str()).await,
-                            m if m.is_ping() => ws.ping().await,
+                            // m if m.is_ping() => ws.ping().await,
                             _ => (),
                         };
                     });
@@ -86,7 +86,7 @@ async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sen
     }
 }
 
-// need to spawn a new receiver on each connect
+/// need to spawn a new receiver on each connect
 /// try to open WS connection, and spawn a ThreadChannel message handler
 pub async fn open_connection(
     cron_alarm: Arc<TokioMutex<AlarmSchedule>>,
