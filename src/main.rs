@@ -8,6 +8,7 @@
 // #![allow(unused)]
 
 mod alarm_schedule;
+mod app_error;
 mod env;
 mod light;
 mod sql;
@@ -17,7 +18,8 @@ mod ws;
 mod ws_messages;
 
 use alarm_schedule::CronAlarm;
-use anyhow::Result;
+use app_error::AppError;
+// //use anyhow::Result;
 use env::AppEnv;
 use simple_signal::{self, Signal};
 use sql::init_db;
@@ -50,7 +52,7 @@ fn setup_tracing(app_envs: &AppEnv) {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), AppError> {
     let app_envs = AppEnv::get().await;
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();

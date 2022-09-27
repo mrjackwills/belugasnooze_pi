@@ -1,7 +1,9 @@
-use anyhow::Result;
+//use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::fmt;
+
+use crate::app_error::AppError;
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelAlarm {
@@ -22,13 +24,13 @@ impl fmt::Display for ModelAlarm {
 }
 
 impl ModelAlarm {
-    pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>> {
+    pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>, AppError> {
         let sql = "SELECT * FROM alarm";
         let result = sqlx::query_as::<_, Self>(sql).fetch_all(db).await?;
         Ok(result)
     }
 
-    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<Self> {
+    pub async fn add(db: &SqlitePool, data: (u8, u8, u8)) -> Result<Self, AppError> {
         let sql = "INSERT INTO alarm(day, hour, minute) VALUES ($1, $2, $3) RETURNING alarm_id, day, hour, minute";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(data.0)
@@ -39,13 +41,13 @@ impl ModelAlarm {
         Ok(query)
     }
 
-    pub async fn delete(db: &SqlitePool, id: i64) -> Result<()> {
+    pub async fn delete(db: &SqlitePool, id: i64) -> Result<(), AppError> {
         let sql = "DELETE FROM alarm WHERE alarm_id = $1";
         sqlx::query(sql).bind(id).execute(db).await?;
         Ok(())
     }
 
-    pub async fn delete_all(db: &SqlitePool) -> Result<()> {
+    pub async fn delete_all(db: &SqlitePool) -> Result<(), AppError> {
         let sql = "DELETE FROM alarm";
         sqlx::query(sql).execute(db).await?;
         Ok(())

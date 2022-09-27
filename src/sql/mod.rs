@@ -6,7 +6,7 @@ use std::fs;
 pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
-use anyhow::Result;
+//use anyhow::Result;
 use sqlx::{ConnectOptions, SqlitePool};
 use tracing::error;
 

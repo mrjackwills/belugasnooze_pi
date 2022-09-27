@@ -1,10 +1,10 @@
-use anyhow::Result;
+//use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::fmt;
 use time::UtcOffset;
 
-use crate::env::AppEnv;
+use crate::{env::AppEnv, app_error::AppError};
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelTimezone {
@@ -51,7 +51,7 @@ impl ModelTimezone {
         }
     }
 
-    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self> {
+    pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
         let sql = "INSERT INTO timezone (zone_name, offset_hour, offset_minute, offset_second) VALUES($1, $2, $3, $4) RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(&app_envs.timezone)
@@ -63,7 +63,7 @@ impl ModelTimezone {
         Ok(query)
     }
 
-    pub async fn update(db: &SqlitePool, zone_name: &str, offset: UtcOffset) -> Result<Self> {
+    pub async fn update(db: &SqlitePool, zone_name: &str, offset: UtcOffset) -> Result<Self, AppError> {
         let sql = "UPDATE timezone SET zone_name = $1, offset_hour = $2, offset_minute = $3, offset_second = $4 RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)

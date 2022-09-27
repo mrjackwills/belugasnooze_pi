@@ -1,4 +1,3 @@
-use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::{
     self, connect_async,
@@ -6,7 +5,7 @@ use tokio_tungstenite::{
         http::StatusCode,
     },
 };
-use crate::env::AppEnv;
+use crate::{env::AppEnv, app_error::AppError};
 use super::WsStream;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,7 +20,7 @@ struct PostResponse {
 }
 
 /// Make a http request to get an access token
-async fn get_auth_token(app_envs: &AppEnv) -> Result<String> {
+async fn get_auth_token(app_envs: &AppEnv) -> Result<String, AppError> {
     let new_post = PostRequest {
         key: &app_envs.ws_apikey,
         password: &app_envs.ws_password,
@@ -37,12 +36,12 @@ async fn get_auth_token(app_envs: &AppEnv) -> Result<String> {
 }
 
 /// Connect to wesbsocket server
-pub async fn ws_upgrade(app_envs: &AppEnv) -> Result<WsStream> {
+pub async fn ws_upgrade(app_envs: &AppEnv) -> Result<WsStream, AppError> {
     let url = format!("{}/{}", app_envs.ws_address, get_auth_token(app_envs).await?);
     let (socket, response) = connect_async(url).await?;
     match response.status() {
         StatusCode::SWITCHING_PROTOCOLS => Ok(socket),
-        _ => Err(anyhow!("Invalid status code")),
+        _ => Err(AppError::WsStatus),
     }
 }
 
