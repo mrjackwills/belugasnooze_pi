@@ -7,20 +7,27 @@ pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
 //use anyhow::Result;
-use sqlx::{ConnectOptions, SqlitePool};
+use sqlx::{ConnectOptions, SqlitePool, sqlite::SqliteJournalMode};
 use tracing::error;
 
 use crate::env::AppEnv;
 
 /// If file doesn't exist on disk, create
 fn file_exists(filename: &str) {
-    if !filename.ends_with(".db") {
+    if !std::path::Path::new(filename)
+        .extension()
+        .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+    {
         return;
     }
     if fs::metadata(filename).is_err() {
         let path = filename
             .split_inclusive('/')
-            .filter(|f| !f.ends_with(".db"))
+            .filter(|f| {
+                !std::path::Path::new(f)
+                    .extension()
+                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+            })
             .collect::<String>();
         match fs::create_dir_all(&path) {
             Ok(_) => (),
@@ -39,12 +46,13 @@ fn file_exists(filename: &str) {
     };
 }
 
+
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
-        .serialized(true);
+		.journal_mode(SqliteJournalMode::Wal);
     if !app_envs.trace {
         connect_options.disable_statement_logging();
     }
@@ -185,8 +193,7 @@ mod tests {
         let args = gen_args("America/New_York".into(), -5, sql_name.clone());
 
         // ACTION
-        init_db(&args).await.unwrap();
-
+		init_db(&args).await.unwrap();
         // CHECK
         assert!(fs::metadata(&sql_name).is_ok());
         assert!(fs::metadata(&sql_sham).is_ok());

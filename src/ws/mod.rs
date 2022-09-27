@@ -22,8 +22,8 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info, trace};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, env::AppEnv, light::LightControl, sql::ModelTimezone,
-    ws::ws_sender::WSSender, app_error::AppError,
+    alarm_schedule::AlarmSchedule, app_error::AppError, env::AppEnv, light::LightControl,
+    db::ModelTimezone, ws::ws_sender::WSSender,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -115,14 +115,11 @@ pub async fn open_connection(
                 let allowable = 7u8..=22;
                 if allowable.contains(
                     &OffsetDateTime::now_utc()
-                        .to_offset(
-                            UtcOffset::from_hms(
-                                db_timezone.offset_hour,
-                                db_timezone.offset_minute,
-                                db_timezone.offset_second,
-                            )
-                            ?,
-                        )
+                        .to_offset(UtcOffset::from_hms(
+                            db_timezone.offset_hour,
+                            db_timezone.offset_minute,
+                            db_timezone.offset_second,
+                        )?)
                         .hour(),
                 ) {
                     LightControl::rainbow(Arc::clone(&light_status)).await;

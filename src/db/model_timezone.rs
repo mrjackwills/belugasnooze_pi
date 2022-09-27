@@ -4,7 +4,7 @@ use sqlx::SqlitePool;
 use std::fmt;
 use time::UtcOffset;
 
-use crate::{env::AppEnv, app_error::AppError};
+use crate::{app_error::AppError, env::AppEnv};
 
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelTimezone {
@@ -63,7 +63,11 @@ impl ModelTimezone {
         Ok(query)
     }
 
-    pub async fn update(db: &SqlitePool, zone_name: &str, offset: UtcOffset) -> Result<Self, AppError> {
+    pub async fn update(
+        db: &SqlitePool,
+        zone_name: &str,
+        offset: UtcOffset,
+    ) -> Result<Self, AppError> {
         let sql = "UPDATE timezone SET zone_name = $1, offset_hour = $2, offset_minute = $3, offset_second = $4 RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)
@@ -82,7 +86,7 @@ impl ModelTimezone {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::sql::{create_tables, file_exists, get_db, init_db};
+    use crate::db::{create_tables, file_exists, get_db, init_db};
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 

@@ -18,7 +18,7 @@ use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, Struc
 use crate::{
     env::AppEnv,
     light::LightControl,
-    sql::{ModelAlarm, ModelTimezone},
+    db::{ModelAlarm, ModelTimezone},
     ws_messages::to_struct,
 };
 

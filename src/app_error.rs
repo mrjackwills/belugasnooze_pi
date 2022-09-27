@@ -12,7 +12,7 @@ pub enum AppError {
     Offset(#[from] time::error::ComponentRange),
     #[error("Reqwest Error")]
     Reqwest(#[from] reqwest::Error),
-    #[error("Internal Database Error")]
+    #[error("Internal Database Error: {0}")]
     Sqlx(#[from] sqlx::Error),
     #[error("WS Connect")]
     TungsteniteConnect(#[from] tokio_tungstenite::tungstenite::Error),

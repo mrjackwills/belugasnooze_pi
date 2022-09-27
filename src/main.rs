@@ -11,7 +11,7 @@ mod alarm_schedule;
 mod app_error;
 mod env;
 mod light;
-mod sql;
+mod db;
 mod sysinfo;
 mod word_art;
 mod ws;
@@ -22,7 +22,7 @@ use app_error::AppError;
 // //use anyhow::Result;
 use env::AppEnv;
 use simple_signal::{self, Signal};
-use sql::init_db;
+use db::init_db;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,

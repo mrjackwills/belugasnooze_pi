@@ -8,9 +8,10 @@ use tokio::sync::{broadcast::Sender, Mutex};
 use tracing::trace;
 
 use crate::{
+    app_error::AppError,
     light::LightControl,
-    sql::{ModelAlarm, ModelTimezone},
-    ws::InternalMessage, app_error::AppError,
+    db::{ModelAlarm, ModelTimezone},
+    ws::InternalMessage,
 };
 
 #[derive(Debug)]

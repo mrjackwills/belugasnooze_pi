@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use tokio::fs::read_to_string;
 
-use crate::{env::AppEnv, sql::ModelTimezone};
+use crate::{env::AppEnv, db::ModelTimezone};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SysInfo {
@@ -55,7 +55,7 @@ impl SysInfo {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::sql::init_db;
+    use crate::db::init_db;
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 

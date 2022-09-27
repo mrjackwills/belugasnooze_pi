@@ -1,12 +1,7 @@
-use serde::{Deserialize, Serialize};
-use tokio_tungstenite::{
-    self, connect_async,
-    tungstenite::{
-        http::StatusCode,
-    },
-};
-use crate::{env::AppEnv, app_error::AppError};
 use super::WsStream;
+use crate::{app_error::AppError, env::AppEnv};
+use serde::{Deserialize, Serialize};
+use tokio_tungstenite::{self, connect_async, tungstenite::http::StatusCode};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PostRequest<'a> {
@@ -37,7 +32,11 @@ async fn get_auth_token(app_envs: &AppEnv) -> Result<String, AppError> {
 
 /// Connect to wesbsocket server
 pub async fn ws_upgrade(app_envs: &AppEnv) -> Result<WsStream, AppError> {
-    let url = format!("{}/{}", app_envs.ws_address, get_auth_token(app_envs).await?);
+    let url = format!(
+        "{}/{}",
+        app_envs.ws_address,
+        get_auth_token(app_envs).await?
+    );
     let (socket, response) = connect_async(url).await?;
     match response.status() {
         StatusCode::SWITCHING_PROTOCOLS => Ok(socket),

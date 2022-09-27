@@ -60,7 +60,7 @@ impl ModelAlarm {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{sql::init_db, AppEnv};
+    use crate::{db::init_db, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 
@@ -125,7 +125,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: day >= 0 AND day <= 6"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: day >= 0 AND day <= 6"
         );
         cleanup();
     }
@@ -143,7 +143,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: hour >= 0 AND hour <= 23"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: hour >= 0 AND hour <= 23"
         );
         cleanup();
     }
@@ -161,7 +161,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "error returned from database: CHECK constraint failed: minute >= 0 AND minute <= 59"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: minute >= 0 AND minute <= 59"
         );
         cleanup();
     }
@@ -192,7 +192,6 @@ mod tests {
     async fn model_alarm_delete_one_ok() {
         // FIXTURES
         let fixtures = setup_test_db("model_alarm_delete_one_ok").await;
-        // init_db(&args).await.unwrap();
         let data = (1, 10, 10);
         let alarm = ModelAlarm::add(&fixtures.0, data).await.unwrap();
 

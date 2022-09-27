@@ -8,7 +8,6 @@ use crate::app_error::AppError;
 
 type EnvHashMap = HashMap<String, String>;
 
-
 #[derive(Debug, Clone)]
 pub struct AppEnv {
     pub sql_threads: u32,
@@ -49,7 +48,10 @@ impl AppEnv {
         match map.get(key) {
             None => Err(AppError::MissingEnv(key.into())),
             Some(value) => {
-                if value.ends_with(".db") {
+                if std::path::Path::new(value)
+                    .extension()
+                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+                {
                     return Ok(value.into());
                 }
                 Err(AppError::DbNameInvalid(key.into()))
@@ -63,7 +65,7 @@ impl AppEnv {
             if let Some(value) = timezones::get_by_name(data) {
                 return Ok(value
                     .get_offset_utc(&time::OffsetDateTime::now_utc())
-                    .to_utc())
+                    .to_utc());
             }
         }
         Ok(UtcOffset::from_hms(0, 0, 0)?)
