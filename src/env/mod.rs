@@ -124,7 +124,7 @@ impl AppEnv {
     }
 
     pub async fn get() -> Self {
-		let local_env = ".env";
+        let local_env = ".env";
         let app_env = "/app_env/.api.env";
 
         let env_path = if std::fs::metadata(app_env).is_ok() {
@@ -132,8 +132,8 @@ impl AppEnv {
         } else if std::fs::metadata(local_env).is_ok() {
             local_env
         } else {
-			println!("\n\x1b[31munable to load env file\x1b[0m\n");
-			std::process::exit(1);
+            println!("\n\x1b[31munable to load env file\x1b[0m\n");
+            std::process::exit(1);
         };
 
         dotenvy::from_path(env_path).ok();
@@ -377,7 +377,7 @@ mod tests {
     #[tokio::test]
     async fn env_return_appenv() {
         // FIXTURES
-		dotenvy::dotenv().ok();
+        dotenvy::dotenv().ok();
 
         // ACTION
         let result = AppEnv::generate().await;
