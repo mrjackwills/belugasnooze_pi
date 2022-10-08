@@ -184,8 +184,8 @@ ask_continue () {
 
 # Build target as github action would
 cargo_build () {
-	cargo install cross
 	cross build --target arm-unknown-linux-musleabihf --release
+	ask_continue
 }
 
 # run all tests
