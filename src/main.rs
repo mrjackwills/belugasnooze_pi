@@ -52,7 +52,7 @@ fn setup_tracing(app_envs: &AppEnv) {
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
-    let app_envs = AppEnv::get().await;
+    let app_envs = AppEnv::get();
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
 

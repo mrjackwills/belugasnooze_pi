@@ -182,6 +182,12 @@ ask_continue () {
 	fi
 }
 
+# Build target as github action would
+cargo_build () {
+	cross build --target arm-unknown-linux-musleabihf --release
+	ask_continue
+}
+
 # run all tests
 cargo_test () {
 	cargo test -- --test-threads=1
@@ -194,6 +200,7 @@ release_flow() {
 	get_git_remote_url
 	cargo fmt
 	cargo_test
+	cargo_build
 	cd "${CWD}" || error_close "Can't find ${CWD}"
 	check_tag
 	

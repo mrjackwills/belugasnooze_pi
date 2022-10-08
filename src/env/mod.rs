@@ -1,7 +1,6 @@
 use std::{collections::HashMap, env, time::SystemTime};
 use time::UtcOffset;
 use time_tz::{timezones, Offset, TimeZone};
-use tokio::fs;
 
 use crate::app_error::AppError;
 
@@ -25,8 +24,8 @@ pub struct AppEnv {
 
 impl AppEnv {
     /// Check a given file actually exists on the file system
-    async fn check_file_exists(filename: String) -> Result<String, AppError> {
-        match fs::metadata(&filename).await {
+    fn check_file_exists(filename: String) -> Result<String, AppError> {
+        match std::fs::metadata(&filename) {
             Ok(_) => Ok(filename),
             Err(_) => Err(AppError::FileNotFound(filename)),
         }
@@ -97,7 +96,7 @@ impl AppEnv {
     }
 
     /// Load, and parse .env file, return `AppEnv`
-    async fn generate() -> Result<Self, AppError> {
+    fn generate() -> Result<Self, AppError> {
         let env_map = env::vars()
             .into_iter()
             .map(|i| (i.0, i.1))
@@ -108,8 +107,7 @@ impl AppEnv {
             location_ip_address: Self::check_file_exists(Self::parse_string(
                 "LOCATION_IP_ADDRESS",
                 &env_map,
-            )?)
-            .await?,
+            )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
@@ -123,7 +121,7 @@ impl AppEnv {
         })
     }
 
-    pub async fn get() -> Self {
+    pub fn get() -> Self {
         let local_env = ".env";
         let app_env = "/app_env/.env";
 
@@ -137,7 +135,7 @@ impl AppEnv {
         };
 
         dotenvy::from_path(env_path).ok();
-        match Self::generate().await {
+        match Self::generate() {
             Ok(s) => s,
             Err(e) => {
                 println!("\n\x1b[31m{}\x1b[0m\n", e);
@@ -369,7 +367,7 @@ mod tests {
     #[tokio::test]
     async fn env_panic_appenv() {
         // ACTION
-        let result = AppEnv::generate().await;
+        let result = AppEnv::generate();
 
         assert!(result.is_err());
     }
@@ -380,7 +378,7 @@ mod tests {
         dotenvy::dotenv().ok();
 
         // ACTION
-        let result = AppEnv::generate().await;
+        let result = AppEnv::generate();
 
         assert!(result.is_ok());
     }
@@ -388,7 +386,7 @@ mod tests {
     #[tokio::test]
     async fn env_check_file_exists_ok() {
         // ACTION
-        let result = AppEnv::check_file_exists("Cargo.lock".into()).await;
+        let result = AppEnv::check_file_exists("Cargo.lock".into());
 
         // CHECK
         assert!(result.is_ok());
@@ -398,7 +396,7 @@ mod tests {
     #[tokio::test]
     async fn env_check_file_exists_er() {
         // ACTION
-        let result = AppEnv::check_file_exists("file.sql".into()).await;
+        let result = AppEnv::check_file_exists("file.sql".into());
 
         // CHECK
         assert!(result.is_err());

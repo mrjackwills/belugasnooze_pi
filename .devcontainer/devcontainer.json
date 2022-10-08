@@ -17,7 +17,7 @@
 	],
 
 	"mounts": [
-		"source=/dev/shm,target=/dev/shm,type=bind"
+		"source=/etc/timezone,target=/etc/timezone,type=bind,readonly"
 	],
 
 	// Set *default* container specific settings.json values on container create.
@@ -34,23 +34,16 @@
 	"extensions": [
 		"vadimcn.vscode-lldb",
 		"mutantdino.resourcemonitor",
+		"rust-lang.rust-analyzer",
 		"tamasfe.even-better-toml",
 		"serayuzgur.crates",
 		"christian-kohler.path-intellisense",
 		"timonwong.shellcheck",
 		"ms-vscode.live-server",
 		"rangav.vscode-thunder-client",
-		"bmuskalla.vscode-tldr",
-		"rust-lang.rust-analyzer"
+		"bmuskalla.vscode-tldr"
 	],
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "sudo chown vscode:vscode /ramdrive",
-	// "postAttachCommand": "sudo chown vscode:vscode /ramdrive",
-	
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",

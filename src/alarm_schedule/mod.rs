@@ -54,18 +54,15 @@ impl AlarmSchedule {
 
     /// Get timezone from db and store into self, also update offset
     pub async fn refresh_timezone(&mut self, db: &SqlitePool) {
-        match ModelTimezone::get(db).await {
-            Some(time_zone) => {
-                if let Ok(offset) = UtcOffset::from_hms(
-                    time_zone.offset_hour,
-                    time_zone.offset_minute,
-                    time_zone.offset_second,
-                ) {
-                    self.offset = offset;
-                    self.time_zone = time_zone;
-                }
+        if let Some(time_zone) = ModelTimezone::get(db).await {
+            if let Ok(offset) = UtcOffset::from_hms(
+                time_zone.offset_hour,
+                time_zone.offset_minute,
+                time_zone.offset_second,
+            ) {
+                self.offset = offset;
+                self.time_zone = time_zone;
             }
-            None => (),
         }
     }
 
@@ -95,9 +92,9 @@ impl CronAlarm {
             alarm_schedule: Arc::clone(&alarm_schedule),
             light_status: Arc::clone(&light_status),
         };
-
-        tokio::spawn(async move { looper.init_loop(sx).await });
-
+        tokio::spawn(async move {
+            looper.init_loop(sx).await;
+        });
         Ok(alarm_schedule)
     }
 
@@ -105,7 +102,6 @@ impl CronAlarm {
     /// is private, so that it can only be executed during the self.init() method, so that it is correctly spawned onto it's own tokio thread
     async fn init_loop(&mut self, sx: Sender<InternalMessage>) {
         trace!("alarm looper started");
-
         loop {
             if !self.alarm_schedule.lock().await.alarms.is_empty() {
                 let offset = self.alarm_schedule.lock().await.offset;
