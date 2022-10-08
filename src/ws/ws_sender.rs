@@ -78,10 +78,7 @@ impl WSSender {
 
     /// Add a new alarm to database, and update alarm_schedule alarm vector
     async fn add_alarm(&mut self, day: Vec<u8>, hour: u8, minute: u8) {
-        let mut handles = vec![];
-        for i in day {
-            handles.push(ModelAlarm::add(&self.db, (i, hour, minute)));
-        }
+		let handles = day.into_iter().map(|i|ModelAlarm::add(&self.db, (i, hour, minute))).collect::<Vec<_>>();
         for handle in handles {
             match handle.await {
                 Ok(_) => (),
