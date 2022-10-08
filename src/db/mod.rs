@@ -91,15 +91,6 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     Ok(db)
 }
 
-#[derive(Debug, thiserror::Error)]
-pub enum ModelError {
-    #[error(transparent)]
-    SqlxError(#[from] sqlx::Error),
-
-    #[error(transparent)]
-    IOError(#[from] std::io::Error),
-}
-
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 /// Sql Test

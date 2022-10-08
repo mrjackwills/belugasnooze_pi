@@ -19,7 +19,7 @@ use tokio::{
     },
 };
 use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStream};
-use tracing::{error, info, trace};
+use tracing::{error, info};
 
 use crate::{
     alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, env::AppEnv,
@@ -38,43 +38,25 @@ pub enum InternalMessage {
 }
 
 /// Handle each incoming ws message
-async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
-    loop {
-        let mut ws = ws_sender.clone();
-
-        // server sends a ping every 30 seconds, so just wait 40 seconds for any message, if not received then break
-        let message_timeout =
-            tokio::time::timeout(std::time::Duration::from_secs(40), reader.try_next()).await;
-
-        if let Ok(some_message) = message_timeout {
-            match some_message {
-                Ok(Some(m)) => {
-                    tokio::spawn(async move {
-                        match m {
-                            Message::Text(message) => ws.on_text(message).await,
-                            Message::Close(_) => ws.close().await,
-                            _ => (),
-                        };
-                    });
-                }
-                Ok(None) => {
-                    error!("None in incoming_ws_message");
-                    ws.close().await;
-                    break;
-                }
-                Err(e) => {
-                    error!(%e);
-                    error!("Error in incoming_ws_message");
-                    ws.close().await;
-                    break;
-                }
+async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
+    while let Ok(Some(message)) = reader.try_next().await {
+        match message {
+            Message::Text(message) => {
+                let mut ws_sender = ws_sender.clone();
+                tokio::spawn(async move {
+                    ws_sender.on_text(message).await;
+                });
             }
-        } else {
-            trace!("timeout error");
-            ws.close().await;
-            break;
-        }
+            Message::Close(_) => {
+                tokio::time::timeout(std::time::Duration::from_secs(2), ws_sender.close())
+                    .await
+                    .unwrap_or(());
+                break;
+            }
+            _ => (),
+        };
     }
+    info!("incoming_ws_message done");
 }
 
 /// Send pi status message , and light status message to connect client, for when light turns off

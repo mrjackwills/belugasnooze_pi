@@ -26,7 +26,6 @@ impl ModelAlarm {
     pub async fn get_all(db: &SqlitePool) -> Result<Vec<Self>, AppError> {
         let sql = "SELECT * FROM alarm";
         let result = sqlx::query_as::<_, Self>(sql).fetch_all(db).await?;
-        // let alarms = all_alarms.into_iter().map(|i|(i.alarm_id.clone(), i)).collect::<HashMap<i64, ModelAlarm>>();
         Ok(result)
     }
 

@@ -15,7 +15,7 @@ struct PostResponse {
     response: String,
 }
 
-/// Make a http request to get an access token
+/// Make a https request to get an access token
 async fn get_auth_token(app_envs: &AppEnv) -> Result<String, AppError> {
     let request_body = PostRequest {
         key: &app_envs.ws_apikey,

@@ -57,12 +57,11 @@ impl ConnectionDetails {
     /// called on each connect, to reset connection, count etc
     pub fn valid_connect(&mut self) {
         self.wait = Wait::Short;
-        self.count = 1;
+        self.count = 0;
         self.is_connected = true;
         self.connection_instant = Some(Instant::now());
         let now = OffsetDateTime::now_utc();
-        let connected_at = format!("{} {}", now.date(), now.time());
-        debug!(%connected_at);
+        debug!("{} {}", now.date(), now.time());
     }
 
     pub fn get_connect_instant(&self) -> Instant {
