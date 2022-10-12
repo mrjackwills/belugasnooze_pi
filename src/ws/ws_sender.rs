@@ -9,8 +9,7 @@ use std::sync::{
 use std::time::Instant;
 use time_tz::{timezones, Offset, TimeZone};
 use tokio::sync::{broadcast::Sender, Mutex as TokioMutex};
-use tokio::task::JoinHandle;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, trace};
 
 use crate::alarm_schedule::AlarmSchedule;
 use crate::sysinfo::SysInfo;
@@ -99,7 +98,7 @@ impl WSSender {
 
     /// On ping message received, send an internal message to cancel the AutoClose join handle, this will also initialise another one
     pub fn on_ping(&mut self) {
-        self.sx.send(InternalMessage::Ping);
+        self.sx.send(InternalMessage::Ping).unwrap_or_default();
     }
 
     /// Delete all alarms in database, and update alarm_schedule alarm vector
