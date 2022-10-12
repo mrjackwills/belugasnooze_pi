@@ -1,3 +1,9 @@
+### Chores
++ Cargo.lock tracked, [3fe9a8db697cf8d06dc8f13963ba0d12f5bde400]
+
+### Features
++ autoclose after 40 seconds in no ping received, [70991a5c9df08d3526b5da589012993a541e02ea]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.3'>v0.1.3</a>
 ### 2022-10-08
 
