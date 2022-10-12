@@ -96,11 +96,6 @@ impl WSSender {
         self.send_status().await;
     }
 
-    /// On ping message received, send an internal message to cancel the AutoClose join handle, this will also initialise another one
-    pub fn on_ping(&mut self) {
-        self.sx.send(InternalMessage::Ping).unwrap_or_default();
-    }
-
     /// Delete all alarms in database, and update alarm_schedule alarm vector
     /// If the alarm sequence has started, and you delete all alarms, the light is still on
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
