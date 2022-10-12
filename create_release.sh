@@ -217,6 +217,7 @@ release_flow() {
 	git commit -m "chore: release $NEW_TAG_WITH_V"
 
 	git checkout main
+	sleep 2
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
 	git tag -am "${RELEASE_BRANCH}" "$NEW_TAG_WITH_V"
 	echo "git tag -am \"${RELEASE_BRANCH}\" \"$NEW_TAG_WITH_V\""
