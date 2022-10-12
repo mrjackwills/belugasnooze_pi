@@ -17,6 +17,7 @@ use tokio::{
         broadcast::{Receiver, Sender},
         Mutex as TokioMutex,
     },
+    task::JoinHandle,
 };
 use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 use tracing::{error, info};
@@ -35,10 +36,29 @@ mod ws_sender;
 #[derive(Debug, Clone, Copy)]
 pub enum InternalMessage {
     Light,
+    Ping,
+}
+
+#[derive(Debug, Default)]
+struct AutoClose(Option<JoinHandle<()>>);
+
+/// Will close the connection after 40 seconds unless a ping message is received
+impl AutoClose {
+    fn init(&mut self, ws_sender: &WSSender) {
+        if let Some(handle) = self.0.as_ref() {
+            handle.abort();
+        };
+        let mut ws_sender = ws_sender.clone();
+        self.0 = Some(tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_secs(40)).await;
+            ws_sender.close().await;
+        }));
+    }
 }
 
 /// Handle each incoming ws message
 async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
+    ws_sender.on_ping();
     while let Ok(Some(message)) = reader.try_next().await {
         match message {
             Message::Text(message) => {
@@ -47,10 +67,9 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
                     ws_sender.on_text(message).await;
                 });
             }
+            Message::Ping(_) => ws_sender.on_ping(),
             Message::Close(_) => {
-                tokio::time::timeout(std::time::Duration::from_secs(2), ws_sender.close())
-                    .await
-                    .unwrap_or(());
+                ws_sender.close().await;
                 break;
             }
             _ => (),
@@ -60,11 +79,18 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
 }
 
 /// Send pi status message , and light status message to connect client, for when light turns off
-async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
+async fn incoming_internal_message(
+    mut rx: Receiver<InternalMessage>,
+    mut ws_sender: WSSender,
+    mut auto_close: AutoClose,
+) {
     ws_sender.send_status().await;
     ws_sender.led_status().await;
-    while let Ok(_message) = rx.recv().await {
-        ws_sender.led_status().await;
+    while let Ok(message) = rx.recv().await {
+        match message {
+            InternalMessage::Light => ws_sender.led_status().await,
+            InternalMessage::Ping => auto_close.init(&ws_sender),
+        }
     }
 }
 
@@ -121,8 +147,9 @@ pub async fn open_connection(
 
                 let in_ws_sender = ws_sender.clone();
                 let rx = sx.subscribe();
+                let auto_close = AutoClose::default();
                 let internal_message_thread = tokio::spawn(async move {
-                    incoming_internal_message(rx, in_ws_sender).await;
+                    incoming_internal_message(rx, in_ws_sender, auto_close).await;
                 });
 
                 incoming_ws_message(reader, ws_sender).await;
