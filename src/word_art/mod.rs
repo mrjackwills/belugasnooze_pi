@@ -11,7 +11,7 @@ const RESET: &str = "\x1b[0m";
 fn create_art(input: &str, fontname: FontName) -> String {
     if let Ok(font) = FIGfont::from_content(FontName::get(fontname)) {
         let figure = font.convert(input);
-        figure.map_or_else(String::new, |text| text.to_string())
+        figure.map_or(String::new(), |text| text.to_string())
     } else {
         String::new()
     }

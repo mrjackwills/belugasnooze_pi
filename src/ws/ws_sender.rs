@@ -96,6 +96,11 @@ impl WSSender {
         self.send_status().await;
     }
 
+    /// On ping message received, send an internal message to cancel the AutoClose join handle, this will also initialise another one
+    pub fn on_ping(&mut self) {
+        self.sx.send(InternalMessage::Ping).unwrap_or_default();
+    }
+
     /// Delete all alarms in database, and update alarm_schedule alarm vector
     /// If the alarm sequence has started, and you delete all alarms, the light is still on
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
@@ -186,8 +191,15 @@ impl WSSender {
         self.send_ws_response(response, Some(true)).await;
     }
 
-    /// close connection
+    /// close connection, uses a 2 second timeout
     pub async fn close(&mut self) {
-        self.writer.lock().await.close().await.unwrap_or_default();
+        if let Ok(close) = tokio::time::timeout(
+            std::time::Duration::from_secs(2),
+            self.writer.lock().await.close(),
+        )
+        .await
+        {
+            close.unwrap_or_default();
+        }
     }
 }

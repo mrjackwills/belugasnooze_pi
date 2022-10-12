@@ -20,6 +20,8 @@
 		"source=/etc/timezone,target=/etc/timezone,type=bind,readonly"
 	],
 
+	"postCreateCommand": "cargo install cross",
+
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"lldb.executable": "/usr/bin/lldb",

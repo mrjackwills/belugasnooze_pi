@@ -1,13 +1,13 @@
 [package]
 name = "belugasnooze"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
 
 [dependencies]
 blinkt = "0.7"
-dotenvy = "0.15.5"
+dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
 openssl = { version = '0.10', features = ["vendored"] }
