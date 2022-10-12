@@ -1,3 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.6'>v0.1.6</a>
+### 2022-10-12
+
+### Fixes
++ Rebuild due to tag issue
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.5'>v0.1.5</a>
 ### 2022-10-12
 
