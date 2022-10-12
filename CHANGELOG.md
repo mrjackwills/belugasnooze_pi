@@ -1,9 +1,12 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.4'>v0.1.4</a>
+### 2022-10-12
+
 ### Chores
-+ Cargo.lock tracked, [3fe9a8db697cf8d06dc8f13963ba0d12f5bde400]
-+ dev container install cross, [4e900f3419eb88b33018ea612e227f1c2800f33d]
++ Cargo.lock tracked, [3fe9a8db](https://github.com/mrjackwills/belugasnooze_pi/commit/3fe9a8db697cf8d06dc8f13963ba0d12f5bde400),
++ dev container install cross, [4e900f34](https://github.com/mrjackwills/belugasnooze_pi/commit/4e900f3419eb88b33018ea612e227f1c2800f33d),
 
 ### Features
-+ autoclose after 40 seconds in no ping received, [70991a5c9df08d3526b5da589012993a541e02ea]
++ autoclose after 40 seconds in no ping received, [70991a5c](https://github.com/mrjackwills/belugasnooze_pi/commit/70991a5c9df08d3526b5da589012993a541e02ea),
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.3'>v0.1.3</a>
 ### 2022-10-08
