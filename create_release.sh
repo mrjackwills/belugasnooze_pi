@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # rust create_release
-# v0.0.15
+# v0.0.16
 
 PACKAGE_NAME='belugasnooze'
 STAR_LINE='****************************************'
@@ -211,10 +211,13 @@ release_flow() {
 	ask_changelog_update
 	git checkout -b "$RELEASE_BRANCH"
 	update_version_number_in_files
+	# sleep here to allow Cargo.lock to update - based on Cargo.toml
+	sleep 2
 	git add .
 	git commit -m "chore: release $NEW_TAG_WITH_V"
 
 	git checkout main
+	sleep 2
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
 	git tag -am "${RELEASE_BRANCH}" "$NEW_TAG_WITH_V"
 	echo "git tag -am \"${RELEASE_BRANCH}\" \"$NEW_TAG_WITH_V\""

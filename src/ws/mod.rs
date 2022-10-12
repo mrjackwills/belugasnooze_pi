@@ -36,7 +36,6 @@ mod ws_sender;
 #[derive(Debug, Clone, Copy)]
 pub enum InternalMessage {
     Light,
-    Ping,
 }
 
 #[derive(Debug, Default)]
@@ -58,7 +57,8 @@ impl AutoClose {
 
 /// Handle each incoming ws message
 async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
-    ws_sender.on_ping();
+    let mut auto_close = AutoClose::default();
+    auto_close.init(&ws_sender);
     while let Ok(Some(message)) = reader.try_next().await {
         match message {
             Message::Text(message) => {
@@ -67,7 +67,7 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
                     ws_sender.on_text(message).await;
                 });
             }
-            Message::Ping(_) => ws_sender.on_ping(),
+            Message::Ping(_) => auto_close.init(&ws_sender),
             Message::Close(_) => {
                 ws_sender.close().await;
                 break;
@@ -79,17 +79,12 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
 }
 
 /// Send pi status message , and light status message to connect client, for when light turns off
-async fn incoming_internal_message(
-    mut rx: Receiver<InternalMessage>,
-    mut ws_sender: WSSender,
-    mut auto_close: AutoClose,
-) {
+async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
     ws_sender.send_status().await;
     ws_sender.led_status().await;
     while let Ok(message) = rx.recv().await {
         match message {
             InternalMessage::Light => ws_sender.led_status().await,
-            InternalMessage::Ping => auto_close.init(&ws_sender),
         }
     }
 }
@@ -147,9 +142,9 @@ pub async fn open_connection(
 
                 let in_ws_sender = ws_sender.clone();
                 let rx = sx.subscribe();
-                let auto_close = AutoClose::default();
+
                 let internal_message_thread = tokio::spawn(async move {
-                    incoming_internal_message(rx, in_ws_sender, auto_close).await;
+                    incoming_internal_message(rx, in_ws_sender).await;
                 });
 
                 incoming_ws_message(reader, ws_sender).await;
