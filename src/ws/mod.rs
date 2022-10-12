@@ -57,8 +57,8 @@ impl AutoClose {
 
 /// Handle each incoming ws message
 async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
-	let mut auto_close = AutoClose::default();
-	auto_close.init(&ws_sender);
+    let mut auto_close = AutoClose::default();
+    auto_close.init(&ws_sender);
     while let Ok(Some(message)) = reader.try_next().await {
         match message {
             Message::Text(message) => {
@@ -79,10 +79,7 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
 }
 
 /// Send pi status message , and light status message to connect client, for when light turns off
-async fn incoming_internal_message(
-    mut rx: Receiver<InternalMessage>,
-    mut ws_sender: WSSender,
-) {
+async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
     ws_sender.send_status().await;
     ws_sender.led_status().await;
     while let Ok(message) = rx.recv().await {
@@ -145,12 +142,11 @@ pub async fn open_connection(
 
                 let in_ws_sender = ws_sender.clone();
                 let rx = sx.subscribe();
-             
+
                 let internal_message_thread = tokio::spawn(async move {
                     incoming_internal_message(rx, in_ws_sender).await;
                 });
 
-				
                 incoming_ws_message(reader, ws_sender).await;
 
                 internal_message_thread.abort();

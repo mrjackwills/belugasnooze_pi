@@ -1,10 +1,9 @@
 ### 2022-10-12
 
 ### Chores
-+ Cargo.lock tracked, [3fe9a8db697cf8d06dc8f13963ba0d12f5bde400]
-+ dev container install cross, [4e900f3419eb88b33018ea612e227f1c2800f33d]
++ create_release.sh sleep to enable Cargo.lock to update, [4cf84590972ac8fa14c273d71ced4656e8cd15a0]
 
-### Features
-+ autoclose after 40 seconds in no ping received, [70991a5c9df08d3526b5da589012993a541e02ea]
+### Refactors
++ auto_close remove internal messaging, [c2d645f0a8b6572f1823f0d14b1ac0fdb1cedf92]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
