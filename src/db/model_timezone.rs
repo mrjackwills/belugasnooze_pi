@@ -35,11 +35,7 @@ impl Default for ModelTimezone {
 impl ModelTimezone {
 
 	pub fn get_offset(&self) -> UtcOffset {
-		if let Some(tz) = timezones::get_by_name(&self.zone_name)  {
-			tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc()
-		}else{
-			UtcOffset::UTC
-		}
+		timezones::get_by_name(&self.zone_name).map_or(UtcOffset::UTC, |tz| tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc())
 	}
 
     pub async fn get(db: &SqlitePool) -> Option<Self> {
