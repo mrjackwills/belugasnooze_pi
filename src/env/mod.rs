@@ -346,7 +346,6 @@ mod tests {
     async fn env_parse_u32_default_ok() {
         // FIXTURES
         let map = HashMap::new();
-        //   map.insert("U32_TEST".to_owned(), "88".to_owned());
 
         // ACTION
         let result = AppEnv::parse_u32("U32_TEST", &map);

@@ -115,7 +115,6 @@ mod tests {
             start_time: SystemTime::now(),
             timezone,
             trace: false,
-            // utc_offset: UtcOffset::from_hms(hour_offset, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -211,12 +210,9 @@ mod tests {
 
         // CHECK
         assert!(result.is_ok());
-        let result: (i64, String, i64, i64, i64) = result.unwrap();
+        let result: (i64, String) = result.unwrap();
         assert_eq!(result.0, 1);
         assert_eq!(result.1, "America/New_York");
-        assert_eq!(result.2, -5);
-        assert_eq!(result.3, 0);
-        assert_eq!(result.4, 0);
 
         // CLEANUP
         cleanup();

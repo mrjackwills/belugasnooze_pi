@@ -119,7 +119,6 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "Europe/Berlin".to_owned(),
             trace: false,
-            // utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -151,7 +150,6 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "Europe/Berlin".to_owned(),
             trace: false,
-            // utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -168,9 +166,6 @@ mod tests {
         // CHECK
         assert!(result.is_ok());
         let result_timezone = ModelTimezone::get(&db).await.unwrap();
-        // assert_eq!(result_timezone.offset_hour, 1);
-        // assert_eq!(result_timezone.offset_minute, 0);
-        // assert_eq!(result_timezone.offset_second, 0);
         assert_eq!(result_timezone.zone_name, "Europe/Berlin");
         cleanup();
     }
@@ -186,9 +181,6 @@ mod tests {
         // CHECK
         assert!(result.is_some());
         let result = result.unwrap();
-        // assert_eq!(result.offset_hour, -5);
-        // assert_eq!(result.offset_minute, 0);
-        // assert_eq!(result.offset_second, 0);
         assert_eq!(result.zone_name, "America/New_York");
         cleanup();
     }
@@ -205,16 +197,10 @@ mod tests {
 
         // CHECK
         assert_eq!(pre_update.timezone_id, 1);
-        // assert_eq!(pre_update.offset_hour, -5);
-        // assert_eq!(pre_update.offset_minute, 0);
-        // assert_eq!(pre_update.offset_second, 0);
         assert_eq!(pre_update.zone_name, "America/New_York");
 
         assert!(result.is_ok());
         let result = result.unwrap();
-        // assert_eq!(result.offset_hour, 1);
-        // assert_eq!(result.offset_minute, 0);
-        // assert_eq!(result.offset_second, 0);
         assert_eq!(result.timezone_id, 1);
         assert_eq!(result.zone_name, "Europe/Berlin");
         cleanup();
