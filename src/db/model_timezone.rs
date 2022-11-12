@@ -1,29 +1,24 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::SqlitePool;
+use time_tz::{timezones, TimeZone, Offset,};
 use std::fmt;
 use time::UtcOffset;
 
 use crate::{app_error::AppError, env::AppEnv};
 
-#[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, Debug, Clone, Deserialize)]
 pub struct ModelTimezone {
     pub timezone_id: i64,
     pub zone_name: String,
-    pub offset_hour: i8,
-    pub offset_minute: i8,
-    pub offset_second: i8,
 }
 
 impl fmt::Display for ModelTimezone {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "timezone_id: {}, zone_name: {}, offset_hour: {}, offset_minute: {}, offset_second: {}",
+            "timezone_id: {}, zone_name: {}",
             self.timezone_id,
             self.zone_name,
-            self.offset_hour,
-            self.offset_minute,
-            self.offset_second
         )
     }
 }
@@ -33,14 +28,20 @@ impl Default for ModelTimezone {
         Self {
             timezone_id: 1,
             zone_name: String::from("Etc/UTC"),
-            offset_hour: 0,
-            offset_minute: 0,
-            offset_second: 0,
         }
     }
 }
 
 impl ModelTimezone {
+
+	pub fn get_offset(&self) -> UtcOffset {
+		if let Some(tz) = timezones::get_by_name(&self.zone_name)  {
+			tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc()
+		}else{
+			UtcOffset::UTC
+		}
+	}
+
     pub async fn get(db: &SqlitePool) -> Option<Self> {
         let sql = "SELECT * FROM timezone";
         let result = sqlx::query_as::<_, Self>(sql).fetch_one(db).await;
@@ -48,12 +49,9 @@ impl ModelTimezone {
     }
 
     pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
-        let sql = "INSERT INTO timezone (zone_name, offset_hour, offset_minute, offset_second) VALUES($1, $2, $3, $4) RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
+        let sql = "INSERT INTO timezone (zone_name) VALUES($1) RETURNING timezone_id, zone_name";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(&app_envs.timezone)
-            .bind(app_envs.utc_offset.whole_hours())
-            .bind(app_envs.utc_offset.minutes_past_hour())
-            .bind(app_envs.utc_offset.seconds_past_minute())
             .fetch_one(db)
             .await?;
         Ok(query)
@@ -62,14 +60,10 @@ impl ModelTimezone {
     pub async fn update(
         db: &SqlitePool,
         zone_name: &str,
-        offset: UtcOffset,
     ) -> Result<Self, AppError> {
-        let sql = "UPDATE timezone SET zone_name = $1, offset_hour = $2, offset_minute = $3, offset_second = $4 RETURNING timezone_id, zone_name, offset_hour, offset_minute, offset_second";
+        let sql = "UPDATE timezone SET zone_name = $1 RETURNING timezone_id, zone_name";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)
-            .bind(offset.whole_hours())
-            .bind(offset.minutes_past_hour())
-            .bind(offset.seconds_past_minute())
             .fetch_one(db)
             .await?;
         Ok(query)
@@ -99,7 +93,6 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "America/New_York".to_owned(),
             trace: false,
-            utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -126,7 +119,7 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "Europe/Berlin".to_owned(),
             trace: false,
-            utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
+            // utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -158,7 +151,7 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "Europe/Berlin".to_owned(),
             trace: false,
-            utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
+            // utc_offset: UtcOffset::from_hms(1, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -175,9 +168,9 @@ mod tests {
         // CHECK
         assert!(result.is_ok());
         let result_timezone = ModelTimezone::get(&db).await.unwrap();
-        assert_eq!(result_timezone.offset_hour, 1);
-        assert_eq!(result_timezone.offset_minute, 0);
-        assert_eq!(result_timezone.offset_second, 0);
+        // assert_eq!(result_timezone.offset_hour, 1);
+        // assert_eq!(result_timezone.offset_minute, 0);
+        // assert_eq!(result_timezone.offset_second, 0);
         assert_eq!(result_timezone.zone_name, "Europe/Berlin");
         cleanup();
     }
@@ -193,9 +186,9 @@ mod tests {
         // CHECK
         assert!(result.is_some());
         let result = result.unwrap();
-        assert_eq!(result.offset_hour, -5);
-        assert_eq!(result.offset_minute, 0);
-        assert_eq!(result.offset_second, 0);
+        // assert_eq!(result.offset_hour, -5);
+        // assert_eq!(result.offset_minute, 0);
+        // assert_eq!(result.offset_second, 0);
         assert_eq!(result.zone_name, "America/New_York");
         cleanup();
     }
@@ -208,20 +201,20 @@ mod tests {
         let pre_update = ModelTimezone::get(&fixtures.0).await.unwrap();
 
         // ACTIONS
-        let result = ModelTimezone::update(&fixtures.0, data.0, data.1).await;
+        let result = ModelTimezone::update(&fixtures.0, data.0,).await;
 
         // CHECK
         assert_eq!(pre_update.timezone_id, 1);
-        assert_eq!(pre_update.offset_hour, -5);
-        assert_eq!(pre_update.offset_minute, 0);
-        assert_eq!(pre_update.offset_second, 0);
+        // assert_eq!(pre_update.offset_hour, -5);
+        // assert_eq!(pre_update.offset_minute, 0);
+        // assert_eq!(pre_update.offset_second, 0);
         assert_eq!(pre_update.zone_name, "America/New_York");
 
         assert!(result.is_ok());
         let result = result.unwrap();
-        assert_eq!(result.offset_hour, 1);
-        assert_eq!(result.offset_minute, 0);
-        assert_eq!(result.offset_second, 0);
+        // assert_eq!(result.offset_hour, 1);
+        // assert_eq!(result.offset_minute, 0);
+        // assert_eq!(result.offset_second, 0);
         assert_eq!(result.timezone_id, 1);
         assert_eq!(result.zone_name, "Europe/Berlin");
         cleanup();

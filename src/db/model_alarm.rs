@@ -76,7 +76,7 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "America/New_York".to_owned(),
             trace: false,
-            utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
+            // utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),

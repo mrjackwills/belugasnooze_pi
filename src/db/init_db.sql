@@ -9,10 +9,7 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS timezone  (
 	timezone_id INTEGER PRIMARY KEY AUTOINCREMENT CHECK (timezone_id = 1),
-	zone_name TEXT NOT NULL,
-	offset_hour INTEGER NOT NULL CHECK (offset_hour >= -23 AND offset_hour <= 23),
-	offset_minute INTEGER NOT NULL CHECK (offset_minute >= 0 AND offset_minute <= 59),
-	offset_second INTEGER NOT NULL CHECK (offset_second >= 0 AND offset_second <= 59)
+	zone_name TEXT NOT NULL
 ) STRICT;
 
 COMMIT;
