@@ -72,13 +72,13 @@ pub fn to_struct(input: &str) -> Option<MessageValues> {
         None
     } else {
         let error_serialized = serde_json::from_str::<ErrorData>(input);
-        if let Ok(data) = error_serialized {
-            debug!("Matched error_serialized data");
-            Some(MessageValues::Invalid(data))
-        } else {
+        error_serialized.map_or_else(|_| {
             debug!("not a known input message");
             None
-        }
+        }, |data| {
+            debug!("Matched error_serialized data");
+            Some(MessageValues::Invalid(data))
+        })
     }
 }
 

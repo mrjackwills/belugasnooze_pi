@@ -33,10 +33,7 @@ impl AppEnv {
 
     /// Parse "true" or "false" to bool, else false
     fn parse_boolean(key: &str, map: &EnvHashMap) -> bool {
-        match map.get(key) {
-            Some(value) => value == "true",
-            None => false,
-        }
+        map.get(key).map_or(false, |value| value == "true")
     }
 
     /// Make sure database file ends .db
@@ -68,10 +65,7 @@ impl AppEnv {
     }
 
     fn parse_string(key: &str, map: &EnvHashMap) -> Result<String, AppError> {
-        match map.get(key) {
-            Some(value) => Ok(value.into()),
-            None => Err(AppError::MissingEnv(key.into())),
-        }
+        map.get(key).map_or(Err(AppError::MissingEnv(key.into())), |value| Ok(value.into()))
     }
     /// Check that a given timezone is valid, else return UTC
     fn parse_timezone(map: &EnvHashMap) -> String {
@@ -87,10 +81,7 @@ impl AppEnv {
     fn parse_u32(key: &str, map: &EnvHashMap) -> u32 {
         let default = 1u32;
         if let Some(data) = map.get(key) {
-            return match data.parse::<u32>() {
-                Ok(d) => d,
-                Err(_) => default,
-            };
+            return data.parse::<u32>().map_or(default, |d| d);
         }
         default
     }

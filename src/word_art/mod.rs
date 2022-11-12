@@ -9,12 +9,10 @@ const RESET: &str = "\x1b[0m";
 
 /// Convert input string to ASCII art
 fn create_art(input: &str, fontname: FontName) -> String {
-    if let Ok(font) = FIGfont::from_content(FontName::get(fontname)) {
+    FIGfont::from_content(FontName::get(fontname)).map_or(String::new(), |font| {
         let figure = font.convert(input);
         figure.map_or(String::new(), |text| text.to_string())
-    } else {
-        String::new()
-    }
+    })
 }
 
 /// Add color to a given string

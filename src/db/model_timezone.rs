@@ -44,10 +44,7 @@ impl ModelTimezone {
     pub async fn get(db: &SqlitePool) -> Option<Self> {
         let sql = "SELECT * FROM timezone";
         let result = sqlx::query_as::<_, Self>(sql).fetch_one(db).await;
-        match result {
-            Ok(data) => Some(data),
-            Err(_) => None,
-        }
+        result.ok()
     }
 
     pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
