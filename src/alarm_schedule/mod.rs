@@ -5,7 +5,7 @@ use std::sync::{
 };
 use time::{OffsetDateTime, Time, UtcOffset};
 use tokio::sync::{broadcast::Sender, Mutex};
-use tracing::{trace, info};
+use tracing::{info, trace};
 
 use crate::{
     app_error::AppError,
@@ -14,7 +14,7 @@ use crate::{
     ws::InternalMessage,
 };
 
-const ONE_SECOND:u64 = 1000;
+const ONE_SECOND: u64 = 1000;
 #[derive(Debug)]
 pub struct AlarmSchedule {
     alarms: Vec<ModelAlarm>,
@@ -27,7 +27,7 @@ impl AlarmSchedule {
         let alarms = ModelAlarm::get_all(db).await?;
         let time_zone = ModelTimezone::get(db).await.unwrap_or_default();
 
-		// let offset = time_zone.get_offset();
+        // let offset = time_zone.get_offset();
 
         Ok(Self {
             alarms,
@@ -52,8 +52,8 @@ impl AlarmSchedule {
     /// Get timezone from db and store into self, also update offset
     pub async fn refresh_timezone(&mut self, db: &SqlitePool) {
         if let Some(time_zone) = ModelTimezone::get(db).await {
-		// self.offset = time_zone.get_offset();
-			self.time_zone = time_zone;
+            // self.offset = time_zone.get_offset();
+            self.time_zone = time_zone;
         }
     }
 
@@ -94,7 +94,7 @@ impl CronAlarm {
     async fn init_loop(&mut self, sx: Sender<InternalMessage>) {
         trace!("alarm looper started");
         loop {
-			let start = std::time::Instant::now();
+            let start = std::time::Instant::now();
             if !self.alarm_schedule.lock().await.alarms.is_empty() {
                 let offset = self.alarm_schedule.lock().await.time_zone.get_offset();
                 let now_as_utc_offset = OffsetDateTime::now_utc().to_offset(offset);
@@ -123,7 +123,8 @@ impl CronAlarm {
                     }
                 }
             }
-			let sleep_for = ONE_SECOND - u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND);
+            let sleep_for =
+                ONE_SECOND - u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND);
             tokio::time::sleep(std::time::Duration::from_millis(sleep_for)).await;
         }
     }

@@ -38,7 +38,9 @@ impl SysInfo {
         Self {
             internal_ip: Self::get_ip(app_envs).await,
             uptime: Self::get_uptime().await,
-            uptime_app: std::time::SystemTime::now().duration_since(app_envs.start_time).map_or(0, |value| value.as_secs()),
+            uptime_app: std::time::SystemTime::now()
+                .duration_since(app_envs.start_time)
+                .map_or(0, |value| value.as_secs()),
             time_zone: model_timezone.zone_name,
             version: env!("CARGO_PKG_VERSION").into(),
         }

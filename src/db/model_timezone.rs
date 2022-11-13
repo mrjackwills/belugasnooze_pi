@@ -1,8 +1,8 @@
 use serde::Deserialize;
 use sqlx::SqlitePool;
-use time_tz::{timezones, TimeZone, Offset,};
 use std::fmt;
 use time::UtcOffset;
+use time_tz::{timezones, Offset, TimeZone};
 
 use crate::{app_error::AppError, env::AppEnv};
 
@@ -17,8 +17,7 @@ impl fmt::Display for ModelTimezone {
         write!(
             f,
             "timezone_id: {}, zone_name: {}",
-            self.timezone_id,
-            self.zone_name,
+            self.timezone_id, self.zone_name,
         )
     }
 }
@@ -33,10 +32,11 @@ impl Default for ModelTimezone {
 }
 
 impl ModelTimezone {
-
-	pub fn get_offset(&self) -> UtcOffset {
-		timezones::get_by_name(&self.zone_name).map_or(UtcOffset::UTC, |tz| tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc())
-	}
+    pub fn get_offset(&self) -> UtcOffset {
+        timezones::get_by_name(&self.zone_name).map_or(UtcOffset::UTC, |tz| {
+            tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc()
+        })
+    }
 
     pub async fn get(db: &SqlitePool) -> Option<Self> {
         let sql = "SELECT * FROM timezone";
@@ -53,10 +53,7 @@ impl ModelTimezone {
         Ok(query)
     }
 
-    pub async fn update(
-        db: &SqlitePool,
-        zone_name: &str,
-    ) -> Result<Self, AppError> {
+    pub async fn update(db: &SqlitePool, zone_name: &str) -> Result<Self, AppError> {
         let sql = "UPDATE timezone SET zone_name = $1 RETURNING timezone_id, zone_name";
         let query = sqlx::query_as::<_, Self>(sql)
             .bind(zone_name)
@@ -189,7 +186,7 @@ mod tests {
         let pre_update = ModelTimezone::get(&fixtures.0).await.unwrap();
 
         // ACTIONS
-        let result = ModelTimezone::update(&fixtures.0, data.0,).await;
+        let result = ModelTimezone::update(&fixtures.0, data.0).await;
 
         // CHECK
         assert_eq!(pre_update.timezone_id, 1);

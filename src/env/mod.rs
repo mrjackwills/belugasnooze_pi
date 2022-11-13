@@ -52,7 +52,10 @@ impl AppEnv {
     }
 
     fn parse_string(key: &str, map: &EnvHashMap) -> Result<String, AppError> {
-        map.get(key).map_or(Err(AppError::MissingEnv(key.into())), |value| Ok(value.into()))
+        map.get(key)
+            .map_or(Err(AppError::MissingEnv(key.into())), |value| {
+                Ok(value.into())
+            })
     }
     /// Check that a given timezone is valid, else return UTC
     fn parse_timezone(map: &EnvHashMap) -> String {
