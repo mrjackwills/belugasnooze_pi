@@ -1,3 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.8'>v0.1.8</a>
+### 2022-11-13
+
+### Fix
++ create_release.sh fix, [a3098998](https://github.com/mrjackwills/belugasnooze_pi/commit/a3098998bb588835ceb1a189c078a5e85ceffb14)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.7'>v0.1.7</a>
 ### 2022-11-13
 
