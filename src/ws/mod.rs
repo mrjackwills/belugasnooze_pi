@@ -10,7 +10,7 @@ use futures_util::{
 };
 use sqlx::SqlitePool;
 use std::sync::{atomic::AtomicBool, Arc};
-use time::{OffsetDateTime, UtcOffset};
+use time::OffsetDateTime;
 use tokio::{
     net::TcpStream,
     sync::{
@@ -116,11 +116,7 @@ pub async fn open_connection(
                 let allowable = 7u8..=22;
                 if allowable.contains(
                     &OffsetDateTime::now_utc()
-                        .to_offset(UtcOffset::from_hms(
-                            db_timezone.offset_hour,
-                            db_timezone.offset_minute,
-                            db_timezone.offset_second,
-                        )?)
+                        .to_offset(db_timezone.get_offset())
                         .hour(),
                 ) {
                     LightControl::rainbow(Arc::clone(&light_status)).await;

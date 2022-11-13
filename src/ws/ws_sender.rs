@@ -7,7 +7,7 @@ use std::sync::{
     Arc,
 };
 use std::time::Instant;
-use time_tz::{timezones, Offset, TimeZone};
+use time_tz::timezones;
 use tokio::sync::{broadcast::Sender, Mutex as TokioMutex};
 use tracing::{debug, error, trace};
 
@@ -133,9 +133,8 @@ impl WSSender {
     /// Change the timezone in database to new given database,
     /// also update timezone in alarm scheduler
     async fn time_zone(&mut self, zone: String) {
-        if let Some(tz) = timezones::get_by_name(&zone) {
-            let offset = tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc();
-            ModelTimezone::update(&self.db, &zone, offset)
+        if timezones::get_by_name(&zone).is_some() {
+            ModelTimezone::update(&self.db, &zone)
                 .await
                 .unwrap_or_default();
             self.alarm_scheduler

@@ -38,10 +38,9 @@ impl SysInfo {
         Self {
             internal_ip: Self::get_ip(app_envs).await,
             uptime: Self::get_uptime().await,
-            uptime_app: match std::time::SystemTime::now().duration_since(app_envs.start_time) {
-                Ok(value) => value.as_secs(),
-                Err(_) => 0,
-            },
+            uptime_app: std::time::SystemTime::now()
+                .duration_since(app_envs.start_time)
+                .map_or(0, |value| value.as_secs()),
             time_zone: model_timezone.zone_name,
             version: env!("CARGO_PKG_VERSION").into(),
         }
@@ -74,7 +73,7 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "America/New_York".to_owned(),
             trace: false,
-            utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
+            // utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -91,7 +90,7 @@ mod tests {
     #[tokio::test]
     async fn sysinfo_getuptime_ok() {
         // FIXTURES
-        setup_test_db("sysinfo_getuptime_ok", "".to_owned()).await;
+        setup_test_db("sysinfo_getuptime_ok", String::new()).await;
 
         // ACTIONS
         let result = SysInfo::get_uptime().await;
@@ -105,7 +104,7 @@ mod tests {
     #[tokio::test]
     async fn sysinfo_get_ip_na() {
         // FIXTURES
-        let app_envs = setup_test_db("sysinfo_get_ip_na", "".to_owned()).await;
+        let app_envs = setup_test_db("sysinfo_get_ip_na", String::new()).await;
 
         // ACTIONS
         let result = SysInfo::get_ip(&app_envs.1).await;

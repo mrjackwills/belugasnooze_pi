@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # rust create_release
-# v0.0.16
+# v0.1.0
 
 PACKAGE_NAME='belugasnooze'
 STAR_LINE='****************************************'
@@ -111,7 +111,7 @@ update_release_body_and_changelog () {
 
 	# Update changelog to add links to commits [hex:8](url_with_full_commit)
 	# "[aaaaaaaaaabbbbbbbbbbccccccccccddddddddd]" -> "[aaaaaaaa](https:/www.../commit/aaaaaaaaaabbbbbbbbbbccccccccccddddddddd),"
-	sed -i -E "s=(\s)\[([0-9a-f]{8})([0-9a-f]{32})\]= [\2](${GIT_REPO_URL}/commit/\2\3),=g" ./CHANGELOG.md
+	sed -i -E "s=(\s)\[([0-9a-f]{8})([0-9a-f]{32})\]= [\2](${GIT_REPO_URL}/commit/\2\3)=g" ./CHANGELOG.md
 
 	# Update changelog to add links to closed issues - comma included!
 	# "closes [#1]," -> "closes [#1](https:/www.../issues/1),""
@@ -194,11 +194,16 @@ cargo_test () {
 	ask_continue
 }
 
+# $1 text to colourise
+release_continue () {
+	echo -e "\n${PURPLE}$1${RESET}"
+	ask_continue
+}
+
 # Full flow to create a new release
 release_flow() {
 	check_git
 	get_git_remote_url
-	cargo fmt
 	cargo_test
 	cargo_build
 	cd "${CWD}" || error_close "Can't find ${CWD}"
@@ -206,28 +211,50 @@ release_flow() {
 	
 	NEW_TAG_WITH_V="v${MAJOR}.${MINOR}.${PATCH}"
 	printf "\nnew tag chosen: %s\n\n" "${NEW_TAG_WITH_V}"
+
 	RELEASE_BRANCH=release-$NEW_TAG_WITH_V
 	echo -e
 	ask_changelog_update
+	
+	release_continue "checkout ${RELEASE_BRANCH}"
 	git checkout -b "$RELEASE_BRANCH"
-	update_version_number_in_files
-	# sleep here to allow Cargo.lock to update - based on Cargo.toml
-	sleep 2
-	git add .
-	git commit -m "chore: release $NEW_TAG_WITH_V"
 
+	release_continue "update_version_number_in_files"
+	update_version_number_in_files
+	
+	echo "cargo fmt"
+	cargo fmt
+	
+	release_continue "git add ."
+	git add .
+
+	release_continue "git commit -mg \"chore: release \"${NEW_TAG_WITH_V}\""
+	git commit -m "chore: release ${NEW_TAG_WITH_V}"
+
+	release_continue "git checkout main"
 	git checkout main
-	sleep 2
+
+	release_continue "git merge --no-ff \"${RELEASE_BRANCH}\" -m \"chore: merge ${RELEASE_BRANCH} into main\"" 
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
+
+	release_continue "git tag -am \"${RELEASE_BRANCH}\" \"$NEW_TAG_WITH_V\""
 	git tag -am "${RELEASE_BRANCH}" "$NEW_TAG_WITH_V"
-	echo "git tag -am \"${RELEASE_BRANCH}\" \"$NEW_TAG_WITH_V\""
+
+	release_continue "git push --atomic origin main \"$NEW_TAG_WITH_V\""
 	git push --atomic origin main "$NEW_TAG_WITH_V"
+
+	release_continue "git checkout dev"
 	git checkout dev
+
+	release_continue "git merge --no-ff main -m 'chore: merge main into dev'"
 	git merge --no-ff main -m 'chore: merge main into dev'
+
+	release_continue "git push origin dev"
 	git push origin dev
+
+	release_continue "git branch -d \"$RELEASE_BRANCH\""
 	git branch -d "$RELEASE_BRANCH"
 }
-
 
 main() {
 	cmd=(dialog --backtitle "Choose build option" --radiolist "choose" 14 80 16)

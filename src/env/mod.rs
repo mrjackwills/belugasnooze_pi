@@ -15,7 +15,6 @@ pub struct AppEnv {
     pub start_time: SystemTime,
     pub timezone: String,
     pub trace: bool,
-    pub utc_offset: UtcOffset,
     pub ws_address: String,
     pub ws_apikey: String,
     pub ws_password: String,
@@ -33,10 +32,7 @@ impl AppEnv {
 
     /// Parse "true" or "false" to bool, else false
     fn parse_boolean(key: &str, map: &EnvHashMap) -> bool {
-        match map.get(key) {
-            Some(value) => value == "true",
-            None => false,
-        }
+        map.get(key).map_or(false, |value| value == "true")
     }
 
     /// Make sure database file ends .db
@@ -55,23 +51,11 @@ impl AppEnv {
         }
     }
 
-    /// Return offset for given timezone, else utc
-    fn parse_offset(map: &EnvHashMap) -> Result<UtcOffset, AppError> {
-        if let Some(data) = map.get("TIMEZONE") {
-            if let Some(value) = timezones::get_by_name(data) {
-                return Ok(value
-                    .get_offset_utc(&time::OffsetDateTime::now_utc())
-                    .to_utc());
-            }
-        }
-        Ok(UtcOffset::from_hms(0, 0, 0)?)
-    }
-
     fn parse_string(key: &str, map: &EnvHashMap) -> Result<String, AppError> {
-        match map.get(key) {
-            Some(value) => Ok(value.into()),
-            None => Err(AppError::MissingEnv(key.into())),
-        }
+        map.get(key)
+            .map_or(Err(AppError::MissingEnv(key.into())), |value| {
+                Ok(value.into())
+            })
     }
     /// Check that a given timezone is valid, else return UTC
     fn parse_timezone(map: &EnvHashMap) -> String {
@@ -87,10 +71,7 @@ impl AppEnv {
     fn parse_u32(key: &str, map: &EnvHashMap) -> u32 {
         let default = 1u32;
         if let Some(data) = map.get(key) {
-            return match data.parse::<u32>() {
-                Ok(d) => d,
-                Err(_) => default,
-            };
+            return data.parse::<u32>().map_or(default, |d| d);
         }
         default
     }
@@ -113,7 +94,6 @@ impl AppEnv {
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
             trace: Self::parse_boolean("TRACE", &env_map),
-            utc_offset: Self::parse_offset(&env_map)?,
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,
             ws_password: Self::parse_string("WS_PASSWORD", &env_map)?,
@@ -260,60 +240,6 @@ mod tests {
         }
     }
 
-    // Need to work on this test, can fail during the odd period of the year when NY and Berling is only 5 hours seperated, rather than the usualy 6
-    #[tokio::test]
-    async fn env_parse_offset_ok() {
-        // FIXTURES
-        let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "America/New_York".to_owned());
-
-        // ACTION
-        let result = AppEnv::parse_offset(&map).unwrap();
-
-        // CHECK
-        assert_eq!(result, UtcOffset::from_hms(-4, 0, 0).unwrap());
-
-        // FIXTURES
-        let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "Europe/Berlin".to_owned());
-
-        // ACTION
-        let result = AppEnv::parse_offset(&map).unwrap();
-
-        // CHECK
-        assert_eq!(result, UtcOffset::from_hms(2, 0, 0).unwrap());
-
-        // FIXTURES
-        let map = HashMap::new();
-
-        // ACTION
-        let result = AppEnv::parse_offset(&map).unwrap();
-
-        // CHECK
-        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
-    }
-
-    #[tokio::test]
-    async fn env_parse_offset_err() {
-        // typo time zone
-        // FIXTURES
-        let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "america/New_York".to_owned());
-
-        // ACTION
-        let result = AppEnv::parse_offset(&map).unwrap();
-        // CHECK
-        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
-
-        // No timezone present
-        // FIXTURES
-        let map = HashMap::new();
-        let result = AppEnv::parse_offset(&map).unwrap();
-
-        // CHECK
-        assert_eq!(result, UtcOffset::from_hms(0, 0, 0).unwrap());
-    }
-
     #[tokio::test]
     async fn env_parse_timezone_ok() {
         // FIXTURES
@@ -423,7 +349,6 @@ mod tests {
     async fn env_parse_u32_default_ok() {
         // FIXTURES
         let map = HashMap::new();
-        //   map.insert("U32_TEST".to_owned(), "88".to_owned());
 
         // ACTION
         let result = AppEnv::parse_u32("U32_TEST", &map);
