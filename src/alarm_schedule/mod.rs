@@ -91,7 +91,6 @@ impl CronAlarm {
 
     /// loop every 1 second,check if current time & day matches alarm, and if so execute alarm illuminate
     /// is private, so that it can only be executed during the self.init() method, so that it is correctly spawned onto it's own tokio thread
-	/// todo check for offset time every hour?
     async fn init_loop(&mut self, sx: Sender<InternalMessage>) {
         trace!("alarm looper started");
         loop {
