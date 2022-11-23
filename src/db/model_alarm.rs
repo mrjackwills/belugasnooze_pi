@@ -61,7 +61,6 @@ impl ModelAlarm {
 mod tests {
     use crate::{db::init_db, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
-    use time::UtcOffset;
 
     use super::*;
 

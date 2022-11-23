@@ -43,7 +43,6 @@ dependencies = [
  "figlet-rs",
  "futures-util",
  "openssl",
- "rand",
  "reqwest",
  "serde",
  "serde_json",

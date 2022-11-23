@@ -55,7 +55,6 @@ impl SysInfo {
 mod tests {
     use crate::db::init_db;
     use std::{fs, sync::Arc, time::SystemTime};
-    use time::UtcOffset;
 
     use super::*;
 
@@ -73,7 +72,6 @@ mod tests {
             start_time: SystemTime::now(),
             timezone: "America/New_York".to_owned(),
             trace: false,
-            // utc_offset: UtcOffset::from_hms(-5, 0, 0).unwrap(),
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),

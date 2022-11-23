@@ -1,6 +1,5 @@
 use std::{collections::HashMap, env, time::SystemTime};
-use time::UtcOffset;
-use time_tz::{timezones, Offset, TimeZone};
+use time_tz::timezones;
 
 use crate::app_error::AppError;
 
