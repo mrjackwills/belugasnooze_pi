@@ -3,9 +3,9 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use time::{OffsetDateTime, Time, UtcOffset};
+use time::{OffsetDateTime, Time};
 use tokio::sync::{broadcast::Sender, Mutex};
-use tracing::{info, trace};
+use tracing::trace;
 
 use crate::{
     app_error::AppError,
@@ -19,21 +19,13 @@ const ONE_SECOND: u64 = 1000;
 pub struct AlarmSchedule {
     alarms: Vec<ModelAlarm>,
     time_zone: ModelTimezone,
-    // offset: UtcOffset,
 }
 
 impl AlarmSchedule {
     async fn new(db: &SqlitePool) -> Result<Self, AppError> {
         let alarms = ModelAlarm::get_all(db).await?;
         let time_zone = ModelTimezone::get(db).await.unwrap_or_default();
-
-        // let offset = time_zone.get_offset();
-
-        Ok(Self {
-            alarms,
-            time_zone,
-            // offset,
-        })
+        Ok(Self { alarms, time_zone })
     }
 
     /// Remove all alarms from vector
@@ -52,7 +44,6 @@ impl AlarmSchedule {
     /// Get timezone from db and store into self, also update offset
     pub async fn refresh_timezone(&mut self, db: &SqlitePool) {
         if let Some(time_zone) = ModelTimezone::get(db).await {
-            // self.offset = time_zone.get_offset();
             self.time_zone = time_zone;
         }
     }

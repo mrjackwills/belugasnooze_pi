@@ -99,13 +99,12 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 mod tests {
     use super::*;
     use std::{fs, time::SystemTime};
-    use time::UtcOffset;
 
     fn cleanup() {
         fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
     }
 
-    fn gen_args(timezone: String, hour_offset: i8, location_sqlite: String) -> AppEnv {
+    fn gen_args(timezone: String, location_sqlite: String) -> AppEnv {
         let na = String::from("na");
         AppEnv {
             debug: true,
@@ -177,7 +176,7 @@ mod tests {
         let sql_sham = format!("{sql_name}-shm");
         let sql_wal = format!("{sql_name}-wal");
 
-        let args = gen_args("America/New_York".into(), -5, sql_name.clone());
+        let args = gen_args("America/New_York".into(), sql_name.clone());
 
         // ACTION
         init_db(&args).await.unwrap();
@@ -195,7 +194,7 @@ mod tests {
         // FIXTURES
         let sql_name = String::from("/dev/shm/test_db_files/sql_file_db_created_with_timezone.db");
         let timezone = "America/New_York";
-        let args = gen_args(timezone.into(), -5, sql_name.clone());
+        let args = gen_args(timezone.into(), sql_name.clone());
         init_db(&args).await.unwrap();
         let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
             .max_connections(1)

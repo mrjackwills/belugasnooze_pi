@@ -78,7 +78,6 @@ impl Intro {
 mod tests {
     use super::*;
     use std::time::SystemTime;
-    use time::UtcOffset;
 
     #[test]
     fn word_art_display_intro_trace() {

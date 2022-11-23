@@ -5,7 +5,7 @@
 // #![warn(clippy::nursery)]
 // #![allow(clippy::module_name_repetitions, clippy::doc_markdown)]
 // Only allow when debugging
-#![allow(unused)]
+// #![allow(unused)]
 
 mod alarm_schedule;
 mod app_error;

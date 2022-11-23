@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.17
 
 ARG DOCKER_GUID=1000 \
 	DOCKER_UID=1000 \
@@ -23,7 +23,7 @@ RUN mkdir /db_data \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app /db_data
 
 # This gets automatically updated via create_release.sh
-RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.1.8/belugasnooze_linux_armv6.tar.gz\
+RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.1.9/belugasnooze_linux_armv6.tar.gz\
 	&& tar xzvf belugasnooze_linux_armv6.tar.gz belugasnooze && rm belugasnooze_linux_armv6.tar.gz \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
 

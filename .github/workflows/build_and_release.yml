@@ -9,18 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      # Build for linux armv6, aka 32 bit pi zero w
-      - name: build release armv6
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target:  arm-unknown-linux-musleabihf
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --target arm-unknown-linux-musleabihf --release
+      - name: install rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: build arm-unknown-linux-musleabihf 
+        run: cross build --target arm-unknown-linux-musleabihf --release
+
       - name: compress armv6 binary
         run: tar -C target/arm-unknown-linux-musleabihf/release -czf ./belugasnooze_linux_armv6.tar.gz belugasnooze
 
