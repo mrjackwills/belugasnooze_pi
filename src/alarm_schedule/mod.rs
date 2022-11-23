@@ -25,11 +25,7 @@ impl AlarmSchedule {
     async fn new(db: &SqlitePool) -> Result<Self, AppError> {
         let alarms = ModelAlarm::get_all(db).await?;
         let time_zone = ModelTimezone::get(db).await.unwrap_or_default();
-
-        Ok(Self {
-            alarms,
-            time_zone,
-        })
+        Ok(Self { alarms, time_zone })
     }
 
     /// Remove all alarms from vector
@@ -89,9 +85,9 @@ impl CronAlarm {
     async fn init_loop(&mut self, sx: Sender<InternalMessage>) {
         trace!("alarm looper started");
         loop {
-			let start = std::time::Instant::now();
+            let start = std::time::Instant::now();
             if !self.alarm_schedule.lock().await.alarms.is_empty() {
-				let offset = self.alarm_schedule.lock().await.time_zone.get_offset();
+                let offset = self.alarm_schedule.lock().await.time_zone.get_offset();
                 let now_as_utc_offset = OffsetDateTime::now_utc().to_offset(offset);
                 if let Ok(current_time) = Time::from_hms(
                     now_as_utc_offset.hour(),
