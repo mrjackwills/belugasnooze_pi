@@ -1,9 +1,29 @@
-use std::{collections::HashMap, env, time::SystemTime};
+use std::{collections::HashMap, env, time::SystemTime, fmt};
 use time_tz::timezones;
 
 use crate::app_error::AppError;
 
 type EnvHashMap = HashMap<String, String>;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct EnvTimeZone(String);
+
+impl EnvTimeZone {
+    pub fn new(x: impl Into<String>) -> Self {
+		let x = x.into();
+        if timezones::get_by_name(&x).is_some() {
+            Self(x)
+        } else {
+            Self("Etc/UTC".into())
+        }
+    }
+}
+
+impl fmt::Display for EnvTimeZone {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct AppEnv {
@@ -12,7 +32,7 @@ pub struct AppEnv {
     pub location_sqlite: String,
     pub sql_threads: u32,
     pub start_time: SystemTime,
-    pub timezone: String,
+    pub timezone: EnvTimeZone,
     pub trace: bool,
     pub ws_address: String,
     pub ws_apikey: String,
@@ -56,15 +76,14 @@ impl AppEnv {
                 Ok(value.into())
             })
     }
-    /// Check that a given timezone is valid, else return UTC
-    fn parse_timezone(map: &EnvHashMap) -> String {
-        if let Some(data) = map.get("TIMEZONE") {
-            if timezones::get_by_name(data).is_some() {
-                return data.clone();
-            }
-        }
-        "Etc/UTC".to_owned()
-    }
+
+  /// Check that a given timezone is valid, else return UTC
+  fn parse_timezone(map: &EnvHashMap) -> EnvTimeZone {
+	EnvTimeZone::new(
+		map.get("TIMEZONE")
+			.map_or_else(String::new, std::borrow::ToOwned::to_owned),
+	)
+}
 
     /// Parse string to u32, else return 1
     fn parse_u32(key: &str, map: &EnvHashMap) -> u32 {
@@ -249,7 +268,7 @@ mod tests {
         let result = AppEnv::parse_timezone(&map);
 
         // CHECK
-        assert_eq!(result, "America/New_York");
+        assert_eq!(result.0, "America/New_York");
 
         let mut map = HashMap::new();
         map.insert("TIMEZONE".to_owned(), "Europe/Berlin".to_owned());
@@ -258,7 +277,7 @@ mod tests {
         let result = AppEnv::parse_timezone(&map);
 
         // CHECK
-        assert_eq!(result, "Europe/Berlin");
+        assert_eq!(result.0, "Europe/Berlin");
 
         // FIXTURES
         let map = HashMap::new();
@@ -267,7 +286,7 @@ mod tests {
         let result = AppEnv::parse_timezone(&map);
 
         // CHECK
-        assert_eq!(result, "Etc/UTC");
+        assert_eq!(result.0, "Etc/UTC");
     }
 
     #[tokio::test]
@@ -279,7 +298,7 @@ mod tests {
         // ACTION
         let result = AppEnv::parse_timezone(&map);
         // CHECK
-        assert_eq!(result, "Etc/UTC");
+        assert_eq!(result.0, "Etc/UTC");
 
         // No timezone present
         // FIXTURES
@@ -287,7 +306,7 @@ mod tests {
         let result = AppEnv::parse_timezone(&map);
 
         // CHECK
-        assert_eq!(result, "Etc/UTC");
+        assert_eq!(result.0, "Etc/UTC");
     }
     #[tokio::test]
     async fn env_panic_appenv() {

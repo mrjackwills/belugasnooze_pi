@@ -53,7 +53,7 @@ impl SysInfo {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::db::init_db;
+    use crate::{db::init_db, env::EnvTimeZone};
     use std::{fs, sync::Arc, time::SystemTime};
 
     use super::*;
@@ -70,7 +70,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "America/New_York".to_owned(),
+            timezone: EnvTimeZone::new("America/New_York"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),

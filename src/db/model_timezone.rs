@@ -47,7 +47,7 @@ impl ModelTimezone {
     pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
         let sql = "INSERT INTO timezone (zone_name) VALUES($1) RETURNING timezone_id, zone_name";
         let query = sqlx::query_as::<_, Self>(sql)
-            .bind(&app_envs.timezone)
+            .bind(&app_envs.timezone.to_string())
             .fetch_one(db)
             .await?;
         Ok(query)
@@ -69,7 +69,7 @@ impl ModelTimezone {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::db::{create_tables, file_exists, get_db, init_db};
+    use crate::{db::{create_tables, file_exists, get_db, init_db}, env::EnvTimeZone};
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 
@@ -84,7 +84,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "America/New_York".to_owned(),
+            timezone: EnvTimeZone::new("America/New_York"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
@@ -110,7 +110,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "Europe/Berlin".to_owned(),
+            timezone: EnvTimeZone::new("Europe/Berlin"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
@@ -141,7 +141,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "Europe/Berlin".to_owned(),
+			timezone: EnvTimeZone::new("Europe/Berlin"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),

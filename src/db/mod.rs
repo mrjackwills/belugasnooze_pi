@@ -97,6 +97,8 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
 mod tests {
+    use crate::env::EnvTimeZone;
+
     use super::*;
     use std::{fs, time::SystemTime};
 
@@ -112,7 +114,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone,
+            timezone: EnvTimeZone::new(timezone),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
