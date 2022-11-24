@@ -5,9 +5,13 @@ on:
       - 'v*.*.*'
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+
+      ####################################
+      ## Build binaries for release page #
+      ####################################
 
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
@@ -15,11 +19,16 @@ jobs:
       - name: install cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      - name: build arm-unknown-linux-musleabihf 
+      # Build for Pi Zero W
+      - name: build arm-unknown-linux-musleabihf
         run: cross build --target arm-unknown-linux-musleabihf --release
 
       - name: compress armv6 binary
         run: tar -C target/arm-unknown-linux-musleabihf/release -czf ./belugasnooze_linux_armv6.tar.gz belugasnooze
+
+      ###################
+      ## Create release #
+      ###################
 
       - name: Release
         uses: softprops/action-gh-release@v1
