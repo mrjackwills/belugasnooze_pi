@@ -16,6 +16,9 @@ jobs:
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+
       - name: install cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
