@@ -15,6 +15,7 @@ use crate::{
 };
 
 const ONE_SECOND: u64 = 1000;
+
 #[derive(Debug)]
 pub struct AlarmSchedule {
     alarms: Vec<ModelAlarm>,
@@ -114,9 +115,8 @@ impl CronAlarm {
                     }
                 }
             }
-            let sleep_for =
-                ONE_SECOND - u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND);
-            tokio::time::sleep(std::time::Duration::from_millis(sleep_for)).await;
+			let to_sleep = ONE_SECOND.saturating_sub(u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND));
+            tokio::time::sleep(std::time::Duration::from_millis(to_sleep)).await;
         }
     }
 }
