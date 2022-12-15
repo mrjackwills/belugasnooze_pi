@@ -23,7 +23,7 @@ fn paint_text(text: &str, color: Color) -> String {
         .into_iter()
         .map(|i| format!("{tint}{i}\n"))
         .collect::<String>();
-    format!("{}{}", painted, RESET)
+    format!("{painted}{RESET}")
 }
 
 /// Show the intro texts
@@ -76,6 +76,8 @@ impl Intro {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
+    use crate::env::EnvTimeZone;
+
     use super::*;
     use std::time::SystemTime;
 
@@ -88,7 +90,7 @@ mod tests {
             location_sqlite: na.clone(),
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: na.clone(),
+            timezone: EnvTimeZone::new(""),
             trace: true,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
@@ -110,7 +112,7 @@ mod tests {
             location_sqlite: na.clone(),
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: na.clone(),
+            timezone: EnvTimeZone::new(""),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
@@ -125,19 +127,18 @@ mod tests {
 
     #[test]
     fn word_art_display_intro() {
-        let na = String::from("na");
         let args = AppEnv {
             debug: false,
-            location_ip_address: na.clone(),
-            location_sqlite: na.clone(),
+            location_ip_address: String::new(),
+            location_sqlite: String::new(),
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: na.clone(),
+            timezone: EnvTimeZone::new(""),
             trace: false,
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
+            ws_address: String::new(),
+            ws_apikey: String::new(),
+            ws_password: String::new(),
+            ws_token_address: String::new(),
         };
 
         let result = display_intro(&args);

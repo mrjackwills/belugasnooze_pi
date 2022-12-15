@@ -29,7 +29,7 @@ fn file_exists(filename: &str) {
                     .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
             })
             .collect::<String>();
-        match fs::create_dir_all(&path) {
+        match fs::create_dir_all(path) {
             Ok(_) => (),
             Err(e) => {
                 error!(%e);
@@ -97,6 +97,8 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
 mod tests {
+    use crate::env::EnvTimeZone;
+
     use super::*;
     use std::{fs, time::SystemTime};
 
@@ -112,7 +114,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone,
+            timezone: EnvTimeZone::new(timezone),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),

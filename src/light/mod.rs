@@ -46,7 +46,7 @@ impl fmt::Display for LimitMinutes {
             Self::FortyFive => "45",
             Self::Five => "5",
         };
-        write!(f, "{}", x)
+        write!(f, "{x}")
     }
 }
 

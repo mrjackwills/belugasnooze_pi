@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   belugasnooze_pi_client:
-    image: belugasnooze_pi_client:0.1.9
+    image: belugasnooze_pi_client:0.2.0
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,7 +25,7 @@ services:
     restart: always
     devices:
     - "/dev/gpiomem"
-    - "dev/gpiochip0"
+    - "/dev/gpiochip0"
     networks:
       - belugasnooze_net
     logging:

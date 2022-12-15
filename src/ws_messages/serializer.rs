@@ -32,7 +32,7 @@ impl IncomingSerializer {
         }
         for i in &parsed {
             if !range.contains(i) {
-                return Err(de::Error::custom(format!("{} not in range {:?}", i, range)));
+                return Err(de::Error::custom(format!("{i} not in range {range:?}")));
             }
         }
         Ok(parsed)
@@ -54,7 +54,7 @@ impl IncomingSerializer {
     {
         let parsed = i64::deserialize(deserializer)?;
         if parsed < 1 {
-            return Err(de::Error::custom(format!("{} smaller than 1", parsed)));
+            return Err(de::Error::custom(format!("{parsed} smaller than 1")));
         }
         Ok(parsed)
     }

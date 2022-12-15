@@ -59,13 +59,13 @@ impl ModelAlarm {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{db::init_db, AppEnv};
+    use crate::{db::init_db, env::EnvTimeZone, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
 
     use super::*;
 
     async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let na = String::from("na");
         let env = AppEnv {
             debug: true,
@@ -73,7 +73,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "America/New_York".to_owned(),
+            timezone: EnvTimeZone::new("America/New_York"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),

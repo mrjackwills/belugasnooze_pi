@@ -53,7 +53,7 @@ impl SysInfo {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::db::init_db;
+    use crate::{db::init_db, env::EnvTimeZone};
     use std::{fs, sync::Arc, time::SystemTime};
 
     use super::*;
@@ -62,7 +62,7 @@ mod tests {
         file_name: &str,
         location_ip_address: String,
     ) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let na = String::from("na");
         let env = AppEnv {
             debug: true,
@@ -70,7 +70,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-            timezone: "America/New_York".to_owned(),
+            timezone: EnvTimeZone::new("America/New_York"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
