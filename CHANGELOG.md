@@ -12,6 +12,9 @@
 ### Fixes
 + docker-compose typo, [7d9f76fe75f2ece9d308b70c1876a36edc229a0b]
 
+### Refactors
++ use saturating_sub in alarm loop to calculate time to sleep for, [29db696bd457b62553d55d7dc77bc1359b9e1523]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.1.9'>v0.1.9</a>
 ### 2022-11-23
 
