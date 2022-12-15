@@ -69,7 +69,10 @@ impl ModelTimezone {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{db::{create_tables, file_exists, get_db, init_db}, env::EnvTimeZone};
+    use crate::{
+        db::{create_tables, file_exists, get_db, init_db},
+        env::EnvTimeZone,
+    };
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
 
@@ -141,7 +144,7 @@ mod tests {
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
-			timezone: EnvTimeZone::new("Europe/Berlin"),
+            timezone: EnvTimeZone::new("Europe/Berlin"),
             trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
