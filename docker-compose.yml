@@ -25,7 +25,7 @@ services:
     restart: always
     devices:
     - "/dev/gpiomem"
-    - "dev/gpiochip0"
+    - "/dev/gpiochip0"
     networks:
       - belugasnooze_net
     logging:
