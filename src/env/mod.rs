@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, time::SystemTime, fmt};
+use std::{collections::HashMap, env, fmt, time::SystemTime};
 use time_tz::timezones;
 
 use crate::app_error::AppError;
@@ -10,7 +10,7 @@ pub struct EnvTimeZone(String);
 
 impl EnvTimeZone {
     pub fn new(x: impl Into<String>) -> Self {
-		let x = x.into();
+        let x = x.into();
         if timezones::get_by_name(&x).is_some() {
             Self(x)
         } else {
@@ -77,13 +77,13 @@ impl AppEnv {
             })
     }
 
-  /// Check that a given timezone is valid, else return UTC
-  fn parse_timezone(map: &EnvHashMap) -> EnvTimeZone {
-	EnvTimeZone::new(
-		map.get("TIMEZONE")
-			.map_or_else(String::new, std::borrow::ToOwned::to_owned),
-	)
-}
+    /// Check that a given timezone is valid, else return UTC
+    fn parse_timezone(map: &EnvHashMap) -> EnvTimeZone {
+        EnvTimeZone::new(
+            map.get("TIMEZONE")
+                .map_or_else(String::new, std::borrow::ToOwned::to_owned),
+        )
+    }
 
     /// Parse string to u32, else return 1
     fn parse_u32(key: &str, map: &EnvHashMap) -> u32 {

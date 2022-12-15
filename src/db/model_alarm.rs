@@ -59,7 +59,7 @@ impl ModelAlarm {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{db::init_db, AppEnv, env::EnvTimeZone};
+    use crate::{db::init_db, env::EnvTimeZone, AppEnv};
     use std::{fs, sync::Arc, time::SystemTime};
 
     use super::*;
