@@ -23,7 +23,7 @@ fn paint_text(text: &str, color: Color) -> String {
         .into_iter()
         .map(|i| format!("{tint}{i}\n"))
         .collect::<String>();
-    format!("{}{}", painted, RESET)
+    format!("{painted}{RESET}")
 }
 
 /// Show the intro texts

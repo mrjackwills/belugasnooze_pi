@@ -62,7 +62,7 @@ mod tests {
         file_name: &str,
         location_ip_address: String,
     ) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let na = String::from("na");
         let env = AppEnv {
             debug: true,

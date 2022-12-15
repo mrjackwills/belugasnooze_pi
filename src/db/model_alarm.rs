@@ -65,7 +65,7 @@ mod tests {
     use super::*;
 
     async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let na = String::from("na");
         let env = AppEnv {
             debug: true,

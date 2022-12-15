@@ -77,7 +77,7 @@ mod tests {
 
     async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
         let na = String::from("na");
-        let location_sqlite = format!("/dev/shm/test_db_files/{}.db", file_name);
+        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let env = AppEnv {
             debug: true,
             location_ip_address: na.clone(),

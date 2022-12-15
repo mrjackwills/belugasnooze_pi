@@ -29,7 +29,7 @@ fn file_exists(filename: &str) {
                     .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
             })
             .collect::<String>();
-        match fs::create_dir_all(&path) {
+        match fs::create_dir_all(path) {
             Ok(_) => (),
             Err(e) => {
                 error!(%e);
