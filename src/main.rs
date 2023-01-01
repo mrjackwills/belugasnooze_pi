@@ -27,7 +27,6 @@ use std::sync::{
     Arc,
 };
 use tokio::sync::broadcast;
-use tracing::Level;
 use word_art::Intro;
 use ws::open_connection;
 
@@ -40,14 +39,7 @@ fn close_signal(light_status: Arc<AtomicBool>) {
 }
 
 fn setup_tracing(app_envs: &AppEnv) {
-    let level = if app_envs.trace {
-        Level::TRACE
-    } else if app_envs.debug {
-        Level::DEBUG
-    } else {
-        Level::INFO
-    };
-    tracing_subscriber::fmt().with_max_level(level).init();
+    tracing_subscriber::fmt().with_max_level(app_envs.log_level).init();
 }
 
 #[tokio::main]

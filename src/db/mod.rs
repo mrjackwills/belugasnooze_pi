@@ -6,7 +6,7 @@ use std::fs;
 pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
-use sqlx::{sqlite::SqliteJournalMode, ConnectOptions, SqlitePool};
+use sqlx::{sqlite::SqliteJournalMode, SqlitePool};
 use tracing::error;
 
 use crate::env::AppEnv;
@@ -49,12 +49,10 @@ fn file_exists(filename: &str) {
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
-    let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
+    let connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
         .journal_mode(SqliteJournalMode::Wal);
-    if !app_envs.trace {
-        connect_options.disable_statement_logging();
-    }
+
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
         .max_connections(app_envs.sql_threads)
         .connect_with(connect_options)
@@ -109,13 +107,12 @@ mod tests {
     fn gen_args(timezone: String, location_sqlite: String) -> AppEnv {
         let na = String::from("na");
         AppEnv {
-            debug: true,
             location_ip_address: na.clone(),
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(timezone),
-            trace: false,
+            log_level: tracing::Level::INFO,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),

@@ -39,19 +39,24 @@ fn display_intro(app_envs: &AppEnv) -> String {
     let version = paint_text(&format!("v{semver}    {author}"), Color::Green);
 
     let mut output = format!("{beluga}{client}{version}");
-    if app_envs.trace {
-        output.push('\n');
-        let debug = paint_text("!! TRACE MODE !!", Color::BgRed);
-        for _ in 0..=2 {
-            output.push_str(&debug);
-        }
-    } else if app_envs.debug {
-        output.push('\n');
-        let debug = paint_text("!! DEBUG MODE !!", Color::BgRed);
-        for _ in 0..=2 {
-            output.push_str(&debug);
-        }
-    }
+
+	match app_envs.log_level {
+		tracing::Level::TRACE => {
+			output.push('\n');
+			let debug = paint_text("!! TRACE MODE !!", Color::BgRed);
+			for _ in 0..=2 {
+				output.push_str(&debug);
+			}
+		},
+		tracing::Level::DEBUG => {
+			output.push('\n');
+			let debug = paint_text("!! DEBUG MODE !!", Color::BgRed);
+			for _ in 0..=2 {
+				output.push_str(&debug);
+			}
+		},
+		_ => {}
+	}
     output
 }
 
@@ -85,13 +90,12 @@ mod tests {
     fn word_art_display_intro_trace() {
         let na = String::from("na");
         let args = AppEnv {
-            debug: true,
             location_ip_address: na.clone(),
             location_sqlite: na.clone(),
+			log_level: tracing::Level::TRACE,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),
-            trace: true,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -107,13 +111,12 @@ mod tests {
     fn word_art_display_intro_debug() {
         let na = String::from("na");
         let args = AppEnv {
-            debug: true,
             location_ip_address: na.clone(),
             location_sqlite: na.clone(),
+			log_level: tracing::Level::DEBUG,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),
-            trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
@@ -128,13 +131,12 @@ mod tests {
     #[test]
     fn word_art_display_intro() {
         let args = AppEnv {
-            debug: false,
             location_ip_address: String::new(),
             location_sqlite: String::new(),
+			log_level: tracing::Level::INFO,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),
-            trace: false,
             ws_address: String::new(),
             ws_apikey: String::new(),
             ws_password: String::new(),

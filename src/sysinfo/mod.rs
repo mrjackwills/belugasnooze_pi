@@ -65,13 +65,12 @@ mod tests {
         let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
         let na = String::from("na");
         let env = AppEnv {
-            debug: true,
             location_ip_address,
             location_sqlite,
+			log_level: tracing::Level::INFO,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new("America/New_York"),
-            trace: false,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
