@@ -81,6 +81,7 @@ impl LightControl {
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
+	/// TODO this is messy, need to clean & refactor
     pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::SeqCst);
         sx.send(InternalMessage::Light).unwrap_or_default();
@@ -163,7 +164,6 @@ impl LightControl {
             for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
                 Self::show_rainbow(pixel, color).await;
             }
-
             for (pixel, color) in RAINBOW_COLORS.into_iter().rev().enumerate() {
                 Self::show_rainbow(RAINBOW_COLORS.len() - 1 - pixel, color).await;
             }
