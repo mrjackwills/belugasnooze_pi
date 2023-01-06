@@ -5,7 +5,7 @@
 + comments & typos, [8c0235aac0d72e1a03dc9c0c144093ccf37506cc]
 
 ### Features
-+ feat: log tests, [aec755e0fbcdaeda8a2676f66367860dd12408c9]
++ log tests, [aec755e0fbcdaeda8a2676f66367860dd12408c9]
 + tracing log level into app_env, [740ef13f80c8a5ab496474b570235013f0df4055]
 
 ### Refactors
