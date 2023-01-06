@@ -119,7 +119,7 @@ impl WSSender {
     /// This also needs to be send from alarm sequencer
     /// return true if led light is currently turned on
     pub async fn led_status(&mut self) {
-        let status = self.light_status.load(Ordering::SeqCst);
+        let status = self.light_status.load(Ordering::Relaxed);
         let response = Response::LedStatus { status };
         self.send_ws_response(response, None).await;
     }
@@ -148,13 +148,13 @@ impl WSSender {
 
     /// turn light either on or off
     async fn toggle_light(&mut self, new_status: bool) {
-        if new_status && !self.light_status.load(Ordering::SeqCst) {
-            self.light_status.store(true, Ordering::SeqCst);
+        if new_status && !self.light_status.load(Ordering::Relaxed) {
+            self.light_status.store(true, Ordering::Relaxed);
             let response = Response::LedStatus { status: new_status };
             self.send_ws_response(response, None).await;
             LightControl::turn_on(Arc::clone(&self.light_status), &self.sx).await;
         } else if !new_status {
-            self.light_status.store(false, Ordering::SeqCst);
+            self.light_status.store(false, Ordering::Relaxed);
             self.led_status().await;
         }
     }

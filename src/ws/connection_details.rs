@@ -8,7 +8,6 @@ pub struct ConnectionDetails {
     count: usize,
     wait: Wait,
     connection_instant: Option<Instant>,
-    is_connected: bool,
 }
 
 #[derive(Debug)]
@@ -31,7 +30,6 @@ impl ConnectionDetails {
         Self {
             count: 0,
             wait: Wait::Short,
-            is_connected: false,
             connection_instant: None,
         }
     }
@@ -40,7 +38,6 @@ impl ConnectionDetails {
     /// Set is_connected to 0 and time to none
     pub fn fail_connect(&mut self) {
         self.count += 1;
-        self.is_connected = false;
         if self.count >= 20 {
             self.wait = Wait::Long;
         }
@@ -58,7 +55,6 @@ impl ConnectionDetails {
     pub fn valid_connect(&mut self) {
         self.wait = Wait::Short;
         self.count = 0;
-        self.is_connected = true;
         self.connection_instant = Some(Instant::now());
         let now = OffsetDateTime::now_utc();
         debug!("{} {}", now.date(), now.time());

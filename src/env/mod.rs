@@ -27,13 +27,12 @@ impl fmt::Display for EnvTimeZone {
 
 #[derive(Debug, Clone)]
 pub struct AppEnv {
-    pub debug: bool,
     pub location_ip_address: String,
     pub location_sqlite: String,
+    pub log_level: tracing::Level,
     pub sql_threads: u32,
     pub start_time: SystemTime,
     pub timezone: EnvTimeZone,
-    pub trace: bool,
     pub ws_address: String,
     pub ws_apikey: String,
     pub ws_password: String,
@@ -94,6 +93,17 @@ impl AppEnv {
         default
     }
 
+    /// Parse debug and/or trace into tracing level
+    fn parse_log(map: &EnvHashMap) -> tracing::Level {
+        if Self::parse_boolean("LOG_TRACE", map) {
+            tracing::Level::TRACE
+        } else if Self::parse_boolean("LOG_DEBUG", map) {
+            tracing::Level::DEBUG
+        } else {
+            tracing::Level::INFO
+        }
+    }
+
     /// Load, and parse .env file, return `AppEnv`
     fn generate() -> Result<Self, AppError> {
         let env_map = env::vars()
@@ -102,16 +112,15 @@ impl AppEnv {
             .collect::<HashMap<String, String>>();
 
         Ok(Self {
-            debug: Self::parse_boolean("DEBUG", &env_map),
             location_ip_address: Self::check_file_exists(Self::parse_string(
                 "LOCATION_IP_ADDRESS",
                 &env_map,
             )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
+            log_level: Self::parse_log(&env_map),
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
-            trace: Self::parse_boolean("TRACE", &env_map),
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,
             ws_password: Self::parse_string("WS_PASSWORD", &env_map)?,
@@ -256,6 +265,84 @@ mod tests {
             AppError::MissingEnv(value) => assert_eq!(value, "LOCATION_SQLITE"),
             _ => unreachable!(),
         }
+    }
+
+    #[test]
+    fn env_parse_log_valid() {
+        // FIXTURES
+        let map = HashMap::from([("RANDOM_STRING".to_owned(), "123".to_owned())]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::INFO);
+
+        // FIXTURES
+        let map = HashMap::from([("LOG_DEBUG".to_owned(), "false".to_owned())]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::INFO);
+
+        // FIXTURES
+        let map = HashMap::from([("LOG_TRACE".to_owned(), "false".to_owned())]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::INFO);
+
+        // FIXTURES
+        let map = HashMap::from([
+            ("LOG_DEBUG".to_owned(), "false".to_owned()),
+            ("LOG_TRACE".to_owned(), "false".to_owned()),
+        ]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::INFO);
+
+        // FIXTURES
+        let map = HashMap::from([
+            ("LOG_DEBUG".to_owned(), "true".to_owned()),
+            ("LOG_TRACE".to_owned(), "false".to_owned()),
+        ]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::DEBUG);
+
+        // FIXTURES
+        let map = HashMap::from([
+            ("LOG_DEBUG".to_owned(), "true".to_owned()),
+            ("LOG_TRACE".to_owned(), "true".to_owned()),
+        ]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::TRACE);
+
+        // FIXTURES
+        let map = HashMap::from([
+            ("LOG_DEBUG".to_owned(), "false".to_owned()),
+            ("LOG_TRACE".to_owned(), "true".to_owned()),
+        ]);
+
+        // ACTION
+        let result = AppEnv::parse_log(&map);
+
+        // CHECK
+        assert_eq!(result, tracing::Level::TRACE);
     }
 
     #[tokio::test]

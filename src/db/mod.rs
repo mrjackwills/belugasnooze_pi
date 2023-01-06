@@ -12,7 +12,7 @@ use tracing::error;
 use crate::env::AppEnv;
 
 /// If file doesn't exist on disk, create
-/// Probably can be removes, as sqlx has a setting to create file if not found
+/// Probably can be removed, as sqlx has a setting to create file if not found
 fn file_exists(filename: &str) {
     if !std::path::Path::new(filename)
         .extension()
@@ -52,9 +52,11 @@ async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
         .journal_mode(SqliteJournalMode::Wal);
-    if !app_envs.trace {
+
+    if app_envs.log_level != tracing::Level::TRACE {
         connect_options.disable_statement_logging();
     }
+
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
         .max_connections(app_envs.sql_threads)
         .connect_with(connect_options)
@@ -109,13 +111,12 @@ mod tests {
     fn gen_args(timezone: String, location_sqlite: String) -> AppEnv {
         let na = String::from("na");
         AppEnv {
-            debug: true,
             location_ip_address: na.clone(),
             location_sqlite,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(timezone),
-            trace: false,
+            log_level: tracing::Level::INFO,
             ws_address: na.clone(),
             ws_apikey: na.clone(),
             ws_password: na.clone(),
