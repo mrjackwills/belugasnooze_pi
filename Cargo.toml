@@ -19,7 +19,7 @@ sqlx = { version = "0.6", default-features = false, features = [ "runtime-tokio-
 thiserror = "1.0"
 time = {version="0.3", features=["local-offset", "macros"]}
 time-tz = "1.0"
-tokio = {version ="1.23", features=["full"]}
+tokio = {version ="1.24", features=["full"]}
 tokio-tungstenite={version= "0.18", features = ["native-tls"]}
 tracing = "0.1"
 tracing-subscriber = "0.3"
