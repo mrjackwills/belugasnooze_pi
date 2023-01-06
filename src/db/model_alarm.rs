@@ -70,7 +70,7 @@ mod tests {
         let env = AppEnv {
             location_ip_address: na.clone(),
             location_sqlite,
-			log_level: tracing::Level::INFO,
+            log_level: tracing::Level::INFO,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new("America/New_York"),

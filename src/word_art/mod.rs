@@ -40,23 +40,23 @@ fn display_intro(app_envs: &AppEnv) -> String {
 
     let mut output = format!("{beluga}{client}{version}");
 
-	match app_envs.log_level {
-		tracing::Level::TRACE => {
-			output.push('\n');
-			let debug = paint_text("!! TRACE MODE !!", Color::BgRed);
-			for _ in 0..=2 {
-				output.push_str(&debug);
-			}
-		},
-		tracing::Level::DEBUG => {
-			output.push('\n');
-			let debug = paint_text("!! DEBUG MODE !!", Color::BgRed);
-			for _ in 0..=2 {
-				output.push_str(&debug);
-			}
-		},
-		_ => {}
-	}
+    match app_envs.log_level {
+        tracing::Level::TRACE => {
+            output.push('\n');
+            let debug = paint_text("!! TRACE MODE !!", Color::BgRed);
+            for _ in 0..=2 {
+                output.push_str(&debug);
+            }
+        }
+        tracing::Level::DEBUG => {
+            output.push('\n');
+            let debug = paint_text("!! DEBUG MODE !!", Color::BgRed);
+            for _ in 0..=2 {
+                output.push_str(&debug);
+            }
+        }
+        _ => {}
+    }
     output
 }
 
@@ -92,7 +92,7 @@ mod tests {
         let args = AppEnv {
             location_ip_address: na.clone(),
             location_sqlite: na.clone(),
-			log_level: tracing::Level::TRACE,
+            log_level: tracing::Level::TRACE,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),
@@ -113,7 +113,7 @@ mod tests {
         let args = AppEnv {
             location_ip_address: na.clone(),
             location_sqlite: na.clone(),
-			log_level: tracing::Level::DEBUG,
+            log_level: tracing::Level::DEBUG,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),
@@ -133,7 +133,7 @@ mod tests {
         let args = AppEnv {
             location_ip_address: String::new(),
             location_sqlite: String::new(),
-			log_level: tracing::Level::INFO,
+            log_level: tracing::Level::INFO,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(""),

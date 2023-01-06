@@ -6,7 +6,7 @@ use std::fs;
 pub use model_alarm::ModelAlarm;
 pub use model_timezone::ModelTimezone;
 
-use sqlx::{sqlite::SqliteJournalMode, SqlitePool};
+use sqlx::{sqlite::SqliteJournalMode, ConnectOptions, SqlitePool};
 use tracing::error;
 
 use crate::env::AppEnv;
@@ -49,9 +49,13 @@ fn file_exists(filename: &str) {
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
-    let connect_options = sqlx::sqlite::SqliteConnectOptions::new()
+    let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
         .filename(&app_envs.location_sqlite)
         .journal_mode(SqliteJournalMode::Wal);
+
+    if app_envs.log_level != tracing::Level::TRACE {
+        connect_options.disable_statement_logging();
+    }
 
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
         .max_connections(app_envs.sql_threads)

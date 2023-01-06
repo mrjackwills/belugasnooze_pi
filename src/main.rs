@@ -32,14 +32,16 @@ use ws::open_connection;
 
 fn close_signal(light_status: Arc<AtomicBool>) {
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
-        light_status.store(false, Ordering::SeqCst);
+        light_status.store(false, Ordering::Relaxed);
         std::thread::sleep(std::time::Duration::from_millis(250));
         std::process::exit(1);
     });
 }
 
 fn setup_tracing(app_envs: &AppEnv) {
-    tracing_subscriber::fmt().with_max_level(app_envs.log_level).init();
+    tracing_subscriber::fmt()
+        .with_max_level(app_envs.log_level)
+        .init();
 }
 
 #[tokio::main]

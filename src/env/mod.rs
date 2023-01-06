@@ -93,15 +93,14 @@ impl AppEnv {
         default
     }
 
-	
-	/// Parse debug and/or trace into tracing level
+    /// Parse debug and/or trace into tracing level
     fn parse_log(map: &EnvHashMap) -> tracing::Level {
         if Self::parse_boolean("LOG_TRACE", map) {
-			tracing::Level::TRACE
+            tracing::Level::TRACE
         } else if Self::parse_boolean("LOG_DEBUG", map) {
-			tracing::Level::DEBUG
+            tracing::Level::DEBUG
         } else {
-			tracing::Level::INFO
+            tracing::Level::INFO
         }
     }
 
@@ -118,7 +117,7 @@ impl AppEnv {
                 &env_map,
             )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
-			log_level: Self::parse_log(&env_map),
+            log_level: Self::parse_log(&env_map),
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
@@ -268,7 +267,7 @@ mod tests {
         }
     }
 
-	#[test]
+    #[test]
     fn env_parse_log_valid() {
         // FIXTURES
         let map = HashMap::from([("RANDOM_STRING".to_owned(), "123".to_owned())]);
