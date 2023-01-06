@@ -42,15 +42,14 @@ impl LimitMinutes {
 
 /// Convert from a step (0-10) to the correct wait LimitMinute value
 impl From<u8> for LimitMinutes {
-	fn from(step: u8) -> Self {
-		if step < 9 {
-			Self::Five
-		} else {
-			Self::FortyFive
-		}
-	}
+    fn from(step: u8) -> Self {
+        if step < 9 {
+            Self::Five
+        } else {
+            Self::FortyFive
+        }
+    }
 }
-
 
 impl fmt::Display for LimitMinutes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -91,13 +90,12 @@ impl LightControl {
         sx.send(InternalMessage::Light).unwrap_or_default();
     }
 
-	/// Increment the brightness & associated values
-	fn increment_step(step: &mut u8, brightness: &mut f32, start: &mut Instant) {
-		*step += 1;
-		*brightness += 1.0;
-		*start = Instant::now();
-
-	}
+    /// Increment the brightness & associated values
+    fn increment_step(step: &mut u8, brightness: &mut f32, start: &mut Instant) {
+        *step += 1;
+        *brightness += 1.0;
+        *start = Instant::now();
+    }
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
@@ -117,9 +115,9 @@ impl LightControl {
 
                 while light_status.load(Ordering::Relaxed) {
                     led_strip.show().unwrap_or(());
-                    let limit= LimitMinutes::from(step);
+                    let limit = LimitMinutes::from(step);
                     if Self::light_limit(start, &limit) {
-						Self::increment_step(&mut step, &mut brightness, &mut start);
+                        Self::increment_step(&mut step, &mut brightness, &mut start);
                         led_strip.set_all_pixels_brightness(brightness / 10.0);
                         if let LimitMinutes::FortyFive = limit {
                             light_status.store(false, Ordering::Relaxed);
@@ -130,10 +128,10 @@ impl LightControl {
                 }
             } else {
                 while light_status.load(Ordering::Relaxed) {
-                  let limit= LimitMinutes::from(step);
+                    let limit = LimitMinutes::from(step);
                     if Self::light_limit(start, &limit) {
                         debug!("step: {}, brightness: {}", step, brightness / 10.0);
-						Self::increment_step(&mut step, &mut brightness, &mut start);
+                        Self::increment_step(&mut step, &mut brightness, &mut start);
                         if let LimitMinutes::FortyFive = limit {
                             light_status.store(false, Ordering::Relaxed);
                         };

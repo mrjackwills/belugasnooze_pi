@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"

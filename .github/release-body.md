@@ -1,20 +1,18 @@
-### 2022-12-15
+### 2023-01-06
 
 ### Chores
-+ lint with Rust 1.66, [af7229ac8e60a6f25e3e9f918c6335f1e807b0e6]
-+ dependencies updated, [59867ee9cb6ceb1f4d1c93ab28f511b5014fa4c6], [0e0006a25f3ad464ecfcea21754e3dddf29c7a52]
++ dependencies updated, [3036cf7a50168d7df9a696cedf7d88843451755f], [11bd312c08d3310454f145c16bfccfcdc2d9848d]
 
 ### Docs
-+ workflow comments, [faff6b06bc023bce8809e49a263387bdae92c92e]
++ comments & typos, [8c0235aac0d72e1a03dc9c0c144093ccf37506cc]
 
 ### Features
-+ use EnvTimeZone, [ccd287dacf1dbff6c78bdfe932b6fd25ff9de891]
-+ github action cache, [5497cfd1a299d1b03effea52593c53d378509ecf]
-
-### Fixes
-+ docker-compose typo, [7d9f76fe75f2ece9d308b70c1876a36edc229a0b]
++ log tests, [aec755e0fbcdaeda8a2676f66367860dd12408c9]
++ tracing log level into app_env, [740ef13f80c8a5ab496474b570235013f0df4055]
 
 ### Refactors
-+ use saturating_sub in alarm loop to calculate time to sleep for, [29db696bd457b62553d55d7dc77bc1359b9e1523]
++ Dockerfile tweak, [b6b4603e5dd85d41ac02316e53376f6df745b677]
++ lightstatus use relaxed ordering, [58100be227b48bcc80bcf9e8825c6421ed7b7032]
++ is_connected removed, [9446df66bc7c734a629973c78c97d9efccffc963]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
