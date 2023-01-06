@@ -103,7 +103,7 @@ impl CronAlarm {
                         if i.day == current_weekday
                             && i.hour == current_time.hour()
                             && i.minute == current_time.minute()
-                            && !self.light_status.load(Ordering::SeqCst)
+                            && !self.light_status.load(Ordering::Relaxed)
                         {
                             trace!("sending lighton message to via internal channels");
                             LightControl::alarm_illuminate(
