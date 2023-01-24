@@ -9,26 +9,40 @@ struct PostRequest<'a> {
     password: &'a str,
 }
 
+impl<'a> From<&'a AppEnv> for PostRequest<'a> {
+    fn from(app_envs: &'a AppEnv) -> Self {
+        Self {
+            key: &app_envs.ws_apikey,
+            password: &app_envs.ws_password,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
+// This is an ULID, but probably no need to parse it as such
 struct PostResponse {
-    // This is an UUID, but probably no need to parse it as such
     response: String,
 }
 
 /// Make a https request to get an access token
 async fn get_auth_token(app_envs: &AppEnv) -> Result<String, AppError> {
-    let request_body = PostRequest {
-        key: &app_envs.ws_apikey,
-        password: &app_envs.ws_password,
-    };
-    let request: PostResponse = reqwest::Client::new()
+    let response = reqwest::Client::builder()
+        .connect_timeout(std::time::Duration::from_millis(5000))
+        .gzip(true)
+        .brotli(true)
+        .user_agent(format!(
+            "{}/{}",
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION")
+        ))
+        .build()?
         .post(&app_envs.ws_token_address)
-        .json(&request_body)
+        .json(&PostRequest::from(app_envs))
         .send()
         .await?
-        .json()
+        .json::<PostResponse>()
         .await?;
-    Ok(request.response)
+    Ok(response.response)
 }
 
 /// Connect to wesbsocket server

@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
@@ -11,7 +11,7 @@ dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
 openssl = { version = '0.10', features = ["vendored"] }
-reqwest = {version = "0.11", features=["json", "native-tls"]}
+reqwest = {version = "0.11", features=["json", "native-tls", "gzip", "brotli", "json"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 simple-signal = "1.1"
