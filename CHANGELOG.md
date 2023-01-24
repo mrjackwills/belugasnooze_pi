@@ -1,8 +1,11 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.2.2'>v0.2.2</a>
+### 2023-01-24
+
 ### Chores
-+ dependencies updated, [4e9c84ec73cc25bf265dc8941fc080dfdc924d0c]
++ dependencies updated, [4e9c84ec](https://github.com/mrjackwills/belugasnooze_pi/commit/4e9c84ec73cc25bf265dc8941fc080dfdc924d0c)
 
 ### Features
-+ token request add timeout & useragent, [e598f6f6ca8dd8feafff0aaa0edb268b05d13fa2]
++ token request add timeout & useragent, [e598f6f6](https://github.com/mrjackwills/belugasnooze_pi/commit/e598f6f6ca8dd8feafff0aaa0edb268b05d13fa2)
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.2.1'>v0.2.1</a>
 ### 2023-01-06
