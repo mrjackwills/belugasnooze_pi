@@ -12,8 +12,7 @@ impl IncomingSerializer {
         let parsed = u8::deserialize(deserializer)?;
         if !range.contains(&parsed) {
             return Err(de::Error::custom(format!(
-                "{}, not in range {:?}",
-                parsed, range
+                "{parsed}, not in range {range:?}"
             )));
         }
         Ok(parsed)
