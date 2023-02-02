@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # rust create_release
-# v0.1.0
+# v0.2.0
 
 PACKAGE_NAME='belugasnooze'
 STAR_LINE='****************************************'
@@ -199,12 +199,21 @@ release_continue () {
 	ask_continue
 }
 
+# check for typos
+check_typos(){
+	typos --exclude font.rs
+	ask_continue
+}
+
 # Full flow to create a new release
 release_flow() {
 	check_git
 	get_git_remote_url
+
+	check_typos
 	cargo_test
 	cargo_build
+	
 	cd "${CWD}" || error_close "Can't find ${CWD}"
 	check_tag
 	
@@ -235,6 +244,9 @@ release_flow() {
 
 	release_continue "git merge --no-ff \"${RELEASE_BRANCH}\" -m \"chore: merge ${RELEASE_BRANCH} into main\"" 
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
+
+	echo -e "\n${PURPLE}cargo check${RESET}\n"
+	cargo check
 
 	release_continue "git tag -am \"${RELEASE_BRANCH}\" \"$NEW_TAG_WITH_V\""
 	git tag -am "${RELEASE_BRANCH}" "$NEW_TAG_WITH_V"
