@@ -119,7 +119,7 @@ impl LightControl {
                     if Self::light_limit(start, &limit) {
                         Self::increment_step(&mut step, &mut brightness, &mut start);
                         led_strip.set_all_pixels_brightness(brightness / 10.0);
-                        if let LimitMinutes::FortyFive = limit {
+                        if matches!(limit, LimitMinutes::FortyFive) {
                             light_status.store(false, Ordering::Relaxed);
                             led_strip.clear();
                         };
@@ -132,7 +132,7 @@ impl LightControl {
                     if Self::light_limit(start, &limit) {
                         debug!("step: {}, brightness: {}", step, brightness / 10.0);
                         Self::increment_step(&mut step, &mut brightness, &mut start);
-                        if let LimitMinutes::FortyFive = limit {
+                        if matches!(limit, LimitMinutes::FortyFive) {
                             light_status.store(false, Ordering::Relaxed);
                         };
                     };

@@ -1,9 +1,13 @@
-FROM alpine:3.17
+#########
+# SETUP #
+#########
 
-ARG DOCKER_GUID=1000 \
-	DOCKER_UID=1000 \
-	DOCKER_TIME_CONT=America \
-	DOCKER_TIME_CITY=New_York \
+FROM alpine:3.17 as SETUP
+
+ARG DOCKER_GUID \
+	DOCKER_UID \
+	DOCKER_TIME_CONT \
+	DOCKER_TIME_CITY \
 	DOCKER_APP_USER=app_user \
 	DOCKER_APP_GROUP=app_group
 
@@ -14,18 +18,38 @@ WORKDIR /app
 
 RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 	&& adduser -u ${DOCKER_UID} -S -G ${DOCKER_APP_GROUP} ${DOCKER_APP_USER} \
-	&& apk --no-cache add --virtual ${VIRT} tzdata \
+	&& apk --no-cache add --virtual ${VIRT} tzdata ca-certificates \
 	&& cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+	&& update-ca-certificates \
 	&& echo ${TZ} > /etc/timezone \
 	&& apk del ${VIRT} \
 	&& mkdir /db_data \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data
 
 # This gets automatically updated via create_release.sh
-RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.2.2/belugasnooze_linux_armv6.tar.gz\
+RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.3.0/belugasnooze_linux_armv6.tar.gz\
 	&& tar xzvf belugasnooze_linux_armv6.tar.gz belugasnooze && rm belugasnooze_linux_armv6.tar.gz \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
 
+##########
+# RUNNER #
+##########
+
+FROM scratch AS RUNNER
+
+ARG DOCKER_TIME_CONT \
+	DOCKER_TIME_CITY \
+	DOCKER_APP_USER=app_user \
+	DOCKER_APP_GROUP=app_group
+
+ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
+
+COPY --from=SETUP /app/belugasnooze /bin/
+COPY --from=SETUP /etc/group /etc/passwd /etc/
+COPY --from=SETUP /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+COPY --from=SETUP --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_data
+
 USER ${DOCKER_APP_USER}
 
-CMD [ "./belugasnooze"]
+ENTRYPOINT ["/bin/belugasnooze"]

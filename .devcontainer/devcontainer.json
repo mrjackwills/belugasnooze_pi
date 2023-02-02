@@ -17,6 +17,7 @@
 	],
 
 	"mounts": [
+		"source=/dev/shm,target=/dev/shm,type=bind",
 		"source=/etc/timezone,target=/etc/timezone,type=bind,readonly"
 	],
 
