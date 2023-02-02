@@ -59,7 +59,7 @@ impl WSSender {
     pub async fn on_text(&mut self, message: String) {
         if let Some(data) = to_struct(&message) {
             match data {
-                MessageValues::Invalid(error) => error!("{:?}", error),
+                MessageValues::Invalid(error) => error!("invalid::{error:?}"),
                 MessageValues::Valid(data) => match data {
                     ParsedMessage::DeleteAll => self.delete_all().await,
                     ParsedMessage::DeleteOne(id) => self.delete_one(id.alarm_id).await,
@@ -170,7 +170,7 @@ impl WSSender {
         {
             Ok(_) => trace!("Message sent"),
             Err(e) => {
-                error!("send_ws_response::SEND-ERROR::{:?}", e);
+                error!("send_ws_response::SEND-ERROR::{e:?}");
                 process::exit(1);
             }
         }

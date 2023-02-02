@@ -2,7 +2,7 @@
 ### 2023-02-02
 
 ### Chores
-+ dependecies updated, [dc5f837d](https://github.com/mrjackwills/belugasnooze_pi/commit/dc5f837d7c1fa7c93241c0d2d96482ae2289ade8)
++ dependencies updated, [dc5f837d](https://github.com/mrjackwills/belugasnooze_pi/commit/dc5f837d7c1fa7c93241c0d2d96482ae2289ade8)
 + dev container mount /dev/shm, [0ff14f5d](https://github.com/mrjackwills/belugasnooze_pi/commit/0ff14f5d007f1fe8c3d7672a8ceb746ae8b08398)
 + github action on main semver only, [013f87f6](https://github.com/mrjackwills/belugasnooze_pi/commit/013f87f68761cbc6c782c18a20a1757bd28d7835)
 
@@ -152,7 +152,7 @@
 
 ### Chores
 + anyhow import removed, [e2982862](https://github.com/mrjackwills/belugasnooze_pi/commit/e2982862903d96b4e2de95b182c6adcdbcb69ff0),
-+ dependenices updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561), [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
++ dependencies updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561), [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
 
 ### Features
 + use new staticpi protocol, [c335e530](https://github.com/mrjackwills/belugasnooze_pi/commit/c335e530f70cbf1c803552be64f766bff152ef6b),

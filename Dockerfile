@@ -44,7 +44,7 @@ ARG DOCKER_TIME_CONT \
 
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
-COPY --from=SETUP /app/belugasnooze /bin/
+COPY --from=SETUP /app/ /app
 COPY --from=SETUP /etc/group /etc/passwd /etc/
 COPY --from=SETUP /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
@@ -52,4 +52,4 @@ COPY --from=SETUP --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_da
 
 USER ${DOCKER_APP_USER}
 
-ENTRYPOINT ["/bin/belugasnooze"]
+ENTRYPOINT ["/app/belugasnooze"]
