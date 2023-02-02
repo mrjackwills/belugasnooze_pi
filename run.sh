@@ -71,8 +71,7 @@ main() {
 	do
 		case $choice in
 			0)
-				exit
-				break;;
+				exit;;
 			1)
 				production_up
 				break;;
