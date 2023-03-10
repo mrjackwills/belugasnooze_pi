@@ -53,7 +53,7 @@
 		}
 	},
 
-	"postCreateCommand": "cargo install cargo-watch typos-cli",
+	"postCreateCommand": "cargo install cargo-watch typos-cli cross",
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
