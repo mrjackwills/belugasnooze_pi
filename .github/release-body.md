@@ -1,15 +1,14 @@
-### 2023-02-02
+### 2023-03-10
 
 ### Chores
-+ dependecies updated, [dc5f837d7c1fa7c93241c0d2d96482ae2289ade8]
-+ dev container mount /dev/shm, [0ff14f5d007f1fe8c3d7672a8ceb746ae8b08398]
-+ github action on main semver only, [013f87f68761cbc6c782c18a20a1757bd28d7835]
-
-## Features
-+ remove openssl dependency, [ba3ea537aaf9d1a3f0f867d78cbb4e7e998c6455]
-+ use a scratch Docker container, [fb844b56859117bd0740233d79e9e3c418f98be9]
++ Rust 1.68.0 linting, [ca2a085f39a6540f69c2d970c03583300f093f73]
++ _typos.toml added, [18a49742cde6b6a503458046658e4d5fcb7c089b]
++ create_release updated, [67aa26eab028b7cad9fa130433fe5bd14665861d]
++ dependencies updated, [5356ed821941bae0564402cf33715324db6a2d95]
++ devcontainer updated, use sparse protocol index, [9f0fb6cd06d69c9b72dc535eabb3bda9125fdf5e], [77c041707f0a0657262b59c1d9512c76c5c8739f]
++ typos fixed, [1f576fe7ab32f452b6edbaad4c8bc3b829e1a21e]
 
 ### Refactors
-+ linting, [82965e9baced9117e6e439703d20b27e0a126716]
++ `unwrap_or(())` changed to `ok()`, [558fb20589f7c23349ccba5814a8ca45e62b9e89]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
