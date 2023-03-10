@@ -6,6 +6,9 @@
 + devcontainer updated, use sparse protocol index, [9f0fb6cd06d69c9b72dc535eabb3bda9125fdf5e]
 + typos fixed, [1f576fe7ab32f452b6edbaad4c8bc3b829e1a21e]
 
+### Refactors
++ `unwrap_or(())` changed to `ok()`, [558fb20589f7c23349ccba5814a8ca45e62b9e89]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.0'>v0.3.0</a>
 ### 2023-02-02
 
