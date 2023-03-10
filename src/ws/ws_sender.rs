@@ -59,7 +59,7 @@ impl WSSender {
     pub async fn on_text(&mut self, message: String) {
         if let Some(data) = to_struct(&message) {
             match data {
-                MessageValues::Invalid(error) => error!("{:?}", error),
+                MessageValues::Invalid(error) => error!("invalid::{error:?}"),
                 MessageValues::Valid(data) => match data {
                     ParsedMessage::DeleteAll => self.delete_all().await,
                     ParsedMessage::DeleteOne(id) => self.delete_one(id.alarm_id).await,
@@ -100,7 +100,7 @@ impl WSSender {
     /// If the alarm sequence has started, and you delete all alarms, the light is still on
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
     async fn delete_all(&mut self) {
-        ModelAlarm::delete_all(&self.db).await.unwrap_or(());
+        ModelAlarm::delete_all(&self.db).await.ok();
         self.alarm_scheduler
             .lock()
             .await
@@ -134,9 +134,7 @@ impl WSSender {
     /// also update timezone in alarm scheduler
     async fn time_zone(&mut self, zone: String) {
         if timezones::get_by_name(&zone).is_some() {
-            ModelTimezone::update(&self.db, &zone)
-                .await
-                .unwrap_or_default();
+            ModelTimezone::update(&self.db, &zone).await.ok();
             self.alarm_scheduler
                 .lock()
                 .await
@@ -170,7 +168,7 @@ impl WSSender {
         {
             Ok(_) => trace!("Message sent"),
             Err(e) => {
-                error!("send_ws_response::SEND-ERROR::{:?}", e);
+                error!("send_ws_response::SEND-ERROR::{e:?}");
                 process::exit(1);
             }
         }
@@ -193,7 +191,7 @@ impl WSSender {
         )
         .await
         {
-            close.unwrap_or_default();
+            close.ok();
         }
     }
 }

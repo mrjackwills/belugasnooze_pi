@@ -1,8 +1,22 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.1'>v0.3.1</a>
+### 2023-03-10
+
+### Chores
++ Rust 1.68.0 linting, [ca2a085f](https://github.com/mrjackwills/belugasnooze_pi/commit/ca2a085f39a6540f69c2d970c03583300f093f73)
++ _typos.toml added, [18a49742](https://github.com/mrjackwills/belugasnooze_pi/commit/18a49742cde6b6a503458046658e4d5fcb7c089b)
++ create_release updated, [67aa26ea](https://github.com/mrjackwills/belugasnooze_pi/commit/67aa26eab028b7cad9fa130433fe5bd14665861d)
++ dependencies updated, [5356ed82](https://github.com/mrjackwills/belugasnooze_pi/commit/5356ed821941bae0564402cf33715324db6a2d95)
++ devcontainer updated, use sparse protocol index, [9f0fb6cd](https://github.com/mrjackwills/belugasnooze_pi/commit/9f0fb6cd06d69c9b72dc535eabb3bda9125fdf5e), [77c04170](https://github.com/mrjackwills/belugasnooze_pi/commit/77c041707f0a0657262b59c1d9512c76c5c8739f)
++ typos fixed, [1f576fe7](https://github.com/mrjackwills/belugasnooze_pi/commit/1f576fe7ab32f452b6edbaad4c8bc3b829e1a21e)
+
+### Refactors
++ `unwrap_or(())` changed to `ok()`, [558fb205](https://github.com/mrjackwills/belugasnooze_pi/commit/558fb20589f7c23349ccba5814a8ca45e62b9e89)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.0'>v0.3.0</a>
 ### 2023-02-02
 
 ### Chores
-+ dependecies updated, [dc5f837d](https://github.com/mrjackwills/belugasnooze_pi/commit/dc5f837d7c1fa7c93241c0d2d96482ae2289ade8)
++ dependencies updated, [dc5f837d](https://github.com/mrjackwills/belugasnooze_pi/commit/dc5f837d7c1fa7c93241c0d2d96482ae2289ade8)
 + dev container mount /dev/shm, [0ff14f5d](https://github.com/mrjackwills/belugasnooze_pi/commit/0ff14f5d007f1fe8c3d7672a8ceb746ae8b08398)
 + github action on main semver only, [013f87f6](https://github.com/mrjackwills/belugasnooze_pi/commit/013f87f68761cbc6c782c18a20a1757bd28d7835)
 
@@ -152,7 +166,7 @@
 
 ### Chores
 + anyhow import removed, [e2982862](https://github.com/mrjackwills/belugasnooze_pi/commit/e2982862903d96b4e2de95b182c6adcdbcb69ff0),
-+ dependenices updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561), [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
++ dependencies updated, [a332282d](https://github.com/mrjackwills/belugasnooze_pi/commit/a332282d32fc2d4181f1171d58f5728388282561), [07e54204](https://github.com/mrjackwills/belugasnooze_pi/commit/07e542049d1567e20a7d57350454ed7c8f753419),
 
 ### Features
 + use new staticpi protocol, [c335e530](https://github.com/mrjackwills/belugasnooze_pi/commit/c335e530f70cbf1c803552be64f766bff152ef6b),

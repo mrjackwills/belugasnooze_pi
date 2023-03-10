@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
@@ -18,7 +18,7 @@ sqlx = { version = "0.6", default-features = false, features = [ "runtime-tokio-
 thiserror = "1.0"
 time = {version="0.3", features=["local-offset", "macros"]}
 time-tz = "1.0"
-tokio = {version ="1.25", features=["full"]}
+tokio = {version ="1.26", features=["full"]}
 tokio-tungstenite={version= "0.18", features = ["rustls-tls-native-roots"]}
 tracing = "0.1"
 tracing-subscriber = "0.3"

@@ -72,7 +72,7 @@ impl LightControl {
             led_strip.set_all_pixels_brightness(1.0);
             while light_status.load(Ordering::Relaxed) {
                 Self::light_limit(start, &LimitMinutes::Five);
-                led_strip.show().unwrap_or(());
+                led_strip.show().ok();
                 sleep(Duration::from_millis(250)).await;
                 if Self::light_limit(start, &LimitMinutes::Five) {
                     light_status.store(false, Ordering::Relaxed);
@@ -87,7 +87,7 @@ impl LightControl {
                 sleep(Duration::from_millis(250)).await;
             }
         }
-        sx.send(InternalMessage::Light).unwrap_or_default();
+        sx.send(InternalMessage::Light).ok();
     }
 
     /// Increment the brightness & associated values
@@ -102,7 +102,7 @@ impl LightControl {
     /// TODO this is messy, need to clean & refactor
     pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::Relaxed);
-        sx.send(InternalMessage::Light).unwrap_or_default();
+        sx.send(InternalMessage::Light).ok();
         tokio::spawn(async move {
             let mut brightness = 1.0;
             let mut step = 0u8;
@@ -114,7 +114,7 @@ impl LightControl {
                 led_strip.set_all_pixels_brightness(brightness / 10.0);
 
                 while light_status.load(Ordering::Relaxed) {
-                    led_strip.show().unwrap_or(());
+                    led_strip.show().ok();
                     let limit = LimitMinutes::from(step);
                     if Self::light_limit(start, &limit) {
                         Self::increment_step(&mut step, &mut brightness, &mut start);
@@ -139,7 +139,7 @@ impl LightControl {
                     sleep(Duration::from_millis(250)).await;
                 }
             }
-            sx.send(InternalMessage::Light).unwrap_or_default();
+            sx.send(InternalMessage::Light).ok();
         });
     }
 
@@ -155,7 +155,7 @@ impl LightControl {
             led_strip.clear();
             led_strip.set_pixel_brightness(pixel, brightness);
             led_strip.set_pixel(pixel, color.0, color.1, color.2);
-            led_strip.show().unwrap_or(());
+            led_strip.show().ok();
             sleep(Duration::from_millis(50)).await;
         } else {
             debug!(

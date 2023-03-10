@@ -149,8 +149,8 @@ pub async fn open_connection(
                 info!("aborted spawns, incoming_ws_message done, reconnect next");
             }
             Err(e) => {
-                let connect_error = format!("{e}");
-                error!(%connect_error);
+                // let connect_error = format!("{e}");
+                error!("connection::{e}");
                 connection_details.fail_connect();
             }
         }

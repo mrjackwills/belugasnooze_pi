@@ -22,7 +22,7 @@
 
 ## Required Hardware
 
-1) Raspberry pi - designed for, tested, and fully working, a <a href='https://www.raspberrypi.com/products/raspberry-pi-zero-w/' target='_blank' rel='noopener noreferrer'>Raspbery pi zero w</a>
+1) Raspberry pi - designed for, tested, and fully working, a <a href='https://www.raspberrypi.com/products/raspberry-pi-zero-w/' target='_blank' rel='noopener noreferrer'>Raspberry pi zero w</a>
 2) Pimoroni <a href='https://shop.pimoroni.com/products/blinkt' target='_blank' rel='noopener noreferrer'>Blinkt!</a> led strip
 
 <p align="center">
@@ -54,7 +54,7 @@ ramdrive /ramdrive tmpfs defaults,noatime,size=128K     0       0
 Files that are required by belugasnooze
 | file | reason|
 |---|---|
-|```./.env```		| enviromental variables |
+|```./.env```		| environmental variables |
 |```ip.addr```		| ip address for private network |
 |```alarms.db```	| database location |
 

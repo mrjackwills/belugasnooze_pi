@@ -27,7 +27,7 @@ RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data
 
 # This gets automatically updated via create_release.sh
-RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.3.0/belugasnooze_linux_armv6.tar.gz\
+RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/v0.3.1/belugasnooze_linux_armv6.tar.gz\
 	&& tar xzvf belugasnooze_linux_armv6.tar.gz belugasnooze && rm belugasnooze_linux_armv6.tar.gz \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
 
@@ -44,7 +44,7 @@ ARG DOCKER_TIME_CONT \
 
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
-COPY --from=SETUP /app/belugasnooze /bin/
+COPY --from=SETUP /app/ /app
 COPY --from=SETUP /etc/group /etc/passwd /etc/
 COPY --from=SETUP /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
@@ -52,4 +52,4 @@ COPY --from=SETUP --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_da
 
 USER ${DOCKER_APP_USER}
 
-ENTRYPOINT ["/bin/belugasnooze"]
+ENTRYPOINT ["/app/belugasnooze"]
