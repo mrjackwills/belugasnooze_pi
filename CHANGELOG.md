@@ -1,3 +1,11 @@
+### Chores
++ Rust 1.68.0 linting, [ca2a085f39a6540f69c2d970c03583300f093f73]
++ _typos.toml added, [18a49742cde6b6a503458046658e4d5fcb7c089b]
++ create_release updated, [67aa26eab028b7cad9fa130433fe5bd14665861d]
++ dependencies updated, [5356ed821941bae0564402cf33715324db6a2d95]
++ devcontainer updated, use sparse protocol index, [9f0fb6cd06d69c9b72dc535eabb3bda9125fdf5e]
++ typos fixed, [1f576fe7ab32f452b6edbaad4c8bc3b829e1a21e]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.0'>v0.3.0</a>
 ### 2023-02-02
 
