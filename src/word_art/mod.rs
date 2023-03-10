@@ -20,7 +20,6 @@ fn paint_text(text: &str, color: Color) -> String {
     let tint = Color::get(color);
     let painted = text
         .lines()
-        .into_iter()
         .map(|i| format!("{tint}{i}\n"))
         .collect::<String>();
     format!("{painted}{RESET}")

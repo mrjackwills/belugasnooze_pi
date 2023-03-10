@@ -32,7 +32,7 @@ fn file_exists(filename: &str) {
         match fs::create_dir_all(path) {
             Ok(_) => (),
             Err(e) => {
-				error!("db_create_dir::{e}");
+                error!("db_create_dir::{e}");
                 std::process::exit(1);
             }
         }
