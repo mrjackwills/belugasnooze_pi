@@ -100,7 +100,7 @@ impl WSSender {
     /// If the alarm sequence has started, and you delete all alarms, the light is still on
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
     async fn delete_all(&mut self) {
-        ModelAlarm::delete_all(&self.db).await.unwrap_or(());
+        ModelAlarm::delete_all(&self.db).await.ok();
         self.alarm_scheduler
             .lock()
             .await
@@ -134,9 +134,7 @@ impl WSSender {
     /// also update timezone in alarm scheduler
     async fn time_zone(&mut self, zone: String) {
         if timezones::get_by_name(&zone).is_some() {
-            ModelTimezone::update(&self.db, &zone)
-                .await
-                .unwrap_or_default();
+            ModelTimezone::update(&self.db, &zone).await.ok();
             self.alarm_scheduler
                 .lock()
                 .await
@@ -193,7 +191,7 @@ impl WSSender {
         )
         .await
         {
-            close.unwrap_or_default();
+            close.ok();
         }
     }
 }

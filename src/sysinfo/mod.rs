@@ -30,7 +30,7 @@ impl SysInfo {
     async fn get_uptime() -> usize {
         let uptime = read_to_string("/proc/uptime").await.unwrap_or_default();
         let (uptime, _) = uptime.split_once('.').unwrap_or_default();
-        uptime.parse::<usize>().unwrap_or(0)
+        uptime.parse::<usize>().unwrap_or_default()
     }
 
     pub async fn new(db: &SqlitePool, app_envs: &AppEnv) -> Self {
