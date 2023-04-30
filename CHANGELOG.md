@@ -1,3 +1,6 @@
+### Chores
++ dependencies updated, [d319aaa58abc954125fa64c35fca13f966f03166]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.1'>v0.3.1</a>
 ### 2023-03-10
 
