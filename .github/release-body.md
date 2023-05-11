@@ -1,14 +1,8 @@
-### 2023-03-10
+### 2023-05-11
 
 ### Chores
-+ Rust 1.68.0 linting, [ca2a085f39a6540f69c2d970c03583300f093f73]
-+ _typos.toml added, [18a49742cde6b6a503458046658e4d5fcb7c089b]
-+ create_release updated, [67aa26eab028b7cad9fa130433fe5bd14665861d]
-+ dependencies updated, [5356ed821941bae0564402cf33715324db6a2d95]
-+ devcontainer updated, use sparse protocol index, [9f0fb6cd06d69c9b72dc535eabb3bda9125fdf5e], [77c041707f0a0657262b59c1d9512c76c5c8739f]
-+ typos fixed, [1f576fe7ab32f452b6edbaad4c8bc3b829e1a21e]
-
-### Refactors
-+ `unwrap_or(())` changed to `ok()`, [558fb20589f7c23349ccba5814a8ca45e62b9e89]
++ dependencies updated, [d319aaa58abc954125fa64c35fca13f966f03166], [99b387e2c2dd3126a07793323ced4f4e664badab], [4a5c71d0e6cb78a1610d435e216fdb963a8f876d]
++ Dockerfile bump alpine to 3.18, [0c91298028a3ef6f34e376f5d51b3534a061c30c]
++ dead code removed, [3c726e9563100016a6f9408050b0329c84568bb2]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
