@@ -70,7 +70,5 @@ async fn main() -> Result<(), AppError> {
         Arc::clone(&light_status),
         sx,
     )
-    .await?;
-
-    Ok(())
+    .await
 }

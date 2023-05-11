@@ -158,6 +158,7 @@ impl WSSender {
     }
 
     /// Send a message to the socket
+    /// cache could just be Option<()>, and if some then send true?
     async fn send_ws_response(&mut self, response: Response, cache: Option<bool>) {
         match self
             .writer
