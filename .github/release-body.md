@@ -1,8 +1,12 @@
-### 2023-05-11
+### 2023-06-06
 
 ### Chores
-+ dependencies updated, [d319aaa58abc954125fa64c35fca13f966f03166], [99b387e2c2dd3126a07793323ced4f4e664badab], [4a5c71d0e6cb78a1610d435e216fdb963a8f876d]
-+ Dockerfile bump alpine to 3.18, [0c91298028a3ef6f34e376f5d51b3534a061c30c]
-+ dead code removed, [3c726e9563100016a6f9408050b0329c84568bb2]
++ dependencies updated, [5795c742b926dc3eb201b048a2d072343801bb6c], [4d749d80fe61a1f7b84f8c417b77d2dad9d98537], [efe6881fad83feef30691cf2ded0df94231197af]
+
+### Refactors
++  dead code removed, function params improved [107b7b5596602c5969b5c029692c9ceefbf60f4a]
+
+### Reverts
++ .devcontainer sparse protocol now default, [c1ad3ed8eb73b83e2872373181813eb3a64645db]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details

@@ -13,26 +13,30 @@ pub struct SysInfo {
     pub time_zone: String,
 }
 
+const NA: &str = "N/A";
+
 impl SysInfo {
+    /// Get ip address from the env ip file, else return NA as String
     async fn get_ip(app_envs: &AppEnv) -> String {
-        let na = || String::from("N/A");
         let ip = read_to_string(&app_envs.location_ip_address)
             .await
-            .unwrap_or_else(|_| na());
+            .unwrap_or_else(|_| NA.to_owned());
         let output = if ip.len() > 1 {
             ip.trim().to_owned()
         } else {
-            na()
+            NA.to_owned()
         };
         output
     }
 
+    /// Get uptime by reading, and parsing, /proc/uptime file
     async fn get_uptime() -> usize {
         let uptime = read_to_string("/proc/uptime").await.unwrap_or_default();
         let (uptime, _) = uptime.split_once('.').unwrap_or_default();
         uptime.parse::<usize>().unwrap_or_default()
     }
 
+    /// Generate sysinfo struct, will valid data
     pub async fn new(db: &SqlitePool, app_envs: &AppEnv) -> Self {
         let model_timezone = ModelTimezone::get(db).await.unwrap_or_default();
         Self {

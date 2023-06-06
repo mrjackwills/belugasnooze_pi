@@ -36,20 +36,20 @@ pub struct WSSender {
 
 impl WSSender {
     pub fn new(
-        alarm_scheduler: Arc<TokioMutex<AlarmSchedule>>,
-        app_envs: AppEnv,
+        alarm_scheduler: &Arc<TokioMutex<AlarmSchedule>>,
+        app_envs: &AppEnv,
         connected_instant: Instant,
-        db: Arc<SqlitePool>,
-        light_status: Arc<AtomicBool>,
+        db: &Arc<SqlitePool>,
+        light_status: &Arc<AtomicBool>,
         sx: Sender<InternalMessage>,
         writer: Arc<Mutex<WSWriter>>,
     ) -> Self {
         Self {
-            alarm_scheduler,
-            app_envs,
+            alarm_scheduler: Arc::clone(alarm_scheduler),
+            app_envs: app_envs.clone(),
             connected_instant,
-            db,
-            light_status,
+            db: Arc::clone(db),
+            light_status: Arc::clone(light_status),
             sx,
             writer,
         }
@@ -83,9 +83,8 @@ impl WSSender {
             .map(|i| ModelAlarm::add(&self.db, (i, hour, minute)))
             .collect::<Vec<_>>();
         for handle in handles {
-            match handle.await {
-                Ok(_) => (),
-                Err(e) => debug!(%e),
+            if let Err(e) = handle.await {
+                debug!("{e}");
             }
         }
         self.alarm_scheduler
@@ -180,19 +179,17 @@ impl WSSender {
         let info = SysInfo::new(&self.db, &self.app_envs).await;
         let alarms = ModelAlarm::get_all(&self.db).await.unwrap_or_default();
         let info = PiStatus::new(info, alarms, self.connected_instant.elapsed().as_secs());
-        let response = Response::Status(info);
-        self.send_ws_response(response, Some(true)).await;
+        self.send_ws_response(Response::Status(info), Some(true))
+            .await;
     }
 
     /// close connection, uses a 2 second timeout
     pub async fn close(&mut self) {
-        if let Ok(close) = tokio::time::timeout(
+        tokio::time::timeout(
             std::time::Duration::from_secs(2),
             self.writer.lock().await.close(),
         )
         .await
-        {
-            close.ok();
-        }
+        .ok();
     }
 }

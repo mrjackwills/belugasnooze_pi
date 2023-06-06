@@ -9,14 +9,14 @@ use futures_util::{
     StreamExt, TryStreamExt,
 };
 use sqlx::SqlitePool;
-use std::sync::{atomic::AtomicBool, Arc};
+use std::{
+    ops::RangeInclusive,
+    sync::{atomic::AtomicBool, Arc},
+};
 use time::OffsetDateTime;
 use tokio::{
     net::TcpStream,
-    sync::{
-        broadcast::{Receiver, Sender},
-        Mutex as TokioMutex,
-    },
+    sync::{broadcast::Sender, Mutex as TokioMutex},
     task::JoinHandle,
 };
 use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStream};
@@ -37,6 +37,8 @@ mod ws_sender;
 pub enum InternalMessage {
     Light,
 }
+
+const ALLOWABLE_HOURS: RangeInclusive<u8> = 7u8..=22;
 
 #[derive(Debug, Default)]
 struct AutoClose(Option<JoinHandle<()>>);
@@ -78,21 +80,37 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
     info!("incoming_ws_message done");
 }
 
-/// Send pi status message , and light status message to connect client, for when light turns off
-async fn incoming_internal_message(mut rx: Receiver<InternalMessage>, mut ws_sender: WSSender) {
-    ws_sender.send_status().await;
-    ws_sender.led_status().await;
-    while let Ok(message) = rx.recv().await {
-        match message {
-            InternalMessage::Light => ws_sender.led_status().await,
+/// Send pi status message  and light status message to connect client, for when light turns off
+fn incoming_internal_message(sx: &Sender<InternalMessage>, ws_sender: &WSSender) -> JoinHandle<()> {
+    let mut ws_sender = ws_sender.clone();
+    let mut rx = sx.subscribe();
+    tokio::spawn(async move {
+        ws_sender.send_status().await;
+        ws_sender.led_status().await;
+        while let Ok(message) = rx.recv().await {
+            match message {
+                InternalMessage::Light => ws_sender.led_status().await,
+            }
         }
+    })
+}
+
+/// If the current time is in the alllowable range, then illuminate the lights in a rainbow sequence
+async fn rainbow(db: &Arc<SqlitePool>, light_status: &Arc<AtomicBool>) {
+    let db_timezone = ModelTimezone::get(db).await.unwrap_or_default();
+    if ALLOWABLE_HOURS.contains(
+        &OffsetDateTime::now_utc()
+            .to_offset(db_timezone.get_offset())
+            .hour(),
+    ) {
+        LightControl::rainbow(Arc::clone(light_status)).await;
     }
 }
 
 /// need to spawn a new receiver on each connect
 /// try to open WS connection, and spawn a ThreadChannel message handler
 pub async fn open_connection(
-    cron_alarm: Arc<TokioMutex<AlarmSchedule>>,
+    alarm_scheduler: Arc<TokioMutex<AlarmSchedule>>,
     app_envs: AppEnv,
     db: Arc<SqlitePool>,
     light_status: Arc<AtomicBool>,
@@ -109,43 +127,24 @@ pub async fn open_connection(
                 connection_details.valid_connect();
 
                 let (writer, reader) = socket.split();
-                let writer = Arc::new(Mutex::new(writer));
 
-                let db_timezone = ModelTimezone::get(&db).await.unwrap_or_default();
-
-                let allowable = 7u8..=22;
-                if allowable.contains(
-                    &OffsetDateTime::now_utc()
-                        .to_offset(db_timezone.get_offset())
-                        .hour(),
-                ) {
-                    LightControl::rainbow(Arc::clone(&light_status)).await;
-                }
-
-                let cron_alarm = Arc::clone(&cron_alarm);
-                let light_status = Arc::clone(&light_status);
-                let db = Arc::clone(&db);
+                rainbow(&db, &light_status).await;
 
                 let ws_sender = WSSender::new(
-                    cron_alarm,
-                    app_envs.clone(),
+                    &alarm_scheduler,
+                    &app_envs,
                     connection_details.get_connect_instant(),
-                    db,
-                    light_status,
+                    &db,
+                    &light_status,
                     sx.clone(),
-                    writer,
+                    Arc::new(Mutex::new(writer)),
                 );
 
-                let in_ws_sender = ws_sender.clone();
-                let rx = sx.subscribe();
-
-                let internal_message_thread = tokio::spawn(async move {
-                    incoming_internal_message(rx, in_ws_sender).await;
-                });
+                let internal_message_thread = incoming_internal_message(&sx, &ws_sender);
 
                 incoming_ws_message(reader, ws_sender).await;
-
                 internal_message_thread.abort();
+
                 info!("aborted spawns, incoming_ws_message done, reconnect next");
             }
             Err(e) => {
