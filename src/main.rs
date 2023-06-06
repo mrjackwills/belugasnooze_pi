@@ -61,13 +61,11 @@ async fn main() -> Result<(), AppError> {
 
     let (sx, _keep_alive) = broadcast::channel(128);
 
-    let cron_alarm = CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await?;
-
     open_connection(
-        Arc::clone(&cron_alarm),
+        CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await?,
         app_envs,
-        Arc::clone(&db),
-        Arc::clone(&light_status),
+        db,
+        light_status,
         sx,
     )
     .await

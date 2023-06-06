@@ -10,7 +10,6 @@ use std::{
 };
 use tokio::sync::broadcast::Sender;
 use tokio::time::{sleep, Instant};
-use tracing::debug;
 
 const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
     (255, 0, 0),
@@ -22,8 +21,6 @@ const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
     (139, 0, 255),
     (255, 255, 255),
 ];
-
-pub struct LightControl;
 
 #[derive(Debug)]
 enum LimitMinutes {
@@ -61,6 +58,8 @@ impl fmt::Display for LimitMinutes {
     }
 }
 
+pub struct LightControl;
+
 impl LightControl {
     /// whilst `light_status` is true, set all lights to on
     /// use `light_limit` to make sure led is only on for 5 minutes max
@@ -78,14 +77,6 @@ impl LightControl {
                     light_status.store(false, Ordering::Relaxed);
                 }
             }
-        } else {
-            while light_status.load(Ordering::Relaxed) {
-                if Self::light_limit(start, &LimitMinutes::Five) {
-                    light_status.store(false, Ordering::Relaxed);
-                }
-                debug!("light on");
-                sleep(Duration::from_millis(250)).await;
-            }
         }
         sx.send(InternalMessage::Light).ok();
     }
@@ -99,7 +90,6 @@ impl LightControl {
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
-    /// TODO this is messy, need to clean & refactor
     pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::Relaxed);
         sx.send(InternalMessage::Light).ok();
@@ -126,18 +116,6 @@ impl LightControl {
                     };
                     sleep(Duration::from_millis(250)).await;
                 }
-            } else {
-                while light_status.load(Ordering::Relaxed) {
-                    let limit = LimitMinutes::from(step);
-                    if Self::light_limit(start, &limit) {
-                        debug!("step: {}, brightness: {}", step, brightness / 10.0);
-                        Self::increment_step(&mut step, &mut brightness, &mut start);
-                        if matches!(limit, LimitMinutes::FortyFive) {
-                            light_status.store(false, Ordering::Relaxed);
-                        };
-                    };
-                    sleep(Duration::from_millis(250)).await;
-                }
             }
             sx.send(InternalMessage::Light).ok();
         });
@@ -156,12 +134,6 @@ impl LightControl {
             led_strip.set_pixel_brightness(pixel, brightness);
             led_strip.set_pixel(pixel, color.0, color.1, color.2);
             led_strip.show().ok();
-            sleep(Duration::from_millis(50)).await;
-        } else {
-            debug!(
-                "show_rainbow::{pixel} - ({},{},{})",
-                color.0, color.1, color.2
-            );
             sleep(Duration::from_millis(50)).await;
         }
     }
