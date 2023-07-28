@@ -1,9 +1,12 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.4'>v0.3.4</a>
+### 2023-07-28
+
 ### Chores
-+ create_release 0.3.0, [fecd06271433f7d807db1e61a57d5752b109650e]
-+ dependencies updated, [be222bf511fa919bb600594a75be407e13a7d73a]
++ create_release 0.3.0, [fecd0627](https://github.com/mrjackwills/belugasnooze_pi/commit/fecd06271433f7d807db1e61a57d5752b109650e)
++ dependencies updated, [be222bf5](https://github.com/mrjackwills/belugasnooze_pi/commit/be222bf511fa919bb600594a75be407e13a7d73a)
 
 ### Refactors
-+ single folder files changed to files in `/src`, [289cd8b5719ce6cd4705cf378f35d232b7975365]
++ single folder files changed to files in `/src`, [289cd8b5](https://github.com/mrjackwills/belugasnooze_pi/commit/289cd8b5719ce6cd4705cf378f35d232b7975365)
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.3'>v0.3.3</a>
 ### 2023-06-06

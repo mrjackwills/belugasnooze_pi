@@ -15,8 +15,8 @@ use crate::alarm_schedule::AlarmSchedule;
 use crate::sysinfo::SysInfo;
 use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, StructuredResponse};
 use crate::{
-    db::{ModelAlarm, ModelTimezone},
     app_env::AppEnv,
+    db::{ModelAlarm, ModelTimezone},
     light::LightControl,
     ws_messages::to_struct,
 };
