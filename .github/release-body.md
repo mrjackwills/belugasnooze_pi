@@ -1,12 +1,10 @@
-### 2023-06-06
+### 2023-07-28
 
 ### Chores
-+ dependencies updated, [5795c742b926dc3eb201b048a2d072343801bb6c], [4d749d80fe61a1f7b84f8c417b77d2dad9d98537], [efe6881fad83feef30691cf2ded0df94231197af]
++ create_release 0.3.0, [fecd06271433f7d807db1e61a57d5752b109650e]
++ dependencies updated, [be222bf511fa919bb600594a75be407e13a7d73a]
 
 ### Refactors
-+  dead code removed, function params improved [107b7b5596602c5969b5c029692c9ceefbf60f4a]
-
-### Reverts
-+ .devcontainer sparse protocol now default, [c1ad3ed8eb73b83e2872373181813eb3a64645db]
++ single folder files changed to files in `/src`, [289cd8b5719ce6cd4705cf378f35d232b7975365]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details

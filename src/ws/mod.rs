@@ -23,7 +23,7 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, app_env::AppEnv,
+    alarm_schedule::AlarmSchedule, app_env::AppEnv, app_error::AppError, db::ModelTimezone,
     light::LightControl, ws::ws_sender::WSSender,
 };
 
