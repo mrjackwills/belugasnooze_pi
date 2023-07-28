@@ -10,6 +10,7 @@ use std::{
 };
 use tokio::sync::broadcast::Sender;
 use tokio::time::{sleep, Instant};
+use tracing::info;
 
 const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
     (255, 0, 0),
@@ -27,6 +28,10 @@ enum LimitMinutes {
     Five,
     FortyFive,
 }
+
+// enum step{
+// 	1..10, each has own brightess, step value (is needed?) and limit?
+// }
 
 impl LimitMinutes {
     const fn get_sec(&self) -> u64 {
@@ -110,6 +115,7 @@ impl LightControl {
                         Self::increment_step(&mut step, &mut brightness, &mut start);
                         led_strip.set_all_pixels_brightness(brightness / 10.0);
                         if matches!(limit, LimitMinutes::FortyFive) {
+                            info!("should be off now");
                             light_status.store(false, Ordering::Relaxed);
                             led_strip.clear();
                         };

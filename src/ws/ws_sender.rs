@@ -15,8 +15,8 @@ use crate::alarm_schedule::AlarmSchedule;
 use crate::sysinfo::SysInfo;
 use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, StructuredResponse};
 use crate::{
+    app_env::AppEnv,
     db::{ModelAlarm, ModelTimezone},
-    env::AppEnv,
     light::LightControl,
     ws_messages::to_struct,
 };
@@ -190,6 +190,7 @@ impl WSSender {
             self.writer.lock().await.close(),
         )
         .await
-        .ok();
+        .ok()
+        .map(std::result::Result::ok);
     }
 }

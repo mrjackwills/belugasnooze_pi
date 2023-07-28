@@ -9,7 +9,7 @@ pub use model_timezone::ModelTimezone;
 use sqlx::{sqlite::SqliteJournalMode, ConnectOptions, SqlitePool};
 use tracing::error;
 
-use crate::env::AppEnv;
+use crate::app_env::AppEnv;
 
 /// If file doesn't exist on disk, create
 /// Probably can be removed, as sqlx has a setting to create file if not found
@@ -49,13 +49,16 @@ fn file_exists(filename: &str) {
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
-    let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
-        .filename(&app_envs.location_sqlite)
-        .journal_mode(SqliteJournalMode::Wal);
-
-    if app_envs.log_level != tracing::Level::TRACE {
-        connect_options.disable_statement_logging();
-    }
+    let connect_options = if app_envs.log_level == tracing::Level::TRACE {
+        sqlx::sqlite::SqliteConnectOptions::new()
+            .filename(&app_envs.location_sqlite)
+            .journal_mode(SqliteJournalMode::Wal)
+    } else {
+        sqlx::sqlite::SqliteConnectOptions::new()
+            .filename(&app_envs.location_sqlite)
+            .journal_mode(SqliteJournalMode::Wal)
+            .disable_statement_logging()
+    };
 
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
         .max_connections(app_envs.sql_threads)
@@ -99,7 +102,7 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
 mod tests {
-    use crate::env::EnvTimeZone;
+    use crate::app_env::EnvTimeZone;
 
     use super::*;
     use std::{fs, time::SystemTime};
