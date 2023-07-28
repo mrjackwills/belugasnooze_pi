@@ -23,7 +23,7 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, env::AppEnv,
+    alarm_schedule::AlarmSchedule, app_error::AppError, db::ModelTimezone, app_env::AppEnv,
     light::LightControl, ws::ws_sender::WSSender,
 };
 
@@ -89,7 +89,10 @@ fn incoming_internal_message(sx: &Sender<InternalMessage>, ws_sender: &WSSender)
         ws_sender.led_status().await;
         while let Ok(message) = rx.recv().await {
             match message {
-                InternalMessage::Light => ws_sender.led_status().await,
+                InternalMessage::Light => {
+                    info!("sending led status");
+                    ws_sender.led_status().await;
+                }
             }
         }
     })

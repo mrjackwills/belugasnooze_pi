@@ -1,4 +1,4 @@
-use crate::env::AppEnv;
+use crate::app_env::AppEnv;
 
 mod font;
 
@@ -80,7 +80,7 @@ impl Intro {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::env::EnvTimeZone;
+    use crate::app_env::EnvTimeZone;
 
     use super::*;
     use std::time::SystemTime;

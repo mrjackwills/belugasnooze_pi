@@ -14,7 +14,7 @@
 mod alarm_schedule;
 mod app_error;
 mod db;
-mod env;
+mod app_env;
 mod light;
 mod sysinfo;
 mod word_art;
@@ -24,7 +24,7 @@ mod ws_messages;
 use alarm_schedule::CronAlarm;
 use app_error::AppError;
 use db::init_db;
-use env::AppEnv;
+use app_env::AppEnv;
 use simple_signal::{self, Signal};
 use std::sync::{
     atomic::{AtomicBool, Ordering},

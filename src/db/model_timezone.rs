@@ -4,7 +4,7 @@ use std::fmt;
 use time::UtcOffset;
 use time_tz::{timezones, Offset, TimeZone};
 
-use crate::{app_error::AppError, env::AppEnv};
+use crate::{app_error::AppError, app_env::AppEnv};
 
 #[derive(sqlx::FromRow, Debug, Clone, Deserialize)]
 pub struct ModelTimezone {
@@ -71,7 +71,7 @@ impl ModelTimezone {
 mod tests {
     use crate::{
         db::{create_tables, file_exists, get_db, init_db},
-        env::EnvTimeZone,
+        app_env::EnvTimeZone,
     };
     use std::{fs, sync::Arc, time::SystemTime};
     use time::UtcOffset;
