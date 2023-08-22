@@ -30,6 +30,7 @@ pub struct AppEnv {
     pub location_ip_address: String,
     pub location_sqlite: String,
     pub log_level: tracing::Level,
+    pub rainbow: Option<()>,
     pub sql_threads: u32,
     pub start_time: SystemTime,
     pub timezone: EnvTimeZone,
@@ -94,6 +95,15 @@ impl AppEnv {
     }
 
     /// Parse debug and/or trace into tracing level
+    fn parse_rainbow(map: &EnvHashMap) -> Option<()> {
+        if Self::parse_boolean("RAINBOW", map) {
+            Some(())
+        } else {
+            None
+        }
+    }
+
+    /// Parse debug and/or trace into tracing level
     fn parse_log(map: &EnvHashMap) -> tracing::Level {
         if Self::parse_boolean("LOG_TRACE", map) {
             tracing::Level::TRACE
@@ -117,6 +127,7 @@ impl AppEnv {
             )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             log_level: Self::parse_log(&env_map),
+            rainbow: Self::parse_rainbow(&env_map),
             sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
@@ -203,6 +214,25 @@ mod tests {
         assert!(!result02);
         assert!(!result03);
         assert!(!result04);
+    }
+
+    #[tokio::test]
+    async fn env_parse_rainbow() {
+        // FIXTURES
+        let mut map = HashMap::new();
+        map.insert("RAINBOW".to_owned(), "true".to_owned());
+        // ACTION
+        let result = AppEnv::parse_rainbow(&map);
+        // CHECK
+        assert!(result.is_some());
+
+        let mut map = HashMap::new();
+        map.insert("RAINBOW".to_owned(), "FALSE".to_owned());
+        // ACTION
+        let result = AppEnv::parse_rainbow(&map);
+
+        // CHECK
+        assert!(result.is_none());
     }
 
     #[tokio::test]

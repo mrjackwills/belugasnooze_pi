@@ -114,6 +114,7 @@ mod tests {
         AppEnv {
             location_ip_address: na.clone(),
             location_sqlite,
+            rainbow: None,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(timezone),
