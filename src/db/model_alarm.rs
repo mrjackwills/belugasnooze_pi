@@ -71,6 +71,7 @@ mod tests {
             location_ip_address: na.clone(),
             location_sqlite,
             log_level: tracing::Level::INFO,
+            rainbow: None,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new("America/New_York"),

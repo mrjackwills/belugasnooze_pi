@@ -1,4 +1,4 @@
-use crate::ws::InternalMessage;
+use crate::{app_env::AppEnv, ws::InternalMessage};
 use blinkt::Blinkt;
 use std::{
     fmt,
@@ -145,14 +145,14 @@ impl LightControl {
     }
 
     /// Loop over array of rgb colors, send each to the led strip one at a time
-    pub async fn rainbow(x: Arc<AtomicBool>) {
-        if !x.load(Ordering::Relaxed) {
-            for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
-                Self::show_rainbow(pixel, color).await;
+    pub async fn rainbow(x: Arc<AtomicBool>, app_envs: &AppEnv) {
+        if app_envs.rainbow.is_some() && !x.load(Ordering::Relaxed) {
+                for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
+                    Self::show_rainbow(pixel, color).await;
+                }
+                for (pixel, color) in RAINBOW_COLORS.into_iter().rev().enumerate() {
+                    Self::show_rainbow(RAINBOW_COLORS.len() - 1 - pixel, color).await;
+                }
             }
-            for (pixel, color) in RAINBOW_COLORS.into_iter().rev().enumerate() {
-                Self::show_rainbow(RAINBOW_COLORS.len() - 1 - pixel, color).await;
-            }
-        }
     }
 }
