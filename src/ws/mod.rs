@@ -99,14 +99,14 @@ fn incoming_internal_message(sx: &Sender<InternalMessage>, ws_sender: &WSSender)
 }
 
 /// If the current time is in the alllowable range, then illuminate the lights in a rainbow sequence
-async fn rainbow(db: &Arc<SqlitePool>, light_status: &Arc<AtomicBool>) {
+async fn rainbow(db: &Arc<SqlitePool>, light_status: &Arc<AtomicBool>, app_envs: &AppEnv) {
     let db_timezone = ModelTimezone::get(db).await.unwrap_or_default();
     if ALLOWABLE_HOURS.contains(
         &OffsetDateTime::now_utc()
             .to_offset(db_timezone.get_offset())
             .hour(),
     ) {
-        LightControl::rainbow(Arc::clone(light_status)).await;
+        LightControl::rainbow(Arc::clone(light_status), app_envs).await;
     }
 }
 
@@ -131,7 +131,7 @@ pub async fn open_connection(
 
                 let (writer, reader) = socket.split();
 
-                rainbow(&db, &light_status).await;
+                rainbow(&db, &light_status, &app_envs).await;
 
                 let ws_sender = WSSender::new(
                     &alarm_scheduler,

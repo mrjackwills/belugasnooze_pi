@@ -109,8 +109,7 @@ impl CronAlarm {
                             LightControl::alarm_illuminate(
                                 Arc::clone(&self.light_status),
                                 sx.clone(),
-                            )
-                            .await;
+                            );
                         }
                     }
                 }

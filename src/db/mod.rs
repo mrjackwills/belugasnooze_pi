@@ -49,16 +49,14 @@ fn file_exists(filename: &str) {
 /// Open Sqlite pool connection, and return
 /// `max_connections` need to be 1, [see issue](https://github.com/launchbadge/sqlx/issues/816)
 async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
-    let connect_options = if app_envs.log_level == tracing::Level::TRACE {
-        sqlx::sqlite::SqliteConnectOptions::new()
-            .filename(&app_envs.location_sqlite)
-            .journal_mode(SqliteJournalMode::Wal)
-    } else {
-        sqlx::sqlite::SqliteConnectOptions::new()
-            .filename(&app_envs.location_sqlite)
-            .journal_mode(SqliteJournalMode::Wal)
-            .disable_statement_logging()
-    };
+    let mut connect_options = sqlx::sqlite::SqliteConnectOptions::new()
+        .filename(&app_envs.location_sqlite)
+        .journal_mode(SqliteJournalMode::Wal);
+
+    match app_envs.log_level {
+        tracing::Level::TRACE | tracing::Level::DEBUG => (),
+        _ => connect_options = connect_options.disable_statement_logging(),
+    }
 
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
         .max_connections(app_envs.sql_threads)
@@ -116,6 +114,7 @@ mod tests {
         AppEnv {
             location_ip_address: na.clone(),
             location_sqlite,
+            rainbow: None,
             sql_threads: 1,
             start_time: SystemTime::now(),
             timezone: EnvTimeZone::new(timezone),

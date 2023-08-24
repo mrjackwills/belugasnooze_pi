@@ -1,4 +1,4 @@
-use crate::ws::InternalMessage;
+use crate::{app_env::AppEnv, ws::InternalMessage};
 use blinkt::Blinkt;
 use std::{
     fmt,
@@ -95,7 +95,7 @@ impl LightControl {
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
-    pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
+    pub fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::Relaxed);
         sx.send(InternalMessage::Light).ok();
         tokio::spawn(async move {
@@ -145,8 +145,8 @@ impl LightControl {
     }
 
     /// Loop over array of rgb colors, send each to the led strip one at a time
-    pub async fn rainbow(x: Arc<AtomicBool>) {
-        if !x.load(Ordering::Relaxed) {
+    pub async fn rainbow(x: Arc<AtomicBool>, app_envs: &AppEnv) {
+        if app_envs.rainbow.is_some() && !x.load(Ordering::Relaxed) {
             for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
                 Self::show_rainbow(pixel, color).await;
             }

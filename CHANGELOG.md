@@ -1,3 +1,16 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.5'>v0.3.5</a>
+### 2023-08-24
+
+### Chores
++ dependencies updated, [48fb11c6](https://github.com/mrjackwills/belugasnooze_pi/commit/48fb11c644e437aef1ec412a9fe56e94384e3b45), [5a3dce1f](https://github.com/mrjackwills/belugasnooze_pi/commit/5a3dce1f84c8ba8ab448ddd8977215a95580a19f)
+
+### Features
++ rainbow env, [91730851](https://github.com/mrjackwills/belugasnooze_pi/commit/9173085184962bf795eee2b84c7c6bcf6a1d2700)
+
+### Refactors
++ Rust 1.72.0 linting, [399883c3](https://github.com/mrjackwills/belugasnooze_pi/commit/399883c3ab4e31666b4ad79743e4868cb01d935f)
++ disable sql logging, [d2343477](https://github.com/mrjackwills/belugasnooze_pi/commit/d2343477c6d0394e2853c4b2a6ff92bdc58906e1)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.3.4'>v0.3.4</a>
 ### 2023-07-28
 
