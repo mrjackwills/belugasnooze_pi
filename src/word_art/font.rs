@@ -763,7 +763,7 @@ impl FontName {
 
     #[allow(clippy::too_many_lines)]
     const fn get_roman() -> &'static str {
-        r##"flf2a$ 10 10 30 -1 7
+        r#"flf2a$ 10 10 30 -1 7
 Roman by Nick Miners N.M.Miners@durham.ac.uk
 June 1994
 
@@ -1790,7 +1790,7 @@ o888 d88' $#
 o888o Y8' $#
           $#
           $#
-          $#"##
+          $#"#
     }
 
     #[allow(clippy::too_many_lines)]

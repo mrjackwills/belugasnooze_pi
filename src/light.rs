@@ -95,7 +95,7 @@ impl LightControl {
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
-    pub async fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
+    pub fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
         light_status.store(true, Ordering::Relaxed);
         sx.send(InternalMessage::Light).ok();
         tokio::spawn(async move {

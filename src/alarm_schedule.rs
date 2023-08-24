@@ -110,7 +110,7 @@ impl CronAlarm {
                                 Arc::clone(&self.light_status),
                                 sx.clone(),
                             )
-                            .await;
+                            ;
                         }
                     }
                 }

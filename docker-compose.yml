@@ -24,8 +24,8 @@ services:
     ipc: private
     restart: always
     devices:
-    - "/dev/gpiomem"
-    - "/dev/gpiochip0"
+      - "/dev/gpiomem"
+      - "/dev/gpiochip0"
     networks:
       - belugasnooze_net
     logging:
