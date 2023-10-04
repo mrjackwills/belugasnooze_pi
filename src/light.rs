@@ -27,6 +27,7 @@ const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
 enum LimitMinutes {
     Five,
     FortyFive,
+	Ninety,
 }
 
 // enum step{
@@ -38,6 +39,7 @@ impl LimitMinutes {
         match self {
             Self::Five => 60 * 5,
             Self::FortyFive => 60 * 45,
+			Self::Ninety => 60 * 90
         }
     }
 }
@@ -48,7 +50,7 @@ impl From<u8> for LimitMinutes {
         if step < 9 {
             Self::Five
         } else {
-            Self::FortyFive
+            Self::Ninety
         }
     }
 }
@@ -58,6 +60,7 @@ impl fmt::Display for LimitMinutes {
         let x = match self {
             Self::FortyFive => "45",
             Self::Five => "5",
+			Self::Ninety => "90",
         };
         write!(f, "{x}")
     }
@@ -78,7 +81,7 @@ impl LightControl {
                 Self::light_limit(start, &LimitMinutes::Five);
                 led_strip.show().ok();
                 sleep(Duration::from_millis(250)).await;
-                if Self::light_limit(start, &LimitMinutes::Five) {
+                if Self::light_limit(start, &LimitMinutes::FortyFive) {
                     light_status.store(false, Ordering::Relaxed);
                 }
             }
