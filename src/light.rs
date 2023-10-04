@@ -27,7 +27,7 @@ const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
 enum LimitMinutes {
     Five,
     FortyFive,
-	Ninety,
+    Ninety,
 }
 
 // enum step{
@@ -39,7 +39,7 @@ impl LimitMinutes {
         match self {
             Self::Five => 60 * 5,
             Self::FortyFive => 60 * 45,
-			Self::Ninety => 60 * 90
+            Self::Ninety => 60 * 90,
         }
     }
 }
@@ -60,7 +60,7 @@ impl fmt::Display for LimitMinutes {
         let x = match self {
             Self::FortyFive => "45",
             Self::Five => "5",
-			Self::Ninety => "90",
+            Self::Ninety => "90",
         };
         write!(f, "{x}")
     }
