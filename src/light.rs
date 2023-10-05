@@ -117,7 +117,7 @@ impl LightControl {
                     if Self::light_limit(start, &limit) {
                         Self::increment_step(&mut step, &mut brightness, &mut start);
                         led_strip.set_all_pixels_brightness(brightness / 10.0);
-                        if matches!(limit, LimitMinutes::FortyFive) {
+                        if matches!(limit, LimitMinutes::Ninety) {
                             info!("should be off now");
                             light_status.store(false, Ordering::Relaxed);
                             led_strip.clear();
