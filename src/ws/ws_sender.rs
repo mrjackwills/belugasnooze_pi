@@ -166,7 +166,7 @@ impl WSSender {
             .send(StructuredResponse::data(response, cache))
             .await
         {
-            Ok(_) => trace!("Message sent"),
+            Ok(()) => trace!("Message sent"),
             Err(e) => {
                 error!("send_ws_response::SEND-ERROR::{e:?}");
                 process::exit(1);
