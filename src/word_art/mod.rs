@@ -1,4 +1,5 @@
 use crate::app_env::AppEnv;
+use std::fmt::Write;
 
 mod font;
 
@@ -18,10 +19,10 @@ fn create_art(input: &str, fontname: FontName) -> String {
 /// Add color to a given string
 fn paint_text(text: &str, color: Color) -> String {
     let tint = Color::get(color);
-    let painted = text
-        .lines()
-        .map(|i| format!("{tint}{i}\n"))
-        .collect::<String>();
+    let painted = text.lines().fold(String::new(), |mut output, i| {
+        writeln!(output, "{tint}{i}").ok();
+        output
+    });
     format!("{painted}{RESET}")
 }
 
