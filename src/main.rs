@@ -1,13 +1,3 @@
-#![forbid(unsafe_code)]
-#![warn(
-    clippy::unused_async,
-    clippy::unwrap_used,
-    clippy::expect_used,
-    clippy::pedantic,
-    clippy::nursery,
-    clippy::todo
-)]
-#![allow(clippy::module_name_repetitions, clippy::doc_markdown)]
 // Only allow when debugging
 // #![allow(unused)]
 

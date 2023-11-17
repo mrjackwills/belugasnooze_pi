@@ -1,12 +1,13 @@
 name: Release CI
 on:
   push:
-    tags: 'v[0-9]+.[0-9]+.[0-9]+'
+    tags: 
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ####################################
       ## Build binaries for release page #
