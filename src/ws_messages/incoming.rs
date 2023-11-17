@@ -95,11 +95,11 @@ mod tests {
 
     #[test]
     fn message_incoming_parse_invalid() {
-        let data = r#""#;
+        let data = "";
         let result = to_struct(data);
         assert!(result.is_none());
 
-        let data = r#"{}"#;
+        let data = "{}";
         let result = to_struct(data);
         assert!(result.is_none());
     }
