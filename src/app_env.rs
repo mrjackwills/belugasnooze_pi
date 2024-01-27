@@ -80,7 +80,7 @@ impl AppEnv {
     /// Check that a given timezone is valid, else return UTC
     fn parse_timezone(map: &EnvHashMap) -> EnvTimeZone {
         EnvTimeZone::new(
-            map.get("TIMEZONE")
+            map.get("TZ")
                 .map_or_else(String::new, std::borrow::ToOwned::to_owned),
         )
     }
@@ -424,6 +424,7 @@ mod tests {
         // CHECK
         assert_eq!(result.0, "Etc/UTC");
     }
+	// WHy?
     #[tokio::test]
     async fn env_panic_appenv() {
         // ACTION
