@@ -163,7 +163,6 @@ mod tests {
             .await
             .unwrap();
 
-        
         let result = sqlx::query_as("SELECT * FROM timezone")
             .fetch_one(&db)
             .await;
