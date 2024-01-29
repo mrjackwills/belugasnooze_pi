@@ -1,4 +1,7 @@
-use crate::{app_env::AppEnv, ws::InternalMessage};
+use crate::{
+    app_env::AppEnv,
+    ws::{InternalMessage, InternalTx},
+};
 use blinkt::Blinkt;
 use std::{
     fmt,
@@ -8,7 +11,6 @@ use std::{
     },
     time::Duration,
 };
-use tokio::sync::broadcast::Sender;
 use tokio::time::{sleep, Instant};
 use tracing::info;
 
@@ -29,10 +31,6 @@ enum LimitMinutes {
     FortyFive,
     Ninety,
 }
-
-// enum step{
-// 	1..10, each has own brightess, step value (is needed?) and limit?
-// }
 
 impl LimitMinutes {
     const fn get_sec(&self) -> u64 {
@@ -71,7 +69,7 @@ pub struct LightControl;
 impl LightControl {
     /// whilst `light_status` is true, set all lights to on
     /// use `light_limit` to make sure led is only on for 5 minutes max
-    pub async fn turn_on(light_status: Arc<AtomicBool>, sx: &Sender<InternalMessage>) {
+    pub async fn turn_on(light_status: Arc<AtomicBool>, i_tx: &InternalTx) {
         let start = Instant::now();
         if let Ok(mut led_strip) = Blinkt::new() {
             led_strip.clear();
@@ -86,7 +84,7 @@ impl LightControl {
                 }
             }
         }
-        sx.send(InternalMessage::Light).ok();
+        i_tx.send(InternalMessage::Light).ok();
     }
 
     /// Increment the brightness & associated values
@@ -98,10 +96,10 @@ impl LightControl {
 
     /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
     /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
-    pub fn alarm_illuminate(light_status: Arc<AtomicBool>, sx: Sender<InternalMessage>) {
+    pub fn alarm_illuminate(light_status: Arc<AtomicBool>, i_tx: InternalTx) {
         light_status.store(true, Ordering::Relaxed);
-        sx.send(InternalMessage::Light).ok();
         tokio::spawn(async move {
+            i_tx.send(InternalMessage::Light).ok();
             let mut brightness = 1.0;
             let mut step = 0u8;
             let mut start = Instant::now();
@@ -125,8 +123,8 @@ impl LightControl {
                     };
                     sleep(Duration::from_millis(250)).await;
                 }
+                i_tx.send(InternalMessage::Light).ok();
             }
-            sx.send(InternalMessage::Light).ok();
         });
     }
 

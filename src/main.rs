@@ -11,7 +11,7 @@ mod word_art;
 mod ws;
 mod ws_messages;
 
-use alarm_schedule::CronAlarm;
+use alarm_schedule::AlarmSchedule;
 use app_env::AppEnv;
 use app_error::AppError;
 use db::init_db;
@@ -20,7 +20,6 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use tokio::sync::broadcast;
 use word_art::Intro;
 use ws::open_connection;
 
@@ -44,21 +43,16 @@ async fn main() -> Result<(), AppError> {
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
 
-    let db = Arc::new(init_db(&app_envs).await?);
+    let db = init_db(&app_envs).await?;
     let light_status = Arc::new(AtomicBool::new(false));
 
     close_signal(Arc::clone(&light_status));
 
-    let (sx, _keep_alive) = broadcast::channel(128);
+    let (i_tx, _keep_alive) = tokio::sync::broadcast::channel(128);
 
-    open_connection(
-        CronAlarm::init(&db, Arc::clone(&light_status), sx.clone()).await?,
-        app_envs,
-        db,
-        light_status,
-        sx,
-    )
-    .await
+    let cron_sx = AlarmSchedule::init(i_tx.clone(), Arc::clone(&light_status), db.clone()).await?;
+
+    open_connection(app_envs, cron_sx, db, i_tx, light_status).await
 }
 
 #[cfg(test)]

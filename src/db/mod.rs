@@ -163,7 +163,7 @@ mod tests {
             .await
             .unwrap();
 
-        // ACTION
+        
         let result = sqlx::query_as("SELECT * FROM timezone")
             .fetch_one(&db)
             .await;
@@ -173,7 +173,6 @@ mod tests {
         assert_eq!(result.0, 1);
         assert_eq!(result.1, "America/New_York");
 
-        // CLEANUP
         test_cleanup(uuid, Some(db)).await;
     }
 }
