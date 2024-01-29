@@ -163,7 +163,7 @@ mod tests {
     fn env_missing_env() {
         let mut map = HashMap::new();
         map.insert("not_fish".to_owned(), "not_fish".to_owned());
-        // ACTION
+        
         let result = AppEnv::parse_string("fish", &map);
 
         assert!(result.is_err());
@@ -175,7 +175,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "/alarms.db".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_string("LOCATION_SQLITE", &map).unwrap();
 
         assert_eq!(result, "/alarms.db");
@@ -188,7 +188,7 @@ mod tests {
         map.insert("valid_false".to_owned(), "false".to_owned());
         map.insert("invalid_but_false".to_owned(), "as".to_owned());
 
-        // ACTION
+        
         let result01 = AppEnv::parse_boolean("valid_true", &map);
         let result02 = AppEnv::parse_boolean("valid_false", &map);
         let result03 = AppEnv::parse_boolean("invalid_but_false", &map);
@@ -204,14 +204,14 @@ mod tests {
     fn env_parse_rainbow() {
         let mut map = HashMap::new();
         map.insert("RAINBOW".to_owned(), "true".to_owned());
-        // ACTION
+        
         let result = AppEnv::parse_rainbow(&map);
 
         assert!(result.is_some());
 
         let mut map = HashMap::new();
         map.insert("RAINBOW".to_owned(), "FALSE".to_owned());
-        // ACTION
+        
         let result = AppEnv::parse_rainbow(&map);
 
         assert!(result.is_none());
@@ -222,7 +222,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "file.db".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
         assert!(result.is_ok());
@@ -234,7 +234,7 @@ mod tests {
             "some/nested/location/file.db".to_owned(),
         );
 
-        // ACTION
+        
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
         assert!(result.is_ok());
@@ -246,7 +246,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "file.sql".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
         assert!(result.is_err());
@@ -260,7 +260,7 @@ mod tests {
     fn env_parse_db_location_missing_err() {
         let map = HashMap::new();
 
-        // ACTION
+        
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
         assert!(result.is_err());
@@ -274,21 +274,21 @@ mod tests {
     fn env_parse_log_valid() {
         let map = HashMap::from([("RANDOM_STRING".to_owned(), "123".to_owned())]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
 
         let map = HashMap::from([("LOG_DEBUG".to_owned(), "false".to_owned())]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
 
         let map = HashMap::from([("LOG_TRACE".to_owned(), "false".to_owned())]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
@@ -298,7 +298,7 @@ mod tests {
             ("LOG_TRACE".to_owned(), "false".to_owned()),
         ]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
@@ -308,7 +308,7 @@ mod tests {
             ("LOG_TRACE".to_owned(), "false".to_owned()),
         ]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::DEBUG);
@@ -318,7 +318,7 @@ mod tests {
             ("LOG_TRACE".to_owned(), "true".to_owned()),
         ]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::TRACE);
@@ -328,7 +328,7 @@ mod tests {
             ("LOG_TRACE".to_owned(), "true".to_owned()),
         ]);
 
-        // ACTION
+        
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::TRACE);
@@ -339,7 +339,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("TZ".to_owned(), "America/New_York".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_timezone(&map);
 
         assert_eq!(result.0, "America/New_York");
@@ -347,14 +347,14 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("TZ".to_owned(), "Europe/Berlin".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_timezone(&map);
 
         assert_eq!(result.0, "Europe/Berlin");
 
         let map = HashMap::new();
 
-        // ACTION
+        
         let result = AppEnv::parse_timezone(&map);
 
         assert_eq!(result.0, "Etc/UTC");
@@ -365,7 +365,7 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("TIMEZONE".to_owned(), "america/New_York".to_owned());
 
-        // ACTION
+        
         let result = AppEnv::parse_timezone(&map);
 
         assert_eq!(result.0, "Etc/UTC");
@@ -377,10 +377,10 @@ mod tests {
 
         assert_eq!(result.0, "Etc/UTC");
     }
-    // WHy?
-    #[test]
+    
+	#[test]
     fn env_panic_appenv() {
-        // ACTION
+        
         let result = AppEnv::generate();
 
         assert!(result.is_err());
@@ -390,7 +390,7 @@ mod tests {
     fn env_return_appenv() {
         dotenvy::dotenv().ok();
 
-        // ACTION
+        
         let result = AppEnv::generate();
 
         assert!(result.is_ok());
@@ -398,7 +398,7 @@ mod tests {
 
     #[test]
     fn env_check_file_exists_ok() {
-        // ACTION
+        
         let result = AppEnv::check_file_exists("Cargo.lock".into());
 
         assert!(result.is_ok());
@@ -407,7 +407,7 @@ mod tests {
 
     #[test]
     fn env_check_file_exists_er() {
-        // ACTION
+        
         let result = AppEnv::check_file_exists("file.sql".into());
 
         assert!(result.is_err());

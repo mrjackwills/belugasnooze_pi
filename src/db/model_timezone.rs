@@ -1,12 +1,12 @@
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use std::fmt;
-use time::UtcOffset;
+use time::{OffsetDateTime, Time, UtcOffset};
 use time_tz::{timezones, Offset, TimeZone};
 
 use crate::{app_env::AppEnv, app_error::AppError};
 
-#[derive(sqlx::FromRow, Debug, Clone, Deserialize)]
+#[derive(sqlx::FromRow, Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ModelTimezone {
     pub timezone_id: i64,
     pub zone_name: String,
@@ -36,6 +36,16 @@ impl ModelTimezone {
         timezones::get_by_name(&self.zone_name).map_or(UtcOffset::UTC, |tz| {
             tz.get_offset_utc(&time::OffsetDateTime::now_utc()).to_utc()
         })
+    }
+    // Get the current time as OffsetDateTime with the ModelTimezone zone accounted for
+    pub fn now_with_offset(&self) -> OffsetDateTime {
+        OffsetDateTime::now_utc().to_offset(self.get_offset())
+    }
+
+    /// Get the current timezone in HMS
+    pub fn to_time(&self) -> Option<Time> {
+        let now = self.now_with_offset();
+        Time::from_hms(now.hour(), now.minute(), now.second()).ok()
     }
 
     pub async fn get(db: &SqlitePool) -> Option<Self> {
