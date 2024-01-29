@@ -57,96 +57,57 @@ impl SysInfo {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{app_env::EnvTimeZone, db::init_db};
-    use std::{fs, sync::Arc, time::SystemTime};
+    use crate::tests::{test_cleanup, test_setup};
 
     use super::*;
 
-    async fn setup_test_db(
-        file_name: &str,
-        location_ip_address: String,
-    ) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
-        let na = String::from("na");
-        let env = AppEnv {
-            location_ip_address,
-            location_sqlite,
-            log_level: tracing::Level::INFO,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new("America/New_York"),
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
-        };
-        let db = Arc::new(init_db(&env).await.unwrap());
-        (db, env)
-    }
-
-    fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
-    }
-
     #[tokio::test]
     async fn sysinfo_getuptime_ok() {
-        // FIXTURES
-        setup_test_db("sysinfo_getuptime_ok", String::new()).await;
+        let (_, db, uuid) = test_setup().await;
 
-        // ACTIONS
         let result = SysInfo::get_uptime().await;
 
-        // CHECK
         // Assumes ones computer has been turned on for one minute
         assert!(result > 60);
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn sysinfo_get_ip_na() {
-        // FIXTURES
-        let app_envs = setup_test_db("sysinfo_get_ip_na", String::new()).await;
+        let (mut app_env, db, uuid) = test_setup().await;
+        app_env.location_ip_address = "invalid".to_owned();
 
-        // ACTIONS
-        let result = SysInfo::get_ip(&app_envs.1).await;
+        let result = SysInfo::get_ip(&app_env).await;
 
-        // CHECK
         assert_eq!(result, "N/A");
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn sysinfo_get_ip_ok() {
-        // FIXTURES
-        let app_envs = setup_test_db("sysinfo_get_ip_ok", "./ip.addr".to_owned()).await;
+        let (app_env, db, uuid) = test_setup().await;
 
-        // ACTIONS
-        let result = SysInfo::get_ip(&app_envs.1).await;
+        let result = SysInfo::get_ip(&app_env).await;
 
-        // CHECK
         assert_eq!(result, "127.0.0.1");
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn sysinfo_get_sysinfo_ok() {
-        // FIXTURES
-        let app_envs = setup_test_db("sysinfo_get_sysinfo_ok", "./ip.addr".to_owned()).await;
+        let (app_env, db, uuid) = test_setup().await;
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        // ACTIONS
-        let result = SysInfo::new(&app_envs.0, &app_envs.1).await;
+        let result = SysInfo::new(&db, &app_env).await;
 
-        // CHECK
         assert_eq!(result.internal_ip, "127.0.0.1");
-        assert_eq!(result.time_zone, "America/New_York");
+        assert_eq!(result.time_zone, "Europe/London");
         assert_eq!(result.version, env!("CARGO_PKG_VERSION"));
         assert_eq!(result.uptime_app, 1);
         // TODO need to check pi_time with regex?
         // assert!(result.pi_time.len() == 8);
         // Again assume ones computer has been turned on for one minute
         assert!(result.uptime > 60);
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 }

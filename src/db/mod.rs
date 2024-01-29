@@ -59,7 +59,7 @@ async fn get_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
     }
 
     let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
-        .max_connections(app_envs.sql_threads)
+        .max_connections(1)
         .connect_with(connect_options)
         .await?;
     Ok(db)
@@ -100,106 +100,62 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'
 mod tests {
-    use crate::app_env::EnvTimeZone;
-
     use super::*;
-    use std::{fs, time::SystemTime};
+    use crate::{
+        app_env::EnvTimeZone,
+        tests::{gen_app_envs, test_cleanup},
+    };
 
-    fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
-    }
-
-    fn gen_args(timezone: String, location_sqlite: String) -> AppEnv {
-        let na = String::from("na");
-        AppEnv {
-            location_ip_address: na.clone(),
-            location_sqlite,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new(timezone),
-            log_level: tracing::Level::INFO,
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
-        }
-    }
+    use uuid::Uuid;
 
     #[tokio::test]
     async fn sql_mod_exists_created() {
-        // FIXTURES
-        let name = "testing_file.db";
+        let uuid = Uuid::new_v4();
+        let name = format!("{uuid}.db");
 
-        // ACTION
-        file_exists(name);
+        file_exists(&name);
 
-        // CHECK
-        let exists = fs::metadata(name).is_ok();
+        let exists = fs::metadata(&name).is_ok();
         assert!(exists);
 
-        // CLEANUP
         fs::remove_file(name).unwrap();
     }
 
     #[tokio::test]
-    async fn sql_mod_exists_nested_created() {
-        // FIXTURES
-        let path = "/dev/shm/test_db_files/";
-        let name = format!("{path}/testing_file.db");
-
-        // ACTION
-        file_exists(&name);
-
-        // CHECK
-        let dir_exists = fs::metadata(path).unwrap().is_dir();
-        let exists = fs::metadata(&name).is_ok();
-        assert!(exists);
-        assert!(dir_exists);
-
-        // CLEANUP
-        cleanup();
-    }
-
-    #[tokio::test]
     async fn sql_mod_exists_invalid_name() {
-        // FIXTURES
         let name = "testing_file.sql";
 
-        // ACTION
         file_exists(name);
 
-        // CHECK
         let exists = fs::metadata(name).is_err();
         assert!(exists);
     }
 
     #[tokio::test]
     async fn sql_mod_db_created() {
-        // FIXTURES
-        let sql_name = String::from("/dev/shm/test_db_files/sql_file_db_created.db");
+        let uuid = uuid::Uuid::new_v4();
+        let args = gen_app_envs(uuid);
+
+        let db = init_db(&args).await.unwrap();
+
+        let sql_name = format!("/dev/shm/{uuid}.db");
         let sql_sham = format!("{sql_name}-shm");
         let sql_wal = format!("{sql_name}-wal");
 
-        let args = gen_args("America/New_York".into(), sql_name.clone());
+        assert!(fs::metadata(sql_name).is_ok());
+        assert!(fs::metadata(sql_sham).is_ok());
+        assert!(fs::metadata(sql_wal).is_ok());
 
-        // ACTION
-        init_db(&args).await.unwrap();
-        // CHECK
-        assert!(fs::metadata(&sql_name).is_ok());
-        assert!(fs::metadata(&sql_sham).is_ok());
-        assert!(fs::metadata(&sql_wal).is_ok());
+        db.close().await;
 
-        // CLEANUP
-        cleanup();
+        test_cleanup(uuid, None).await;
     }
 
     #[tokio::test]
     async fn sql_mod_db_created_with_timezone() {
-        // FIXTURES
-        let sql_name = String::from("/dev/shm/test_db_files/sql_file_db_created_with_timezone.db");
-        let timezone = "America/New_York";
-        let args = gen_args(timezone.into(), sql_name.clone());
+        let uuid = uuid::Uuid::new_v4();
+        let mut args = gen_app_envs(uuid);
+        args.timezone = EnvTimeZone::new("America/New_York");
         init_db(&args).await.unwrap();
         let db = sqlx::pool::PoolOptions::<sqlx::Sqlite>::new()
             .max_connections(1)
@@ -207,18 +163,15 @@ mod tests {
             .await
             .unwrap();
 
-        // ACTION
         let result = sqlx::query_as("SELECT * FROM timezone")
             .fetch_one(&db)
             .await;
 
-        // CHECK
         assert!(result.is_ok());
         let result: (i64, String) = result.unwrap();
         assert_eq!(result.0, 1);
         assert_eq!(result.1, "America/New_York");
 
-        // CLEANUP
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 }

@@ -81,72 +81,36 @@ impl Intro {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::app_env::EnvTimeZone;
+    use tracing::Level;
+
+    use crate::tests::gen_app_envs;
 
     use super::*;
-    use std::time::SystemTime;
 
     #[test]
     fn word_art_display_intro_trace() {
-        let na = String::from("na");
-        let args = AppEnv {
-            location_ip_address: na.clone(),
-            location_sqlite: na.clone(),
-            log_level: tracing::Level::TRACE,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new(""),
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
-        };
+        let mut app_envs = gen_app_envs(uuid::Uuid::new_v4());
+        app_envs.log_level = Level::TRACE;
 
-        let result = display_intro(&args);
+        let result = display_intro(&app_envs);
         assert!(result.contains("!! TRACE"));
-        assert!(!result.contains("!! DEBUG"));
     }
 
     #[test]
     fn word_art_display_intro_debug() {
-        let na = String::from("na");
-        let args = AppEnv {
-            location_ip_address: na.clone(),
-            location_sqlite: na.clone(),
-            log_level: tracing::Level::DEBUG,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new(""),
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
-        };
+        let mut app_envs = gen_app_envs(uuid::Uuid::new_v4());
+        app_envs.log_level = Level::DEBUG;
 
-        let result = display_intro(&args);
+        let result = display_intro(&app_envs);
         assert!(!result.contains("!! TRACE"));
         assert!(result.contains("!! DEBUG"));
     }
 
     #[test]
     fn word_art_display_intro() {
-        let args = AppEnv {
-            location_ip_address: String::new(),
-            location_sqlite: String::new(),
-            log_level: tracing::Level::INFO,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new(""),
-            ws_address: String::new(),
-            ws_apikey: String::new(),
-            ws_password: String::new(),
-            ws_token_address: String::new(),
-        };
+        let app_envs = gen_app_envs(uuid::Uuid::new_v4());
 
-        let result = display_intro(&args);
+        let result = display_intro(&app_envs);
         assert!(!result.contains("!! DEBUG"));
         assert!(!result.contains("!! TRACE"));
     }

@@ -8,10 +8,9 @@ use std::sync::{
 };
 use std::time::Instant;
 use time_tz::timezones;
-use tokio::sync::{broadcast::Sender, Mutex as TokioMutex};
 use tracing::{debug, error, trace};
 
-use crate::alarm_schedule::AlarmSchedule;
+use crate::alarm_schedule::{CronMessage, CronTx};
 use crate::sysinfo::SysInfo;
 use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, StructuredResponse};
 use crate::{
@@ -21,36 +20,36 @@ use crate::{
     ws_messages::to_struct,
 };
 
-use super::{InternalMessage, WSWriter};
+use super::{InternalTx, WSWriter};
 
 #[derive(Debug, Clone)]
 pub struct WSSender {
-    alarm_scheduler: Arc<TokioMutex<AlarmSchedule>>,
     app_envs: AppEnv,
+    c_tx: CronTx,
     connected_instant: Instant,
-    db: Arc<SqlitePool>,
+    db: SqlitePool,
+    i_tx: InternalTx,
     light_status: Arc<AtomicBool>,
-    sx: Sender<InternalMessage>,
     writer: Arc<Mutex<WSWriter>>,
 }
 
 impl WSSender {
     pub fn new(
-        alarm_scheduler: &Arc<TokioMutex<AlarmSchedule>>,
         app_envs: &AppEnv,
+        c_tx: CronTx,
         connected_instant: Instant,
-        db: &Arc<SqlitePool>,
+        db: &SqlitePool,
+        i_tx: InternalTx,
         light_status: &Arc<AtomicBool>,
-        sx: Sender<InternalMessage>,
         writer: Arc<Mutex<WSWriter>>,
     ) -> Self {
         Self {
-            alarm_scheduler: Arc::clone(alarm_scheduler),
             app_envs: app_envs.clone(),
             connected_instant,
-            db: Arc::clone(db),
+            db: db.clone(),
             light_status: Arc::clone(light_status),
-            sx,
+            c_tx,
+            i_tx,
             writer,
         }
     }
@@ -87,11 +86,9 @@ impl WSSender {
                 debug!("{e}");
             }
         }
-        self.alarm_scheduler
-            .lock()
-            .await
-            .refresh_alarms(&self.db)
-            .await;
+        tracing::info!("update alarm scheduler");
+        self.c_tx.send(CronMessage::ResetLoop).await.ok();
+        tracing::info!("send status");
         self.send_status().await;
     }
 
@@ -100,18 +97,14 @@ impl WSSender {
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
     async fn delete_all(&mut self) {
         ModelAlarm::delete_all(&self.db).await.ok();
-        self.alarm_scheduler
-            .lock()
-            .await
-            .refresh_alarms(&self.db)
-            .await;
+        self.c_tx.send(CronMessage::ResetLoop).await.ok();
         self.send_status().await;
     }
 
     /// Delete from database a given alarm, by id, and also remove from alarm_schedule alarm vector
     async fn delete_one(&mut self, id: i64) {
         ModelAlarm::delete(&self.db, id).await.unwrap_or(());
-        self.alarm_scheduler.lock().await.remove_alarm(id);
+        self.c_tx.send(CronMessage::ResetLoop).await.ok();
         self.send_status().await;
     }
 
@@ -133,14 +126,13 @@ impl WSSender {
     /// also update timezone in alarm scheduler
     async fn time_zone(&mut self, zone: String) {
         if timezones::get_by_name(&zone).is_some() {
-            ModelTimezone::update(&self.db, &zone).await.ok();
-            self.alarm_scheduler
-                .lock()
-                .await
-                .refresh_timezone(&self.db)
-                .await;
+            if let Err(e) = ModelTimezone::update(&self.db, &zone).await {
+                tracing::error!("{e}");
+            } else {
+                self.c_tx.send(CronMessage::ResetLoop).await.ok();
+            }
+            self.send_status().await;
         }
-        self.send_status().await;
     }
 
     /// turn light either on or off
@@ -149,7 +141,7 @@ impl WSSender {
             self.light_status.store(true, Ordering::Relaxed);
             let response = Response::LedStatus { status: new_status };
             self.send_ws_response(response, None).await;
-            LightControl::turn_on(Arc::clone(&self.light_status), &self.sx).await;
+            LightControl::turn_on(Arc::clone(&self.light_status), &self.i_tx).await;
         } else if !new_status {
             self.light_status.store(false, Ordering::Relaxed);
             self.led_status().await;

@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.3.9"
+version = "0.4.0"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
@@ -17,30 +17,42 @@ pedantic = "warn"
 nursery = "warn"
 todo = "warn"
 module_name_repetitions = "allow"
-doc_markdown= "allow"
+doc_markdown = "allow"
 
 [dependencies]
 blinkt = "0.7"
 dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
-reqwest = { version = "0.11", default-features=false, features = [ "brotli", "gzip", "json", "rustls-tls-native-roots" ] }
+reqwest = { version = "0.11", default-features = false, features = [
+	"brotli",
+	"gzip",
+	"json",
+	"rustls-tls-native-roots",
+] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 simple-signal = "1.1"
-sqlx = { version = "0.7", default-features = false, features = [ "macros", "runtime-tokio-rustls", "sqlite"] }
+sqlx = { version = "0.7", default-features = false, features = [
+	"macros",
+	"runtime-tokio-rustls",
+	"sqlite",
+] }
 thiserror = "1.0"
 time = { version = "0.3", features = ["local-offset"] }
 time-tz = "2.0"
 tokio = { version = "1.35", features = ["full"] }
-tokio-tungstenite={ version = "0.21", features = ["rustls-tls-native-roots"] }
+tokio-tungstenite = { version = "0.21", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 url = "2.5"
+
+[dev-dependencies]
+uuid = {version = "1.7",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true
 codegen-units = 1
 panic = 'abort'
-strip=true
+strip = true
 debug = false

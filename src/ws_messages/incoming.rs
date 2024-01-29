@@ -108,12 +108,12 @@ mod tests {
     fn message_incoming_parse_add_alarm_valid() {
         let data = r#"
             {
-            	"data": {
-            		"name" : "add_alarm",
-            		"body": {
-            			"hour":6,"minute":15,"days":[0,1,2,3,4,5,6]
-            		}
-            	}
+                "data": {
+                    "name" : "add_alarm",
+                    "body": {
+                        "hour":6,"minute":15,"days":[0,1,2,3,4,5,6]
+                    }
+                }
             }"#;
         let result = to_struct(data);
         assert!(result.is_some());
@@ -133,186 +133,186 @@ mod tests {
         // No body
         let data = r#"
     {
-    	"data": {
-    		"name" : "add_alarm",
-    	}
+        "data": {
+            "name" : "add_alarm",
+        }
     }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // Empty body
         let data = r#"
-    		{
-    			"data": {
-    				"name" : "add_alarm",
-    				"body: "",
-    			}
-    		}"#;
+            {
+                "data": {
+                    "name" : "add_alarm",
+                    "body: "",
+                }
+            }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // Empty body object
         let data = r#"
-    		{
-    			"data": {
-    				"name" : "add_alarm",
-    				"body: {},
-    			}
-    		}"#;
+            {
+                "data": {
+                    "name" : "add_alarm",
+                    "body: {},
+                }
+            }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // No hours
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"minute":6,"days":[0,1,2,3,4,5,6]},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"minute":6,"days":[0,1,2,3,4,5,6]},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid hours - number as string
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"hour":"6","minute":4, "days":[0,1,2,3,4,5,6]},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"hour":"6","minute":4, "days":[0,1,2,3,4,5,6]},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid hours - string
         let data = r#"
-    			{
-    				"data": {
-    					"name" : "add_alarm",
-    					"body: {"hour":"string","minute":4, "days":[0,1,2,3,4,5,6]},
-    				}
-    			}"#;
+                {
+                    "data": {
+                        "name" : "add_alarm",
+                        "body: {"hour":"string","minute":4, "days":[0,1,2,3,4,5,6]},
+                    }
+                }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // No minute
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"hour":6,"days":[0,1,2,3,4,5,6]},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"hour":6,"days":[0,1,2,3,4,5,6]},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid minute - number as string
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"hour":6,"minutes":"4", "days":[0,1,2,3,4,5,6]},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"hour":6,"minutes":"4", "days":[0,1,2,3,4,5,6]},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid minutes - string
         let data = r#"
-    			{
-    				"data": {
-    					"name" : "add_alarm",
-    					"body: {"hour":6,"minutes":"string", "days":[0,1,2,3,4,5,6]},
-    				}
-    			}"#;
+                {
+                    "data": {
+                        "name" : "add_alarm",
+                        "body: {"hour":6,"minutes":"string", "days":[0,1,2,3,4,5,6]},
+                    }
+                }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid minutes - > 59
         let data = r#"
-    			{
-    				"data": {
-    					"name" : "add_alarm",
-    					"body: {"hour":6,"minutes":"61", "days":[0,1,2,3,4,5,6]},
-    				}
-    			}"#;
+                {
+                    "data": {
+                        "name" : "add_alarm",
+                        "body: {"hour":6,"minutes":"61", "days":[0,1,2,3,4,5,6]},
+                    }
+                }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // No days
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"hour":6,"minute":3},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"hour":6,"minute":3},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - number
         let data = r#"
-    		  {
-    			  "data": {
-    				  "name" : "add_alarm",
-    				  "body: {"hour":6,"minute":4, "days":"1"},
-    			  }
-    		  }"#;
+              {
+                  "data": {
+                      "name" : "add_alarm",
+                      "body: {"hour":6,"minute":4, "days":"1"},
+                  }
+              }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - string
         let data = r#"
-    			{
-    				"data": {
-    					"name" : "add_alarm",
-    					"body: {"hour":6,"minute":1, "days":"string"},
-    				}
-    			}"#;
+                {
+                    "data": {
+                        "name" : "add_alarm",
+                        "body: {"hour":6,"minute":1, "days":"string"},
+                    }
+                }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - vec of number strings
         let data = r#"
-    		 {
-    			 "data": {
-    				 "name" : "add_alarm",
-    				 "body: {"hour":6,"minute":4, "days":["1", "2"]},
-    			 }
-    		 }"#;
+             {
+                 "data": {
+                     "name" : "add_alarm",
+                     "body: {"hour":6,"minute":4, "days":["1", "2"]},
+                 }
+             }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - vec of number strings
         let data = r#"
-		   {
-			   "data": {
-				   "name" : "add_alarm",
-				   "body: {"hour":6,"minute":4, "days":[8]},
-			   }
-		   }"#;
+           {
+               "data": {
+                   "name" : "add_alarm",
+                   "body: {"hour":6,"minute":4, "days":[8]},
+               }
+           }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - vec of string strings
         let data = r#"
-    		 {
-    			 "data": {
-    				 "name" : "add_alarm",
-    				 "body: {"hour":6,"minute":4, "days":["one", "two"]},
-    			 }
-    		 }"#;
+             {
+                 "data": {
+                     "name" : "add_alarm",
+                     "body: {"hour":6,"minute":4, "days":["one", "two"]},
+                 }
+             }"#;
         let result = to_struct(data);
         assert!(result.is_none());
 
         // invalid days - day > 6
         let data = r#"
-			{
-				"data": {
-					"name" : "add_alarm",
-					"body: {"hour":6,"minute":4, "days":[7]},
-				}
-			}"#;
+            {
+                "data": {
+                    "name" : "add_alarm",
+                    "body: {"hour":6,"minute":4, "days":[7]},
+                }
+            }"#;
         let result = to_struct(data);
         assert!(result.is_none());
     }

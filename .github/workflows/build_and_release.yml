@@ -4,43 +4,73 @@ on:
     tags: 
       - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
-  deploy:
+  #################################################
+  ## Cross platform binary build for release page #
+  #################################################
+
+  cross_platform_build:
+    strategy:
+      matrix:
+        include:
+
+          - target: aarch64-unknown-linux-musl
+            output_name: linux_aarch64.tar.gz
+
+          - target: arm-unknown-linux-musleabihf
+            output_name: linux_armv6.tar.gz
+
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      ####################################
-      ## Build binaries for release page #
-      ####################################
-
+      # Install stable rust, and associated tools
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-
+      # Install cross-rs
       - name: install cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      # Build for Pi Zero W
-      - name: build arm-unknown-linux-musleabihf
-        run: cross build --target arm-unknown-linux-musleabihf --release
+      # Build binary
+      - name: build
+        run: cross build --target ${{ matrix.target }} --release
 
-      - name: compress armv6 binary
-        run: tar -C target/arm-unknown-linux-musleabihf/release -czf ./belugasnooze_linux_armv6.tar.gz belugasnooze
+      # Compress the output
+      - name: compress linux
+        run: |
+          tar -C "target/${{ matrix.target }}/release" -czf "./belugasnooze_${{ matrix.output_name }}" belugasnooze
 
-      ###################
-      ## Create release #
-      ###################
-
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      # Upload output for release page
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          tag_name: ${{ github.ref }}
+          if-no-files-found: error
+          name: ${{ matrix.target }}
+          path: belugasnooze_${{ matrix.output_name }}
+          retention-days: 1
+
+  ###################
+  ## Create release #
+  ###################
+
+  create_release:
+    needs: [cross_platform_build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup | Artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Update Release
+        uses: ncipollo/release-action@v1
+        with:
+          makeLatest: true
           name: ${{ github.ref_name }}
-          body_path: ".github/release-body.md"
-          draft: false
-          files: |
-             belugasnooze_linux_armv6.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          bodyFile: ".github/release-body.md"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: |
+            **/belugasnooze_*.tar.gz

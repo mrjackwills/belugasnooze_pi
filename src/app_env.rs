@@ -31,7 +31,6 @@ pub struct AppEnv {
     pub location_sqlite: String,
     pub log_level: tracing::Level,
     pub rainbow: Option<()>,
-    pub sql_threads: u32,
     pub start_time: SystemTime,
     pub timezone: EnvTimeZone,
     pub ws_address: String,
@@ -80,18 +79,9 @@ impl AppEnv {
     /// Check that a given timezone is valid, else return UTC
     fn parse_timezone(map: &EnvHashMap) -> EnvTimeZone {
         EnvTimeZone::new(
-            map.get("TIMEZONE")
+            map.get("TZ")
                 .map_or_else(String::new, std::borrow::ToOwned::to_owned),
         )
-    }
-
-    /// Parse string to u32, else return 1
-    fn parse_u32(key: &str, map: &EnvHashMap) -> u32 {
-        let default = 1u32;
-        if let Some(data) = map.get(key) {
-            return data.parse::<u32>().map_or(default, |d| d);
-        }
-        default
     }
 
     /// Parse debug and/or trace into tracing level
@@ -128,7 +118,6 @@ impl AppEnv {
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             log_level: Self::parse_log(&env_map),
             rainbow: Self::parse_rainbow(&env_map),
-            sql_threads: Self::parse_u32("SQL_THREADS", &env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
@@ -170,109 +159,91 @@ impl AppEnv {
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn env_missing_env() {
+    #[test]
+    fn env_missing_env() {
         let mut map = HashMap::new();
         map.insert("not_fish".to_owned(), "not_fish".to_owned());
-        // ACTION
+
         let result = AppEnv::parse_string("fish", &map);
 
-        // CHECK
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "missing env: 'fish'");
     }
 
-    #[tokio::test]
-    async fn env_parse_string_valid() {
-        // FIXTURES
+    #[test]
+    fn env_parse_string_valid() {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "/alarms.db".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_string("LOCATION_SQLITE", &map).unwrap();
 
-        // CHECK
         assert_eq!(result, "/alarms.db");
     }
 
-    #[tokio::test]
-    async fn env_parse_boolean_ok() {
-        // FIXTURES
+    #[test]
+    fn env_parse_boolean_ok() {
         let mut map = HashMap::new();
         map.insert("valid_true".to_owned(), "true".to_owned());
         map.insert("valid_false".to_owned(), "false".to_owned());
         map.insert("invalid_but_false".to_owned(), "as".to_owned());
 
-        // ACTION
         let result01 = AppEnv::parse_boolean("valid_true", &map);
         let result02 = AppEnv::parse_boolean("valid_false", &map);
         let result03 = AppEnv::parse_boolean("invalid_but_false", &map);
         let result04 = AppEnv::parse_boolean("missing", &map);
 
-        // CHECK
         assert!(result01);
         assert!(!result02);
         assert!(!result03);
         assert!(!result04);
     }
 
-    #[tokio::test]
-    async fn env_parse_rainbow() {
-        // FIXTURES
+    #[test]
+    fn env_parse_rainbow() {
         let mut map = HashMap::new();
         map.insert("RAINBOW".to_owned(), "true".to_owned());
-        // ACTION
+
         let result = AppEnv::parse_rainbow(&map);
-        // CHECK
+
         assert!(result.is_some());
 
         let mut map = HashMap::new();
         map.insert("RAINBOW".to_owned(), "FALSE".to_owned());
-        // ACTION
+
         let result = AppEnv::parse_rainbow(&map);
 
-        // CHECK
         assert!(result.is_none());
     }
 
-    #[tokio::test]
-    async fn env_parse_db_location_ok() {
-        // FIXTURES
+    #[test]
+    fn env_parse_db_location_ok() {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "file.db".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
-        // CHECK
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "file.db");
 
-        // FIXTURES
         let mut map = HashMap::new();
         map.insert(
             "LOCATION_SQLITE".to_owned(),
             "some/nested/location/file.db".to_owned(),
         );
 
-        // ACTION
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
-        // CHECK
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "some/nested/location/file.db");
     }
 
-    #[tokio::test]
-    async fn env_parse_db_location_format_err() {
-        // FIXTURES
+    #[test]
+    fn env_parse_db_location_format_err() {
         let mut map = HashMap::new();
         map.insert("LOCATION_SQLITE".to_owned(), "file.sql".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
-        // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
             AppError::DbNameInvalid(value) => assert_eq!(value, "LOCATION_SQLITE"),
@@ -280,15 +251,12 @@ mod tests {
         }
     }
 
-    #[tokio::test]
-    async fn env_parse_db_location_missing_err() {
-        // FIXTURES
+    #[test]
+    fn env_parse_db_location_missing_err() {
         let map = HashMap::new();
 
-        // ACTION
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
-        // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
             AppError::MissingEnv(value) => assert_eq!(value, "LOCATION_SQLITE"),
@@ -298,206 +266,133 @@ mod tests {
 
     #[test]
     fn env_parse_log_valid() {
-        // FIXTURES
         let map = HashMap::from([("RANDOM_STRING".to_owned(), "123".to_owned())]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::INFO);
 
-        // FIXTURES
         let map = HashMap::from([("LOG_DEBUG".to_owned(), "false".to_owned())]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::INFO);
 
-        // FIXTURES
         let map = HashMap::from([("LOG_TRACE".to_owned(), "false".to_owned())]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::INFO);
 
-        // FIXTURES
         let map = HashMap::from([
             ("LOG_DEBUG".to_owned(), "false".to_owned()),
             ("LOG_TRACE".to_owned(), "false".to_owned()),
         ]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::INFO);
 
-        // FIXTURES
         let map = HashMap::from([
             ("LOG_DEBUG".to_owned(), "true".to_owned()),
             ("LOG_TRACE".to_owned(), "false".to_owned()),
         ]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::DEBUG);
 
-        // FIXTURES
         let map = HashMap::from([
             ("LOG_DEBUG".to_owned(), "true".to_owned()),
             ("LOG_TRACE".to_owned(), "true".to_owned()),
         ]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::TRACE);
 
-        // FIXTURES
         let map = HashMap::from([
             ("LOG_DEBUG".to_owned(), "false".to_owned()),
             ("LOG_TRACE".to_owned(), "true".to_owned()),
         ]);
 
-        // ACTION
         let result = AppEnv::parse_log(&map);
 
-        // CHECK
         assert_eq!(result, tracing::Level::TRACE);
     }
 
-    #[tokio::test]
-    async fn env_parse_timezone_ok() {
-        // FIXTURES
+    #[test]
+    fn env_parse_timezone_ok() {
         let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "America/New_York".to_owned());
+        map.insert("TZ".to_owned(), "America/New_York".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_timezone(&map);
 
-        // CHECK
         assert_eq!(result.0, "America/New_York");
 
         let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "Europe/Berlin".to_owned());
+        map.insert("TZ".to_owned(), "Europe/Berlin".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_timezone(&map);
 
-        // CHECK
         assert_eq!(result.0, "Europe/Berlin");
 
-        // FIXTURES
         let map = HashMap::new();
 
-        // ACTION
         let result = AppEnv::parse_timezone(&map);
 
-        // CHECK
         assert_eq!(result.0, "Etc/UTC");
     }
 
-    #[tokio::test]
-    async fn env_parse_timezone_err() {
-        // FIXTURES
+    #[test]
+    fn env_parse_timezone_err() {
         let mut map = HashMap::new();
         map.insert("TIMEZONE".to_owned(), "america/New_York".to_owned());
 
-        // ACTION
         let result = AppEnv::parse_timezone(&map);
-        // CHECK
+
         assert_eq!(result.0, "Etc/UTC");
 
         // No timezone present
-        // FIXTURES
+
         let map = HashMap::new();
         let result = AppEnv::parse_timezone(&map);
 
-        // CHECK
         assert_eq!(result.0, "Etc/UTC");
     }
-    #[tokio::test]
-    async fn env_panic_appenv() {
-        // ACTION
+
+    #[test]
+    fn env_panic_appenv() {
         let result = AppEnv::generate();
 
         assert!(result.is_err());
     }
 
-    #[tokio::test]
-    async fn env_return_appenv() {
-        // FIXTURES
+    #[test]
+    fn env_return_appenv() {
         dotenvy::dotenv().ok();
 
-        // ACTION
         let result = AppEnv::generate();
 
         assert!(result.is_ok());
     }
 
-    #[tokio::test]
-    async fn env_check_file_exists_ok() {
-        // ACTION
+    #[test]
+    fn env_check_file_exists_ok() {
         let result = AppEnv::check_file_exists("Cargo.lock".into());
 
-        // CHECK
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "Cargo.lock");
     }
 
-    #[tokio::test]
-    async fn env_check_file_exists_er() {
-        // ACTION
+    #[test]
+    fn env_check_file_exists_er() {
         let result = AppEnv::check_file_exists("file.sql".into());
 
-        // CHECK
         assert!(result.is_err());
         match result.unwrap_err() {
             AppError::FileNotFound(value) => assert_eq!(value, "file.sql"),
             _ => unreachable!(),
         }
-    }
-
-    #[tokio::test]
-    async fn env_parse_u32_ok() {
-        // FIXTURES
-        let mut map = HashMap::new();
-        map.insert("U32_TEST".to_owned(), "88".to_owned());
-
-        // ACTION
-        let result = AppEnv::parse_u32("U32_TEST", &map);
-
-        // CHECK
-        assert_eq!(result, 88);
-    }
-
-    #[tokio::test]
-    async fn env_parse_u32_default_ok() {
-        // FIXTURES
-        let map = HashMap::new();
-
-        // ACTION
-        let result = AppEnv::parse_u32("U32_TEST", &map);
-
-        // CHECK
-        assert_eq!(result, 1);
-
-        // FIXTURES
-        let mut map = HashMap::new();
-        map.insert("U32_TEST".to_owned(), "U32_TEST".to_owned());
-
-        // ACTION
-        let result = AppEnv::parse_u32("U32_TEST", &map);
-
-        // CHECK
-        assert_eq!(result, 1);
     }
 }

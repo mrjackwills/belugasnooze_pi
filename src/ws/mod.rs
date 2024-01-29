@@ -14,16 +14,12 @@ use std::{
     sync::{atomic::AtomicBool, Arc},
 };
 use time::OffsetDateTime;
-use tokio::{
-    net::TcpStream,
-    sync::{broadcast::Sender, Mutex as TokioMutex},
-    task::JoinHandle,
-};
+use tokio::{net::TcpStream, task::JoinHandle};
 use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 use tracing::{error, info};
 
 use crate::{
-    alarm_schedule::AlarmSchedule, app_env::AppEnv, app_error::AppError, db::ModelTimezone,
+    alarm_schedule::CronTx, app_env::AppEnv, app_error::AppError, db::ModelTimezone,
     light::LightControl, ws::ws_sender::WSSender,
 };
 
@@ -32,6 +28,8 @@ type WSReader = SplitStream<WebSocketStream<MaybeTlsStream<TcpStream>>>;
 type WSWriter = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 
 mod ws_sender;
+
+pub type InternalTx = tokio::sync::broadcast::Sender<InternalMessage>;
 
 #[derive(Debug, Clone, Copy)]
 pub enum InternalMessage {
@@ -81,9 +79,10 @@ async fn incoming_ws_message(mut reader: WSReader, mut ws_sender: WSSender) {
 }
 
 /// Send pi status message  and light status message to connect client, for when light turns off
-fn incoming_internal_message(sx: &Sender<InternalMessage>, ws_sender: &WSSender) -> JoinHandle<()> {
+fn incoming_internal_message(tx: &InternalTx, ws_sender: &WSSender) -> JoinHandle<()> {
     let mut ws_sender = ws_sender.clone();
-    let mut rx = sx.subscribe();
+
+    let mut rx = tx.subscribe();
     tokio::spawn(async move {
         ws_sender.send_status().await;
         ws_sender.led_status().await;
@@ -99,7 +98,7 @@ fn incoming_internal_message(sx: &Sender<InternalMessage>, ws_sender: &WSSender)
 }
 
 /// If the current time is in the alllowable range, then illuminate the lights in a rainbow sequence
-async fn rainbow(db: &Arc<SqlitePool>, light_status: &Arc<AtomicBool>, app_envs: &AppEnv) {
+async fn rainbow(db: &SqlitePool, light_status: &Arc<AtomicBool>, app_envs: &AppEnv) {
     let db_timezone = ModelTimezone::get(db).await.unwrap_or_default();
     if ALLOWABLE_HOURS.contains(
         &OffsetDateTime::now_utc()
@@ -113,11 +112,11 @@ async fn rainbow(db: &Arc<SqlitePool>, light_status: &Arc<AtomicBool>, app_envs:
 /// need to spawn a new receiver on each connect
 /// try to open WS connection, and spawn a ThreadChannel message handler
 pub async fn open_connection(
-    alarm_scheduler: Arc<TokioMutex<AlarmSchedule>>,
     app_envs: AppEnv,
-    db: Arc<SqlitePool>,
+    c_tx: CronTx,
+    db: SqlitePool,
+    i_tx: InternalTx,
     light_status: Arc<AtomicBool>,
-    sx: Sender<InternalMessage>,
 ) -> Result<(), AppError> {
     let mut connection_details = ConnectionDetails::new();
     loop {
@@ -134,16 +133,16 @@ pub async fn open_connection(
                 rainbow(&db, &light_status, &app_envs).await;
 
                 let ws_sender = WSSender::new(
-                    &alarm_scheduler,
                     &app_envs,
+                    c_tx.clone(),
                     connection_details.get_connect_instant(),
                     &db,
+                    i_tx.clone(),
                     &light_status,
-                    sx.clone(),
                     Arc::new(Mutex::new(writer)),
                 );
 
-                let internal_message_thread = incoming_internal_message(&sx, &ws_sender);
+                let internal_message_thread = incoming_internal_message(&i_tx, &ws_sender);
 
                 incoming_ws_message(reader, ws_sender).await;
                 internal_message_thread.abort();

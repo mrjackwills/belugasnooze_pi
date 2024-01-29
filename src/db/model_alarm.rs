@@ -59,199 +59,148 @@ impl ModelAlarm {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use crate::{app_env::EnvTimeZone, db::init_db, AppEnv};
-    use std::{fs, sync::Arc, time::SystemTime};
+    use crate::tests::{test_cleanup, test_setup};
 
     use super::*;
 
-    async fn setup_test_db(file_name: &str) -> (Arc<SqlitePool>, AppEnv) {
-        let location_sqlite = format!("/dev/shm/test_db_files/{file_name}.db");
-        let na = String::from("na");
-        let env = AppEnv {
-            location_ip_address: na.clone(),
-            location_sqlite,
-            log_level: tracing::Level::INFO,
-            rainbow: None,
-            sql_threads: 1,
-            start_time: SystemTime::now(),
-            timezone: EnvTimeZone::new("America/New_York"),
-            ws_address: na.clone(),
-            ws_apikey: na.clone(),
-            ws_password: na.clone(),
-            ws_token_address: na,
-        };
-        let db = Arc::new(init_db(&env).await.unwrap());
-        (db, env)
-    }
-
-    fn cleanup() {
-        fs::remove_dir_all("/dev/shm/test_db_files/").unwrap();
-    }
-
     #[tokio::test]
     async fn model_alarm_add_ok() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_add_ok").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (1, 10, 10);
 
-        // ACTIONS
-        let result = ModelAlarm::add(&fixtures.0, data).await;
+        let result = ModelAlarm::add(&db, data).await;
 
-        // CHECK
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.alarm_id, 1);
         assert_eq!(result.day, 1);
         assert_eq!(result.hour, 10);
         assert_eq!(result.minute, 10);
-        cleanup();
+
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_add_err_invalid_day() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_add_err_invalid_day").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (10, 10, 10);
 
-        // ACTIONS
-        let result = ModelAlarm::add(&fixtures.0, data).await;
+        let result = ModelAlarm::add(&db, data).await;
 
-        // CHECK
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: day >= 0 AND day <= 6"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: day >= 0\n\t\tAND day <= 6"
         );
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_add_err_invalid_hour() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_add_err_invalid_hour").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (1, 25, 10);
 
-        // ACTIONS
-        let result = ModelAlarm::add(&fixtures.0, data).await;
+        let result = ModelAlarm::add(&db, data).await;
 
-        // CHECK
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: hour >= 0 AND hour <= 23"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: hour >= 0\n\t\tAND hour <= 23"
         );
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_add_err_invalid_minute() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_add_err_invalid_minute").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (1, 10, 60);
 
-        // ACTIONS
-        let result = ModelAlarm::add(&fixtures.0, data).await;
+        let result = ModelAlarm::add(&db, data).await;
 
-        // CHECK
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: minute >= 0 AND minute <= 59"
+            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: minute >= 0\n\t\tAND minute <= 59"
         );
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_get_all_ok() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_get_all_ok").await;
+        let (_app_env, db, uuid) = test_setup().await;
         for i in 0..6 {
             let data = (i, i, i);
-            ModelAlarm::add(&fixtures.0, data).await.unwrap();
+            ModelAlarm::add(&db, data).await.unwrap();
         }
 
-        // ACTIONS
-        let result = ModelAlarm::get_all(&fixtures.0).await;
+        let result = ModelAlarm::get_all(&db).await;
 
-        // CHECK
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.len(), 6);
         assert_eq!(result[0].day, 0);
         assert_eq!(result[1].hour, 1);
         assert_eq!(result[2].minute, 2);
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_delete_one_ok() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_delete_one_ok").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (1, 10, 10);
-        let alarm = ModelAlarm::add(&fixtures.0, data).await.unwrap();
+        let alarm = ModelAlarm::add(&db, data).await.unwrap();
 
-        // ACTIONS
-        let result = ModelAlarm::delete(&fixtures.0, alarm.alarm_id).await;
-        let alarm = ModelAlarm::get_all(&fixtures.0).await.unwrap();
+        let result = ModelAlarm::delete(&db, alarm.alarm_id).await;
+        let alarm = ModelAlarm::get_all(&db).await.unwrap();
 
-        // CHECK
         assert!(result.is_ok());
         assert!(alarm.is_empty());
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_multiple_delete_one_ok() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_multiple_delete_one_ok").await;
+        let (_app_env, db, uuid) = test_setup().await;
         for i in 0..6 {
             let data = (i, i, i);
-            ModelAlarm::add(&fixtures.0, data).await.unwrap();
+            ModelAlarm::add(&db, data).await.unwrap();
         }
 
-        // ACTIONS
-        let result = ModelAlarm::delete(&fixtures.0, 1).await;
-        let alarm = ModelAlarm::get_all(&fixtures.0).await.unwrap();
+        let result = ModelAlarm::delete(&db, 1).await;
+        let alarm = ModelAlarm::get_all(&db).await.unwrap();
 
-        // CHECK
         assert!(result.is_ok());
         assert_eq!(alarm.len(), 5);
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_delete_all_ok() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_delete_all_ok").await;
+        let (_app_env, db, uuid) = test_setup().await;
         for i in 0..6 {
             let data = (i, i, i);
-            ModelAlarm::add(&fixtures.0, data).await.unwrap();
+            ModelAlarm::add(&db, data).await.unwrap();
         }
 
-        // ACTIONS
-        let result = ModelAlarm::delete_all(&fixtures.0).await;
-        let alarm = ModelAlarm::get_all(&fixtures.0).await.unwrap();
+        let result = ModelAlarm::delete_all(&db).await;
+        let alarm = ModelAlarm::get_all(&db).await.unwrap();
 
-        // CHECK
         assert!(result.is_ok());
         assert!(alarm.is_empty());
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 
     #[tokio::test]
     async fn model_alarm_delete_err() {
-        // FIXTURES
-        let fixtures = setup_test_db("model_alarm_delete_err").await;
+        let (_app_env, db, uuid) = test_setup().await;
         let data = (1, 10, 10);
-        ModelAlarm::add(&fixtures.0, data).await.unwrap();
+        ModelAlarm::add(&db, data).await.unwrap();
 
-        // ACTIONS
-        let result = ModelAlarm::delete(&fixtures.0, 2).await;
-        let alarm = ModelAlarm::get_all(&fixtures.0).await.unwrap();
+        let result = ModelAlarm::delete(&db, 2).await;
+        let alarm = ModelAlarm::get_all(&db).await.unwrap();
 
-        // CHECK
         assert!(result.is_ok());
         assert_eq!(alarm.len(), 1);
-        cleanup();
+        test_cleanup(uuid, Some(db)).await;
     }
 }
