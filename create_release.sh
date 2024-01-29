@@ -202,10 +202,10 @@ cargo_build_all() {
 	cargo install cross
 	cargo_build_armv6_linux
 	ask_continue
-	cargo_build_aarch64_linux
-	ask_continue
-	cargo_build_x86_linux
-	ask_continue
+	# cargo_build_aarch64_linux
+	# ask_continue
+	# cargo_build_x86_linux
+	# ask_continue
 }
 
 # $1 text to colourise
