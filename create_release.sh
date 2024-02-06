@@ -202,10 +202,10 @@ cargo_build_all() {
 	cargo install cross
 	cargo_build_armv6_linux
 	ask_continue
-	# cargo_build_aarch64_linux
-	# ask_continue
-	# cargo_build_x86_linux
-	# ask_continue
+	cargo_build_aarch64_linux
+	ask_continue
+	cargo_build_x86_linux
+	ask_continue
 }
 
 # $1 text to colourise
@@ -279,11 +279,12 @@ release_flow() {
 	release_continue "git checkout main"
 	git checkout main
 
-	echo -e "${PURPLE}git pull main${RESET}"
+	echo -e "${PURPLE}git pull origin main${RESET}"
 	git pull origin main
 
 	echo -e "${PURPLE}git merge --no-ff \"${RELEASE_BRANCH}\" -m \"chore: merge ${RELEASE_BRANCH} into main\"${RESET}"
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
+
 	echo -e "\n${PURPLE}cargo check${RESET}\n"
 	cargo check
 
