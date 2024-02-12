@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # rust create_release
-# v0.5.1
+# v0.5.4
 
 STAR_LINE='****************************************'
 CWD=$(pwd)
@@ -34,21 +34,26 @@ user_input() {
 	echo "$data"
 }
 
+# semver major update
 update_major() {
 	local bumped_major
 	bumped_major=$((MAJOR + 1))
 	echo "${bumped_major}.0.0"
 }
 
+# semver minor update
 update_minor() {
 	local bumped_minor
 	bumped_minor=$((MINOR + 1))
+	MINOR=bumped_minor
 	echo "${MAJOR}.${bumped_minor}.0"
 }
 
+# semver patch update
 update_patch() {
 	local bumped_patch
 	bumped_patch=$((PATCH + 1))
+	PATCH=bumped_patch
 	echo "${MAJOR}.${MINOR}.${bumped_patch}"
 }
 
@@ -84,6 +89,14 @@ ask_changelog_update() {
 	if [[ "$(user_input)" =~ ^y$ ]]; then
 		update_release_body_and_changelog "$RELEASE_BODY_TEXT"
 	else
+		exit
+	fi
+}
+
+# ask continue, or quit
+ask_continue() {
+	ask_yn "continue"
+	if [[ ! "$(user_input)" =~ ^y$ ]]; then
 		exit
 	fi
 }
@@ -164,34 +177,30 @@ check_tag() {
 	done
 }
 
-# ask continue, or quit
-ask_continue() {
-	ask_yn "continue"
-	if [[ ! "$(user_input)" =~ ^y$ ]]; then
-		exit
-	fi
-}
-
 # run all tests
 cargo_test() {
 	cargo test
 	ask_continue
 }
 
-#  Build for linux x86
-cargo_build_x86_linux() {
-	echo -e "${YELLOW}cross build --target x86_64-unknown-linux-musl --release${RESET}"
-	cross build --target x86_64-unknown-linux-musl --release
+# Check to see if cross is installed - if not then install
+check_cross() {
+	if ! [ -x "$(command -v cross)" ]; then
+		echo -e "${YELLOW}cargo install cross${RESET}"
+		cargo install cross
+	fi
 }
 
 #  Build for linux arm64
 cargo_build_aarch64_linux() {
+	check_cross
 	echo -e "${YELLOW}cross build --target aarch64-unknown-linux-musl --release${RESET}"
 	cross build --target aarch64-unknown-linux-musl --release
 }
 
-#  Build for linux armv6
+# Build for linux armv6
 cargo_build_armv6_linux() {
+	check_cross
 	echo -e "${YELLOW}cross build --target arm-unknown-linux-musleabihf --release${RESET}"
 	cross build --target arm-unknown-linux-musleabihf --release
 }
@@ -199,25 +208,16 @@ cargo_build_armv6_linux() {
 # Build all releases that GitHub workflow would
 # This will download GB's of docker images
 cargo_build_all() {
-	cargo install cross
 	cargo_build_armv6_linux
 	ask_continue
-	# cargo_build_aarch64_linux
-	# ask_continue
-	# cargo_build_x86_linux
-	# ask_continue
+	cargo_build_aarch64_linux
+	ask_continue
 }
 
 # $1 text to colourise
 release_continue() {
 	echo -e "\n${PURPLE}$1${RESET}"
 	ask_continue
-}
-
-# Clean/remove builds, due to issue with cross-rs
-cargo_clean() {
-	echo -e "${YELLOW}cargo clean${RESET}"
-	cargo clean
 }
 
 # Check repository for typos
@@ -232,9 +232,11 @@ check_allow_unused() {
 	matches_any=$(find . -type d \( -name .git -o -name target \) -prune -o -type f -exec grep -lE '^#!\[allow\(unused\)\]$' {} +)
 	matches_cargo=$(grep "^unused = \"allow\"" ./Cargo.toml)
 	if [ -n "$matches_any" ]; then
-		error_close "\"#[allow(unused)]\" in ${matches_any}"
+		echo "\"#[allow(unused)]\" in ${matches_any}"
+		ask_continue
 	elif [ -n "$matches_cargo" ]; then
-		error_close "\"unused = \"allow\"\" in Cargo.toml"
+		echo "\"unused = \"allow\"\" in Cargo.toml"
+		ask_continue
 	fi
 }
 
@@ -279,11 +281,12 @@ release_flow() {
 	release_continue "git checkout main"
 	git checkout main
 
-	echo -e "${PURPLE}git pull main${RESET}"
+	echo -e "${PURPLE}git pull origin main${RESET}"
 	git pull origin main
 
 	echo -e "${PURPLE}git merge --no-ff \"${RELEASE_BRANCH}\" -m \"chore: merge ${RELEASE_BRANCH} into main\"${RESET}"
 	git merge --no-ff "$RELEASE_BRANCH" -m "chore: merge ${RELEASE_BRANCH} into main"
+
 	echo -e "\n${PURPLE}cargo check${RESET}\n"
 	cargo check
 

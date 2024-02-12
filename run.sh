@@ -5,8 +5,8 @@
 
 DOCKER_GUID=$(id -g)
 DOCKER_UID=$(id -u)
-DOCKER_TIME_CONT="America"
-DOCKER_TIME_CITY="New_York"
+DOCKER_TIME_CONT="Europe"
+DOCKER_TIME_CITY="London"
 
 DOCKER_GPIO=$(getent group gpio | cut -d: -f3)
 
@@ -35,8 +35,6 @@ user_input() {
 }
 
 production_up() {
-	ask_yn "added crontab \"ExecStartPre=/bin/sleep 20\" to /etc/systemd/system/multi-user.target.wants/docker.service"
-
 	DOCKER_GUID=${DOCKER_GUID} \
 		DOCKER_UID=${DOCKER_UID} \
 		DOCKER_TIME_CONT=${DOCKER_TIME_CONT} \

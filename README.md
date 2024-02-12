@@ -43,7 +43,7 @@ Suggested locations for directories required by belugasnooze
 
 | directory | reason|
 | --- | --- |
-|```~/belugasnooze/``` | Location of the node app |
+|```~/belugasnooze/``` | Location of the application |
 |```/ramdrive```  | tmpfs ramdrive|
 
 ```bash
