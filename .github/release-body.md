@@ -1,12 +1,10 @@
-### 2024-02-12
+### 2024-04-01
 
 ### Chores
-+ create_release.sh v0.5.4, [4eb79fa873e5b1f50500fafbeab647f64a51547f], [48a338fb9f66a9cac72ce9c3c59a0bbf50af1666]
-+ dependencies updated, [08209b2ac5905be255d0d97ec40bff2f0ac444e8]
-+ run.sh updated, [636a35a4282a3d8d6d255ca0360dd01e0e5e5e4b]
-+ GitHub workflow updated, [6afca52db71b4ee67ab6c010a5195ff51fc50a1e]
++ create_release v0.5.5, [256ed4a9188cbc75741bbd5520fb45762723982c]
++ dependencies updated, [dacc542d5d8effdaece9e7c7f8d3202a4e2bc257], [9ceeb98b67a863bbbd435add26bb2c6ed8a64aae]
 
-### Docs
-+ README.md typo, [2b0cef36d61b6d41c3d4205c9dc2824c9e363819]
+### Refactors
++ version removed from docker-compose, [cc9518d6abeae0119e13a8c3bde9e8faf013a1dd]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
