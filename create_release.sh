@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# rust create_release
-# v0.5.4
+# rust create_release v0.5.5
 
 STAR_LINE='****************************************'
 CWD=$(pwd)
@@ -32,6 +31,14 @@ ask_yn() {
 user_input() {
 	read -r data
 	echo "$data"
+}
+
+# ask continue, or quit
+ask_continue() {
+	ask_yn "continue"
+	if [[ ! "$(user_input)" =~ ^y$ ]]; then
+		exit
+	fi
 }
 
 # semver major update
@@ -89,14 +96,6 @@ ask_changelog_update() {
 	if [[ "$(user_input)" =~ ^y$ ]]; then
 		update_release_body_and_changelog "$RELEASE_BODY_TEXT"
 	else
-		exit
-	fi
-}
-
-# ask continue, or quit
-ask_continue() {
-	ask_yn "continue"
-	if [[ ! "$(user_input)" =~ ^y$ ]]; then
 		exit
 	fi
 }
@@ -269,6 +268,7 @@ release_flow() {
 
 	echo -e "\ncargo fmt"
 	cargo fmt
+
 	echo -e "\n${PURPLE}cargo check${RESET}\n"
 	cargo check
 
@@ -347,7 +347,6 @@ build_choice() {
 			;;
 		esac
 	done
-
 }
 
 main() {
