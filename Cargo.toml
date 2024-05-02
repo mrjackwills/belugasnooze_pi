@@ -10,11 +10,11 @@ description = "belugasnooze - A pi based wake up light sunrise alarm clock"
 unsafe_code = "forbid"
 
 [lints.clippy]
+nursery = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
 unused_async = "warn"
 unwrap_used = "warn"
 expect_used = "warn"
-pedantic = "warn"
-nursery = "warn"
 todo = "warn"
 module_name_repetitions = "allow"
 doc_markdown = "allow"
@@ -48,7 +48,7 @@ tracing-subscriber = "0.3"
 url = "2.5"
 
 [dev-dependencies]
-uuid = {version = "1.7",features = ["v4","fast-rng"]}
+uuid = {version = "1.8",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true
