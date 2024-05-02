@@ -75,7 +75,7 @@ mod tests {
     #[tokio::test]
     async fn sysinfo_get_ip_na() {
         let (mut app_env, db, uuid) = test_setup().await;
-        app_env.location_ip_address = "invalid".to_owned();
+        "invalid".clone_into(&mut app_env.location_ip_address);
 
         let result = SysInfo::get_ip(&app_env).await;
 
