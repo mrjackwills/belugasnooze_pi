@@ -313,10 +313,9 @@ release_flow() {
 build_choice() {
 	cmd=(dialog --backtitle "Choose option" --radiolist "choose" 14 80 16)
 	options=(
-		1 "x86 musl linux" off
-		2 "aarch64 musl linux" off
-		3 "armv6 musl linux" off
-		4 "all" off
+		1 "aarch64 musl linux" off
+		2 "armv6 musl linux" off
+		3 "all" off
 	)
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 	exitStatus=$?
@@ -330,18 +329,14 @@ build_choice() {
 			exit
 			;;
 		1)
-			cargo_build_x86_linux
-			exit
-			;;
-		2)
 			cargo_build_aarch64_linux
 			exit
 			;;
-		3)
+		2)
 			cargo_build_armv6_linux
 			exit
 			;;
-		4)
+		3)
 			cargo_build_all
 			exit
 			;;

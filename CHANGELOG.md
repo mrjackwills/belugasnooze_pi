@@ -1,3 +1,13 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.3'>v0.4.3</a>
+### 2024-05-06
+
+### Chores
++ Rust 1.78.0 linting, [c73131f2](https://github.com/mrjackwills/belugasnooze_pi/commit/c73131f246280918c1f589da122539ad8142a6f1)
++ dependencies updated, [a7997f40](https://github.com/mrjackwills/belugasnooze_pi/commit/a7997f400dbfac011898be42a3613229a45551d7), [b8c3ed62](https://github.com/mrjackwills/belugasnooze_pi/commit/b8c3ed62529dba628d90416929ce0decf2452440)
+
+### Refactors
++ create_release.sh dead code removed, [0d164ed3](https://github.com/mrjackwills/belugasnooze_pi/commit/0d164ed3f0eed7227f27d97eb18d6d0d44e146a5)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.2'>v0.4.2</a>
 ### 2024-04-01
 

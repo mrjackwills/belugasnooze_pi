@@ -1,10 +1,10 @@
-### 2024-04-01
+### 2024-05-06
 
 ### Chores
-+ create_release v0.5.5, [256ed4a9188cbc75741bbd5520fb45762723982c]
-+ dependencies updated, [dacc542d5d8effdaece9e7c7f8d3202a4e2bc257], [9ceeb98b67a863bbbd435add26bb2c6ed8a64aae]
++ Rust 1.78.0 linting, [c73131f246280918c1f589da122539ad8142a6f1]
++ dependencies updated, [a7997f400dbfac011898be42a3613229a45551d7], [b8c3ed62529dba628d90416929ce0decf2452440]
 
 ### Refactors
-+ version removed from docker-compose, [cc9518d6abeae0119e13a8c3bde9e8faf013a1dd]
++ create_release.sh dead code removed, [0d164ed3f0eed7227f27d97eb18d6d0d44e146a5]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
