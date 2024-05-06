@@ -1,3 +1,7 @@
+### Chores
++ Rust 1.78.0 linting, [c73131f246280918c1f589da122539ad8142a6f1]
++ dependencies updated, [a7997f400dbfac011898be42a3613229a45551d7], [b8c3ed62529dba628d90416929ce0decf2452440]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.2'>v0.4.2</a>
 ### 2024-04-01
 
