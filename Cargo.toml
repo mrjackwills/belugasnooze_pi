@@ -24,6 +24,7 @@ blinkt = "0.7"
 dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
+mimalloc = "0.1"
 reqwest = { version = "0.12", default-features = false, features = [
 	"brotli",
 	"gzip",
@@ -41,8 +42,8 @@ sqlx = { version = "0.7", default-features = false, features = [
 thiserror = "1.0"
 time = { version = "0.3", features = ["local-offset"] }
 time-tz = "2.0"
-tokio = { version = "1.37", features = ["full"] }
-tokio-tungstenite = { version = "0.21", features = ["rustls-tls-native-roots"] }
+tokio = { version = "1.38", features = ["full"] }
+tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 url = "2.5"
