@@ -23,8 +23,6 @@ use std::sync::{
 use word_art::Intro;
 use ws::open_connection;
 
-
-
 fn close_signal(light_status: Arc<AtomicBool>) {
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
         light_status.store(false, Ordering::Relaxed);
