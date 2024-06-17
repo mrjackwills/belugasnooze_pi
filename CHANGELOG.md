@@ -1,3 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.5'>v0.4.5</a>
+### 2024-06-17
+
+### Fixes
++ tokio-tungstenite "rustls-tls-native" feature, [1353d393](https://github.com/mrjackwills/belugasnooze_pi/commit/1353d39344ce2eb5b1d132fc6e6670eaa25b79c9)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.4'>v0.4.4</a>
 ### 2024-06-17
 
