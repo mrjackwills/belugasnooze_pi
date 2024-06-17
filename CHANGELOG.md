@@ -1,3 +1,9 @@
+### Chores
++ dependencies updated, [03b4fe8e9505e613fbfd4d4c1797231a11f8d151]
+
+### Fixes
++ dockerfile verion bump, and arg update, [6c70e0b6cf26961b3fe44cf3e626638c26172f28]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.3'>v0.4.3</a>
 ### 2024-05-06
 
