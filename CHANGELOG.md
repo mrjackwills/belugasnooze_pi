@@ -1,3 +1,6 @@
+### Fixes
++ native-tls features, [437a552afe6a21b31494d565653797eccdba7fcb]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.4'>v0.4.4</a>
 ### 2024-06-17
 
