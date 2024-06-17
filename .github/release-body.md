@@ -1,10 +1,9 @@
-### 2024-05-06
+### 2024-06-17
 
 ### Chores
-+ Rust 1.78.0 linting, [c73131f246280918c1f589da122539ad8142a6f1]
-+ dependencies updated, [a7997f400dbfac011898be42a3613229a45551d7], [b8c3ed62529dba628d90416929ce0decf2452440]
++ dependencies updated, [03b4fe8e9505e613fbfd4d4c1797231a11f8d151]
 
-### Refactors
-+ create_release.sh dead code removed, [0d164ed3f0eed7227f27d97eb18d6d0d44e146a5]
+### Fixes
++ dockerfile version bump, and arg update, [6c70e0b6cf26961b3fe44cf3e626638c26172f28]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
