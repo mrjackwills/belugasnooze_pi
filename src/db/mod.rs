@@ -95,7 +95,7 @@ pub async fn init_db(app_envs: &AppEnv) -> Result<SqlitePool, sqlx::Error> {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 /// Sql Test
 ///
 /// cargo watch -q -c -w src/ -x 'test sql_mod -- --test-threads=1 --nocapture'

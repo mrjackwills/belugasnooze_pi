@@ -55,7 +55,7 @@ impl WSSender {
     }
 
     /// Handle text message, in this program they will all be json text
-    pub async fn on_text(&mut self, message: String) {
+    pub async fn on_text(&self, message: String) {
         if let Some(data) = to_struct(&message) {
             match data {
                 MessageValues::Invalid(error) => error!("invalid::{error:?}"),
@@ -76,7 +76,7 @@ impl WSSender {
     }
 
     /// Add a new alarm to database, and update alarm_schedule alarm vector
-    async fn add_alarm(&mut self, day: Vec<u8>, hour: u8, minute: u8) {
+    async fn add_alarm(&self, day: Vec<u8>, hour: u8, minute: u8) {
         let handles = day
             .into_iter()
             .map(|i| ModelAlarm::add(&self.db, (i, hour, minute)))
@@ -95,14 +95,14 @@ impl WSSender {
     /// Delete all alarms in database, and update alarm_schedule alarm vector
     /// If the alarm sequence has started, and you delete all alarms, the light is still on
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
-    async fn delete_all(&mut self) {
+    async fn delete_all(&self) {
         ModelAlarm::delete_all(&self.db).await.ok();
         self.c_tx.send(CronMessage::ResetLoop).await.ok();
         self.send_status().await;
     }
 
     /// Delete from database a given alarm, by id, and also remove from alarm_schedule alarm vector
-    async fn delete_one(&mut self, id: i64) {
+    async fn delete_one(&self, id: i64) {
         ModelAlarm::delete(&self.db, id).await.unwrap_or(());
         self.c_tx.send(CronMessage::ResetLoop).await.ok();
         self.send_status().await;
@@ -110,21 +110,21 @@ impl WSSender {
 
     /// This also needs to be send from alarm sequencer
     /// return true if led light is currently turned on
-    pub async fn led_status(&mut self) {
+    pub async fn led_status(&self) {
         let status = self.light_status.load(Ordering::Relaxed);
         let response = Response::LedStatus { status };
         self.send_ws_response(response, None).await;
     }
 
     /// Force quite program, assumes running in an auto-restart container, or systemd, in order to start again immediately
-    async fn restart(&mut self) {
+    async fn restart(&self) {
         self.close().await;
         process::exit(0);
     }
 
     /// Change the timezone in database to new given database,
     /// also update timezone in alarm scheduler
-    async fn time_zone(&mut self, zone: String) {
+    async fn time_zone(&self, zone: String) {
         if timezones::get_by_name(&zone).is_some() {
             if let Err(e) = ModelTimezone::update(&self.db, &zone).await {
                 tracing::error!("{e}");
@@ -136,7 +136,7 @@ impl WSSender {
     }
 
     /// turn light either on or off
-    async fn toggle_light(&mut self, new_status: bool) {
+    async fn toggle_light(&self, new_status: bool) {
         if new_status && !self.light_status.load(Ordering::Relaxed) {
             self.light_status.store(true, Ordering::Relaxed);
             let response = Response::LedStatus { status: new_status };
@@ -150,7 +150,7 @@ impl WSSender {
 
     /// Send a message to the socket
     /// cache could just be Option<()>, and if some then send true?
-    async fn send_ws_response(&mut self, response: Response, cache: Option<bool>) {
+    async fn send_ws_response(&self, response: Response, cache: Option<bool>) {
         match self
             .writer
             .lock()
@@ -167,7 +167,7 @@ impl WSSender {
     }
 
     /// Generate, and send, pi information
-    pub async fn send_status(&mut self) {
+    pub async fn send_status(&self) {
         let info = SysInfo::new(&self.db, &self.app_envs).await;
         let alarms = ModelAlarm::get_all(&self.db).await.unwrap_or_default();
         let info = PiStatus::new(info, alarms, self.connected_instant.elapsed().as_secs());
@@ -176,7 +176,7 @@ impl WSSender {
     }
 
     /// close connection, uses a 2 second timeout
-    pub async fn close(&mut self) {
+    pub async fn close(&self) {
         tokio::time::timeout(
             std::time::Duration::from_secs(2),
             self.writer.lock().await.close(),

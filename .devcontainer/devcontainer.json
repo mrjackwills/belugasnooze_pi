@@ -34,7 +34,7 @@
 				"rangav.vscode-thunder-client",
 				"redhat.vscode-yaml",
 				"rust-lang.rust-analyzer",
-				"serayuzgur.crates",
+				"fill-labs.dependi",
 				"tamasfe.even-better-toml",
 				"timonwong.shellcheck",
 				"vadimcn.vscode-lldb"
@@ -56,11 +56,7 @@
 	"remoteUser": "vscode",
 
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
-			"version": "latest",
-			"moby": true,
-			"dockerDashComposeVersion":"v2"
-		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2":{},
 		"ghcr.io/devcontainers/features/git:1": {
 				"version":"os-provided"
 			}
