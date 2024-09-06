@@ -57,7 +57,7 @@ impl ModelTimezone {
     pub async fn insert(db: &SqlitePool, app_envs: &AppEnv) -> Result<Self, AppError> {
         let sql = "INSERT INTO timezone (zone_name) VALUES($1) RETURNING timezone_id, zone_name";
         let query = sqlx::query_as::<_, Self>(sql)
-            .bind(&app_envs.timezone.to_string())
+            .bind(app_envs.timezone.to_string())
             .fetch_one(db)
             .await?;
         Ok(query)
