@@ -1,5 +1,5 @@
 // Only allow when debugging
-// #![allow(unused)]
+// #![expect(unused)]
 
 mod alarm_schedule;
 mod app_env;
@@ -56,7 +56,7 @@ async fn main() -> Result<(), AppError> {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use std::{path::PathBuf, time::SystemTime};
 

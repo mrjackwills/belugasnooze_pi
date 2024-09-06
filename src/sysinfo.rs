@@ -55,7 +55,7 @@ impl SysInfo {
 //
 /// cargo watch -q -c -w src/ -x 'test sysinfo -- --test-threads=1 --nocapture'
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use crate::tests::{test_cleanup, test_setup};
 

@@ -89,7 +89,7 @@ pub fn to_struct(input: &str) -> Option<MessageValues> {
 ///
 /// cargo watch -q -c -w src/ -x 'test message_incoming -- --test-threads=1 --nocapture'
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::too_many_lines)]
+#[expect(clippy::unwrap_used, clippy::too_many_lines)]
 mod tests {
     use super::*;
 

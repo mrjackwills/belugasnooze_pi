@@ -77,7 +77,7 @@ impl ModelTimezone {
 ///
 /// cargo watch -q -c -w src/ -x 'test model_timezone -- --test-threads=1 --nocapture'
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use crate::{
         app_env::EnvTimeZone,

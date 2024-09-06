@@ -84,7 +84,7 @@ impl IncomingSerializer {
 ///
 /// cargo watch -q -c -w src/ -x 'test incoming_serializer -- --test-threads=1 --nocapture'
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 mod tests {
     use serde::de::value::{Error as ValueError, StringDeserializer, U8Deserializer};
     use serde::de::{
