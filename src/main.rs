@@ -23,6 +23,18 @@ use std::sync::{
 use word_art::Intro;
 use ws::open_connection;
 
+/// Simple macro to create a new String, or convert from a &str to  a String - basically just gets rid of String::from() / .to_owned() etc
+#[macro_export]
+macro_rules! S {
+    () => {
+        String::new()
+    };
+    ($s:expr) => {
+        String::from($s)
+    };
+}
+
+
 fn close_signal(light_status: Arc<AtomicBool>) {
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
         light_status.store(false, Ordering::Relaxed);
@@ -82,16 +94,16 @@ mod tests {
 
     pub fn gen_app_envs(uuid: Uuid) -> AppEnv {
         AppEnv {
-            location_ip_address: "./ip.addr".to_owned(),
+            location_ip_address: S!("./ip.addr"),
             location_sqlite: format!("/dev/shm/{uuid}.db"),
             log_level: tracing::Level::INFO,
             start_time: SystemTime::now(),
             rainbow: None,
             timezone: EnvTimeZone::new("Europe/London"),
-            ws_address: "ws_address".to_owned(),
-            ws_apikey: "ws_apikey".to_owned(),
-            ws_password: "ws_password".to_owned(),
-            ws_token_address: "ws_token_address".to_owned(),
+            ws_address: S!("ws_address"),
+            ws_apikey: S!("ws_apikey"),
+            ws_password: S!("ws_password"),
+            ws_token_address: S!("ws_token_address"),
         }
     }
 
