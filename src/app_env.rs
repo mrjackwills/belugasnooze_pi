@@ -228,10 +228,7 @@ mod tests {
         assert_eq!(result.unwrap(), "file.db");
 
         let mut map = HashMap::new();
-        map.insert(
-            S!("LOCATION_SQLITE"),
-            S!("some/nested/location/file.db"),
-        );
+        map.insert(S!("LOCATION_SQLITE"), S!("some/nested/location/file.db"));
 
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
@@ -304,10 +301,7 @@ mod tests {
 
         assert_eq!(result, tracing::Level::DEBUG);
 
-        let map = HashMap::from([
-            (S!("LOG_DEBUG"), S!("true")),
-            (S!("LOG_TRACE"), S!("true")),
-        ]);
+        let map = HashMap::from([(S!("LOG_DEBUG"), S!("true")), (S!("LOG_TRACE"), S!("true"))]);
 
         let result = AppEnv::parse_log(&map);
 
