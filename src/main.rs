@@ -1,6 +1,3 @@
-// Only allow when debugging
-// #![expect(unused)]
-
 mod alarm_schedule;
 mod app_env;
 mod app_error;
