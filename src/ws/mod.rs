@@ -20,7 +20,7 @@ use tracing::{error, info};
 
 use crate::{
     alarm_schedule::CronTx, app_env::AppEnv, app_error::AppError, db::ModelTimezone,
-    light::LightControl, ws::ws_sender::WSSender,
+    light::LightControl, ws::ws_sender::WSSender, C,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -47,7 +47,7 @@ impl AutoClose {
         if let Some(handle) = self.0.as_ref() {
             handle.abort();
         };
-        let ws_sender = ws_sender.clone();
+        let ws_sender = C!(ws_sender);
         self.0 = Some(tokio::spawn(async move {
             tokio::time::sleep(std::time::Duration::from_secs(40)).await;
             ws_sender.close().await;
@@ -62,7 +62,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
     while let Ok(Some(message)) = reader.try_next().await {
         match message {
             Message::Text(message) => {
-                let ws_sender = ws_sender.clone();
+                let ws_sender = C!(ws_sender);
                 tokio::spawn(async move {
                     ws_sender.on_text(message).await;
                 });
@@ -80,7 +80,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
 
 /// Send pi status message  and light status message to connect client, for when light turns off
 fn incoming_internal_message(tx: &InternalTx, ws_sender: &WSSender) -> JoinHandle<()> {
-    let ws_sender = ws_sender.clone();
+    let ws_sender = C!(ws_sender);
 
     let mut rx = tx.subscribe();
     tokio::spawn(async move {
@@ -134,10 +134,10 @@ pub async fn open_connection(
 
                 let ws_sender = WSSender::new(
                     &app_envs,
-                    c_tx.clone(),
+                    C!(c_tx),
                     connection_details.get_connect_instant(),
                     &db,
-                    i_tx.clone(),
+                    C!(i_tx),
                     &light_status,
                     Arc::new(Mutex::new(writer)),
                 );

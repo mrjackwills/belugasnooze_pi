@@ -34,6 +34,13 @@ macro_rules! S {
     };
 }
 
+/// Simple macro to call `.clone()` on whatever is passed in
+#[macro_export]
+macro_rules! C {
+    ($i:expr) => {
+        $i.clone()
+    };
+}
 
 fn close_signal(light_status: Arc<AtomicBool>) {
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
@@ -62,7 +69,7 @@ async fn main() -> Result<(), AppError> {
 
     let (i_tx, _keep_alive) = tokio::sync::broadcast::channel(128);
 
-    let cron_sx = AlarmSchedule::init(i_tx.clone(), Arc::clone(&light_status), db.clone()).await?;
+    let cron_sx = AlarmSchedule::init(C!(i_tx), Arc::clone(&light_status), C!(db)).await?;
 
     open_connection(app_envs, cron_sx, db, i_tx, light_status).await
 }

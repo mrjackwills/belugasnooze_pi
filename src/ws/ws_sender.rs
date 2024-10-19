@@ -13,6 +13,7 @@ use tracing::{debug, error, trace};
 use crate::alarm_schedule::{CronMessage, CronTx};
 use crate::sysinfo::SysInfo;
 use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, StructuredResponse};
+use crate::C;
 use crate::{
     app_env::AppEnv,
     db::{ModelAlarm, ModelTimezone},
@@ -44,9 +45,9 @@ impl WSSender {
         writer: Arc<Mutex<WSWriter>>,
     ) -> Self {
         Self {
-            app_envs: app_envs.clone(),
+            app_envs: C!(app_envs),
             connected_instant,
-            db: db.clone(),
+            db: C!(db),
             light_status: Arc::clone(light_status),
             c_tx,
             i_tx,
