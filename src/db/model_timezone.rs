@@ -4,7 +4,7 @@ use std::fmt;
 use time::{OffsetDateTime, Time, UtcOffset};
 use time_tz::{timezones, Offset, TimeZone};
 
-use crate::{app_env::AppEnv, app_error::AppError};
+use crate::{app_env::AppEnv, app_error::AppError, S};
 
 #[derive(sqlx::FromRow, Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ModelTimezone {
@@ -26,7 +26,7 @@ impl Default for ModelTimezone {
     fn default() -> Self {
         Self {
             timezone_id: 1,
-            zone_name: String::from("Etc/UTC"),
+            zone_name: S!("Etc/UTC"),
         }
     }
 }

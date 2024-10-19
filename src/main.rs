@@ -1,6 +1,3 @@
-// Only allow when debugging
-// #![expect(unused)]
-
 mod alarm_schedule;
 mod app_env;
 mod app_error;
@@ -22,6 +19,25 @@ use std::sync::{
 };
 use word_art::Intro;
 use ws::open_connection;
+
+/// Simple macro to create a new String, or convert from a &str to  a String - basically just gets rid of String::from() / .to_owned() etc
+#[macro_export]
+macro_rules! S {
+    () => {
+        String::new()
+    };
+    ($s:expr) => {
+        String::from($s)
+    };
+}
+
+/// Simple macro to call `.clone()` on whatever is passed in
+#[macro_export]
+macro_rules! C {
+    ($i:expr) => {
+        $i.clone()
+    };
+}
 
 fn close_signal(light_status: Arc<AtomicBool>) {
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
@@ -50,7 +66,7 @@ async fn main() -> Result<(), AppError> {
 
     let (i_tx, _keep_alive) = tokio::sync::broadcast::channel(128);
 
-    let cron_sx = AlarmSchedule::init(i_tx.clone(), Arc::clone(&light_status), db.clone()).await?;
+    let cron_sx = AlarmSchedule::init(C!(i_tx), Arc::clone(&light_status), C!(db)).await?;
 
     open_connection(app_envs, cron_sx, db, i_tx, light_status).await
 }
@@ -82,16 +98,16 @@ mod tests {
 
     pub fn gen_app_envs(uuid: Uuid) -> AppEnv {
         AppEnv {
-            location_ip_address: "./ip.addr".to_owned(),
+            location_ip_address: S!("./ip.addr"),
             location_sqlite: format!("/dev/shm/{uuid}.db"),
             log_level: tracing::Level::INFO,
             start_time: SystemTime::now(),
             rainbow: None,
             timezone: EnvTimeZone::new("Europe/London"),
-            ws_address: "ws_address".to_owned(),
-            ws_apikey: "ws_apikey".to_owned(),
-            ws_password: "ws_password".to_owned(),
-            ws_token_address: "ws_token_address".to_owned(),
+            ws_address: S!("ws_address"),
+            ws_apikey: S!("ws_apikey"),
+            ws_password: S!("ws_password"),
+            ws_token_address: S!("ws_token_address"),
         }
     }
 

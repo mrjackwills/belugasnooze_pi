@@ -10,6 +10,7 @@ use crate::{
     db::{ModelAlarm, ModelTimezone},
     light::LightControl,
     ws::InternalTx,
+    C,
 };
 
 const ONE_SECOND: u64 = 1000;
@@ -43,7 +44,7 @@ impl AlarmSchedule {
 
         let mut alarm_schedule = Self {
             c_rx,
-            c_tx: c_tx.clone(),
+            c_tx: C!(c_tx),
             i_tx,
             light_status,
             looper: None,
@@ -70,10 +71,7 @@ impl AlarmSchedule {
                     }
                 }
                 CronMessage::Light => {
-                    LightControl::alarm_illuminate(
-                        Arc::clone(&self.light_status),
-                        self.i_tx.clone(),
-                    );
+                    LightControl::alarm_illuminate(Arc::clone(&self.light_status), C!(self.i_tx));
                 }
             }
         }
@@ -82,7 +80,7 @@ impl AlarmSchedule {
     async fn generate_alarm_loop(&mut self) -> Result<(), AppError> {
         let alarms = ModelAlarm::get_all(&self.sqlite).await?;
         let tz = ModelTimezone::get(&self.sqlite).await.unwrap_or_default();
-        let sx = self.c_tx.clone();
+        let sx = C!(self.c_tx);
         self.looper = Some(tokio::spawn(async move {
             Self::init_alarm_loop(alarms, sx, tz).await;
         }));

@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.4.6"
+version = "0.4.7"
 edition = "2021"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
@@ -43,13 +43,13 @@ thiserror = "1.0"
 time = { version = "0.3", features = ["local-offset"] }
 time-tz = "2.0"
 tokio = { version = "1.40", features = ["full"] }
-tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 url = "2.5"
 
 [dev-dependencies]
-uuid = {version = "1.8",features = ["v4","fast-rng"]}
+uuid = {version = "1.11",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true

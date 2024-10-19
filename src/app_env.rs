@@ -1,7 +1,7 @@
 use std::{collections::HashMap, env, fmt, time::SystemTime};
 use time_tz::timezones;
 
-use crate::app_error::AppError;
+use crate::{app_error::AppError, S};
 
 type EnvHashMap = HashMap<String, String>;
 
@@ -14,7 +14,7 @@ impl EnvTimeZone {
         if timezones::get_by_name(&x).is_some() {
             Self(x)
         } else {
-            Self("Etc/UTC".into())
+            Self(S!("Etc/UTC"))
         }
     }
 }
@@ -157,12 +157,14 @@ impl AppEnv {
 #[cfg(test)]
 #[expect(clippy::unwrap_used)]
 mod tests {
+    use crate::S;
+
     use super::*;
 
     #[test]
     fn env_missing_env() {
         let mut map = HashMap::new();
-        map.insert("not_fish".to_owned(), "not_fish".to_owned());
+        map.insert(S!("not_fish"), S!("not_fish"));
 
         let result = AppEnv::parse_string("fish", &map);
 
@@ -173,7 +175,7 @@ mod tests {
     #[test]
     fn env_parse_string_valid() {
         let mut map = HashMap::new();
-        map.insert("LOCATION_SQLITE".to_owned(), "/alarms.db".to_owned());
+        map.insert(S!("LOCATION_SQLITE"), S!("/alarms.db"));
 
         let result = AppEnv::parse_string("LOCATION_SQLITE", &map).unwrap();
 
@@ -183,9 +185,9 @@ mod tests {
     #[test]
     fn env_parse_boolean_ok() {
         let mut map = HashMap::new();
-        map.insert("valid_true".to_owned(), "true".to_owned());
-        map.insert("valid_false".to_owned(), "false".to_owned());
-        map.insert("invalid_but_false".to_owned(), "as".to_owned());
+        map.insert(S!("valid_true"), S!("true"));
+        map.insert(S!("valid_false"), S!("false"));
+        map.insert(S!("invalid_but_false"), S!("as"));
 
         let result01 = AppEnv::parse_boolean("valid_true", &map);
         let result02 = AppEnv::parse_boolean("valid_false", &map);
@@ -201,14 +203,14 @@ mod tests {
     #[test]
     fn env_parse_rainbow() {
         let mut map = HashMap::new();
-        map.insert("RAINBOW".to_owned(), "true".to_owned());
+        map.insert(S!("RAINBOW"), S!("true"));
 
         let result = AppEnv::parse_rainbow(&map);
 
         assert!(result.is_some());
 
         let mut map = HashMap::new();
-        map.insert("RAINBOW".to_owned(), "FALSE".to_owned());
+        map.insert(S!("RAINBOW"), S!("FALSE"));
 
         let result = AppEnv::parse_rainbow(&map);
 
@@ -218,7 +220,7 @@ mod tests {
     #[test]
     fn env_parse_db_location_ok() {
         let mut map = HashMap::new();
-        map.insert("LOCATION_SQLITE".to_owned(), "file.db".to_owned());
+        map.insert(S!("LOCATION_SQLITE"), S!("file.db"));
 
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
@@ -226,10 +228,7 @@ mod tests {
         assert_eq!(result.unwrap(), "file.db");
 
         let mut map = HashMap::new();
-        map.insert(
-            "LOCATION_SQLITE".to_owned(),
-            "some/nested/location/file.db".to_owned(),
-        );
+        map.insert(S!("LOCATION_SQLITE"), S!("some/nested/location/file.db"));
 
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
@@ -240,7 +239,7 @@ mod tests {
     #[test]
     fn env_parse_db_location_format_err() {
         let mut map = HashMap::new();
-        map.insert("LOCATION_SQLITE".to_owned(), "file.sql".to_owned());
+        map.insert(S!("LOCATION_SQLITE"), S!("file.sql"));
 
         let result = AppEnv::parse_db_name("LOCATION_SQLITE", &map);
 
@@ -266,27 +265,27 @@ mod tests {
 
     #[test]
     fn env_parse_log_valid() {
-        let map = HashMap::from([("RANDOM_STRING".to_owned(), "123".to_owned())]);
+        let map = HashMap::from([(S!("RANDOM_STRING"), S!("123"))]);
 
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
 
-        let map = HashMap::from([("LOG_DEBUG".to_owned(), "false".to_owned())]);
+        let map = HashMap::from([(S!("LOG_DEBUG"), S!("false"))]);
 
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
 
-        let map = HashMap::from([("LOG_TRACE".to_owned(), "false".to_owned())]);
+        let map = HashMap::from([(S!("LOG_TRACE"), S!("false"))]);
 
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::INFO);
 
         let map = HashMap::from([
-            ("LOG_DEBUG".to_owned(), "false".to_owned()),
-            ("LOG_TRACE".to_owned(), "false".to_owned()),
+            (S!("LOG_DEBUG"), S!("false")),
+            (S!("LOG_TRACE"), S!("false")),
         ]);
 
         let result = AppEnv::parse_log(&map);
@@ -294,26 +293,23 @@ mod tests {
         assert_eq!(result, tracing::Level::INFO);
 
         let map = HashMap::from([
-            ("LOG_DEBUG".to_owned(), "true".to_owned()),
-            ("LOG_TRACE".to_owned(), "false".to_owned()),
+            (S!("LOG_DEBUG"), S!("true")),
+            (S!("LOG_TRACE"), S!("false")),
         ]);
 
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::DEBUG);
 
-        let map = HashMap::from([
-            ("LOG_DEBUG".to_owned(), "true".to_owned()),
-            ("LOG_TRACE".to_owned(), "true".to_owned()),
-        ]);
+        let map = HashMap::from([(S!("LOG_DEBUG"), S!("true")), (S!("LOG_TRACE"), S!("true"))]);
 
         let result = AppEnv::parse_log(&map);
 
         assert_eq!(result, tracing::Level::TRACE);
 
         let map = HashMap::from([
-            ("LOG_DEBUG".to_owned(), "false".to_owned()),
-            ("LOG_TRACE".to_owned(), "true".to_owned()),
+            (S!("LOG_DEBUG"), S!("false")),
+            (S!("LOG_TRACE"), S!("true")),
         ]);
 
         let result = AppEnv::parse_log(&map);
@@ -324,14 +320,14 @@ mod tests {
     #[test]
     fn env_parse_timezone_ok() {
         let mut map = HashMap::new();
-        map.insert("TZ".to_owned(), "America/New_York".to_owned());
+        map.insert(S!("TZ"), S!("America/New_York"));
 
         let result = AppEnv::parse_timezone(&map);
 
         assert_eq!(result.0, "America/New_York");
 
         let mut map = HashMap::new();
-        map.insert("TZ".to_owned(), "Europe/Berlin".to_owned());
+        map.insert(S!("TZ"), S!("Europe/Berlin"));
 
         let result = AppEnv::parse_timezone(&map);
 
@@ -347,7 +343,7 @@ mod tests {
     #[test]
     fn env_parse_timezone_err() {
         let mut map = HashMap::new();
-        map.insert("TIMEZONE".to_owned(), "america/New_York".to_owned());
+        map.insert(S!("TIMEZONE"), S!("america/New_York"));
 
         let result = AppEnv::parse_timezone(&map);
 
@@ -379,7 +375,7 @@ mod tests {
 
     #[test]
     fn env_check_file_exists_ok() {
-        let result = AppEnv::check_file_exists("Cargo.lock".into());
+        let result = AppEnv::check_file_exists(S!("Cargo.lock"));
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "Cargo.lock");
@@ -387,7 +383,7 @@ mod tests {
 
     #[test]
     fn env_check_file_exists_er() {
-        let result = AppEnv::check_file_exists("file.sql".into());
+        let result = AppEnv::check_file_exists(S!("file.sql"));
 
         assert!(result.is_err());
         match result.unwrap_err() {

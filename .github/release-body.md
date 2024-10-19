@@ -1,8 +1,12 @@
-### 2024-09-06
+### 2024-10-19
 
-### Chores
-+ Rust 1.81.0 linting, [021d77a2804f014fe5d622982aaf1be1d07119f9], [620790b3720439f487942104df804953b82c5f0d]
-+ .devcontainer updated, [7f13654e1f43ff9c41be0993693e346e9f5de9c4]
-+ dependencies updated, [3833a77957f4b22448e14202e1013ae5ea3af08f]
+### Chore
++ run.sh updated, [6eb63f3d92d8d1a1543652ffbe65a62e008aea57]
++ create_release.sh updated, [327b9bb088f2e9ca966e41890db33f294478143c]
++ .devcontainer updated, [ff5238ba952861ece7fa239beea921be6e8ce770]
++ dependencies updated, [532cab0f6f5d8eef9e61b6faede54c0805c18032]
+
+### Features
++ use `S!` macro, [910a4e11a4aef3686e51953c267e0919a8a4e343]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
