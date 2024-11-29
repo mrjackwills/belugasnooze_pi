@@ -53,8 +53,7 @@ fn setup_tracing(app_envs: &AppEnv) {
         .init();
 }
 
-#[tokio::main]
-async fn main() -> Result<(), AppError> {
+async fn start() -> Result<(), AppError> {
     let app_envs = AppEnv::get();
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
@@ -69,6 +68,12 @@ async fn main() -> Result<(), AppError> {
     let cron_sx = AlarmSchedule::init(C!(i_tx), Arc::clone(&light_status), C!(db)).await?;
 
     open_connection(app_envs, cron_sx, db, i_tx, light_status).await
+}
+
+#[tokio::main]
+async fn main() -> Result<(), AppError> {
+    tokio::spawn(start()).await.ok();
+    Ok(())
 }
 
 #[cfg(test)]
