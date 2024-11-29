@@ -1,3 +1,9 @@
+### Chores
++ dependencies updated, [a58ac05259793a7493a474df8b16bfaa109a5ee4]
+
+### Features
++ spawn everything in main, [f63ebd71d96c8a9b7fe320b0332b9db3b1344bea]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.7'>v0.4.7</a>
 ### 2024-10-19
 
