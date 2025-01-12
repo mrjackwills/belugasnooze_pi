@@ -9,11 +9,12 @@ use crate::{
     app_error::AppError,
     db::{ModelAlarm, ModelTimezone},
     light::LightControl,
+    sleep,
     ws::InternalTx,
     C,
 };
 
-const ONE_SECOND: u64 = 1000;
+pub const ONE_SECOND_AS_MS: u64 = 1000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CronMessage {
@@ -106,9 +107,9 @@ impl AlarmSchedule {
                     c_tx.send(CronMessage::Light).await.ok();
                 }
             }
-            let to_sleep = ONE_SECOND
-                .saturating_sub(u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND));
-            tokio::time::sleep(std::time::Duration::from_millis(to_sleep)).await;
+            sleep!(ONE_SECOND_AS_MS.saturating_sub(
+                u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND_AS_MS)
+            ));
         }
     }
 }

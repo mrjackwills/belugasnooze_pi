@@ -56,7 +56,10 @@ impl SysInfo {
 /// cargo watch -q -c -w src/ -x 'test sysinfo -- --test-threads=1 --nocapture'
 #[cfg(test)]
 mod tests {
-    use crate::tests::{test_cleanup, test_setup};
+    use crate::{
+        sleep,
+        tests::{test_cleanup, test_setup},
+    };
 
     use super::*;
 
@@ -95,7 +98,7 @@ mod tests {
     #[tokio::test]
     async fn sysinfo_get_sysinfo_ok() {
         let (app_env, db, uuid) = test_setup().await;
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        sleep!();
 
         let result = SysInfo::new(&db, &app_env).await;
 

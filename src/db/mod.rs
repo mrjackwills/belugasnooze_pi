@@ -16,7 +16,7 @@ use crate::app_env::AppEnv;
 fn file_exists(filename: &str) {
     if !std::path::Path::new(filename)
         .extension()
-        .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
     {
         return;
     }
@@ -26,7 +26,7 @@ fn file_exists(filename: &str) {
             .filter(|f| {
                 !std::path::Path::new(f)
                     .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
             })
             .collect::<String>();
         match fs::create_dir_all(path) {

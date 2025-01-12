@@ -19,8 +19,14 @@ use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStr
 use tracing::{error, info};
 
 use crate::{
-    alarm_schedule::CronTx, app_env::AppEnv, app_error::AppError, db::ModelTimezone,
-    light::LightControl, ws::ws_sender::WSSender, C,
+    alarm_schedule::{CronTx, ONE_SECOND_AS_MS},
+    app_env::AppEnv,
+    app_error::AppError,
+    db::ModelTimezone,
+    light::LightControl,
+    sleep,
+    ws::ws_sender::WSSender,
+    C,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -49,7 +55,7 @@ impl AutoClose {
         };
         let ws_sender = C!(ws_sender);
         self.0 = Some(tokio::spawn(async move {
-            tokio::time::sleep(std::time::Duration::from_secs(40)).await;
+            sleep!(40 * ONE_SECOND_AS_MS);
             ws_sender.close().await;
         }));
     }
@@ -64,7 +70,7 @@ async fn incoming_ws_message(mut reader: WSReader, ws_sender: WSSender) {
             Message::Text(message) => {
                 let ws_sender = C!(ws_sender);
                 tokio::spawn(async move {
-                    ws_sender.on_text(message).await;
+                    ws_sender.on_text(message.to_string()).await;
                 });
             }
             Message::Ping(_) => auto_close.init(&ws_sender),

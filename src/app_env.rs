@@ -50,7 +50,7 @@ impl AppEnv {
 
     /// Parse "true" or "false" to bool, else false
     fn parse_boolean(key: &str, map: &EnvHashMap) -> bool {
-        map.get(key).map_or(false, |value| value == "true")
+        map.get(key).is_some_and(|value| value == "true")
     }
 
     /// Make sure database file ends .db
@@ -60,7 +60,7 @@ impl AppEnv {
             Some(value) => {
                 if std::path::Path::new(value)
                     .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
                 {
                     return Ok(value.into());
                 }
