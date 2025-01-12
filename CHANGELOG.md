@@ -1,3 +1,10 @@
+### Chores
++ dependencies updated, [4c41f7126117cf51727f7c7b630275f5d2ce85e4]
++ Rust 1.84 linting, [3f6260f650aa1e3c6e366f049512dc042bd5be46]
+
+### Refactors
++ use `sleep!` macro, [e937751b76c4ead9ddad422e87c327fa1e55f60f]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.4.8'>v0.4.8</a>
 ### 2024-11-29
 
