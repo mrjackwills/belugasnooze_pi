@@ -1,5 +1,6 @@
 use crate::{
     app_env::AppEnv,
+    sleep,
     ws::{InternalMessage, InternalTx},
 };
 use blinkt::Blinkt;
@@ -9,9 +10,8 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    time::Duration,
 };
-use tokio::time::{sleep, Instant};
+use tokio::time::Instant;
 use tracing::info;
 
 const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
@@ -78,7 +78,7 @@ impl LightControl {
             while light_status.load(Ordering::Relaxed) {
                 Self::light_limit(start, &LimitMinutes::Five);
                 led_strip.show().ok();
-                sleep(Duration::from_millis(250)).await;
+                sleep!(250);
                 if Self::light_limit(start, &LimitMinutes::FortyFive) {
                     light_status.store(false, Ordering::Relaxed);
                 }
@@ -121,7 +121,7 @@ impl LightControl {
                             led_strip.clear();
                         };
                     };
-                    sleep(Duration::from_millis(250)).await;
+                    sleep!(250);
                 }
                 i_tx.send(InternalMessage::Light).ok();
             }
@@ -141,7 +141,7 @@ impl LightControl {
             led_strip.set_pixel_brightness(pixel, brightness);
             led_strip.set_pixel(pixel, color.0, color.1, color.2);
             led_strip.show().ok();
-            sleep(Duration::from_millis(50)).await;
+            sleep!(50);
         }
     }
 

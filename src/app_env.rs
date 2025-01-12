@@ -59,7 +59,8 @@ impl AppEnv {
             None => Err(AppError::MissingEnv(key.into())),
             Some(value) => {
                 if std::path::Path::new(value)
-                    .extension().is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
                 {
                     return Ok(value.into());
                 }

@@ -1,7 +1,8 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use time::OffsetDateTime;
-use tokio::time::sleep;
 use tracing::{debug, info};
+
+use crate::sleep;
 
 #[derive(Debug)]
 pub struct ConnectionDetails {
@@ -17,10 +18,10 @@ enum Wait {
 }
 
 impl Wait {
-    const fn as_sec(&self) -> u8 {
+    const fn as_ms(&self) -> u64 {
         match self {
-            Self::Short => 5,
-            Self::Long => 60,
+            Self::Short => 5_000,
+            Self::Long => 60_000,
         }
     }
 }
@@ -47,7 +48,7 @@ impl ConnectionDetails {
     pub async fn reconnect_delay(&self) {
         info!(self.count);
         if self.count > 0 {
-            sleep(Duration::from_secs(u64::from(self.wait.as_sec()))).await;
+            sleep!(self.wait.as_ms());
         }
     }
 
