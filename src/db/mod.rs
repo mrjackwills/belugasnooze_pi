@@ -15,8 +15,7 @@ use crate::app_env::AppEnv;
 /// Probably can be removed, as sqlx has a setting to create file if not found
 fn file_exists(filename: &str) {
     if !std::path::Path::new(filename)
-        .extension()
-        .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+        .extension().is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
     {
         return;
     }
@@ -25,8 +24,7 @@ fn file_exists(filename: &str) {
             .split_inclusive('/')
             .filter(|f| {
                 !std::path::Path::new(f)
-                    .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("db"))
+                    .extension().is_some_and(|ext| ext.eq_ignore_ascii_case("db"))
             })
             .collect::<String>();
         match fs::create_dir_all(path) {
