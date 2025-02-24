@@ -45,7 +45,6 @@ tokio = { version = "1.43", features = ["full"] }
 tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
-url = "2.5"
 
 [dev-dependencies]
 uuid = {version = "1.14",features = ["v4","fast-rng"]}
