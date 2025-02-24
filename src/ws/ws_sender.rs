@@ -127,10 +127,13 @@ impl WSSender {
     /// also update timezone in alarm scheduler
     async fn time_zone(&self, zone: String) {
         if timezones::get_by_name(&zone).is_some() {
-            if let Err(e) = ModelTimezone::update(&self.db, &zone).await {
-                tracing::error!("{e}");
-            } else {
-                self.c_tx.send(CronMessage::ResetLoop).await.ok();
+            match ModelTimezone::update(&self.db, &zone).await {
+                Err(e) => {
+                    tracing::error!("{e}");
+                }
+                _ => {
+                    self.c_tx.send(CronMessage::ResetLoop).await.ok();
+                }
             }
             self.send_status().await;
         }
