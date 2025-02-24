@@ -100,7 +100,7 @@ mod tests {
         app_env::{AppEnv, EnvTimeZone},
         db::init_db,
     };
-    /// CLose database connection, and delete all test files
+    /// Close database connection, and delete all test files
     pub async fn test_cleanup(uuid: Uuid, db: Option<SqlitePool>) {
         if let Some(db) = db {
             db.close().await;
