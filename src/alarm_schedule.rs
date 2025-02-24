@@ -1,17 +1,17 @@
 use sqlx::SqlitePool;
-use std::sync::{atomic::AtomicBool, Arc};
+use std::sync::{Arc, atomic::AtomicBool};
 use tokio::{
     sync::mpsc::{Receiver, Sender},
     task::JoinHandle,
 };
 
 use crate::{
+    C,
     app_error::AppError,
     db::{ModelAlarm, ModelTimezone},
     light::LightControl,
     sleep,
     ws::InternalTx,
-    C,
 };
 
 pub const ONE_SECOND_AS_MS: u64 = 1000;
@@ -93,19 +93,18 @@ impl AlarmSchedule {
     async fn init_alarm_loop(alarms: Vec<ModelAlarm>, c_tx: CronTx, time_zone: ModelTimezone) {
         loop {
             let start = std::time::Instant::now();
-            if let Some(current_time) = time_zone.to_time() {
-                let week_day = time_zone
-                    .now_with_offset()
-                    .weekday()
-                    .number_days_from_monday();
+            let current_time = time_zone.to_time();
+            let week_day = time_zone
+                .now_with_offset()
+                .weekday()
+                .to_monday_zero_offset();
 
-                if alarms.iter().filter(|i| i.day == week_day).any(|i| {
-                    i.hour == current_time.hour()
-                        && i.minute == current_time.minute()
-                        && current_time.second() == 0
-                }) {
-                    c_tx.send(CronMessage::Light).await.ok();
-                }
+            if alarms.iter().filter(|i| i.day == week_day).any(|i| {
+                i.hour == current_time.hour()
+                    && i.minute == current_time.minute()
+                    && current_time.second() == 0
+            }) {
+                c_tx.send(CronMessage::Light).await.ok();
             }
             sleep!(ONE_SECOND_AS_MS.saturating_sub(
                 u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND_AS_MS)

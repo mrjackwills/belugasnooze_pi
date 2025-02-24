@@ -4,21 +4,21 @@ mod connection_details;
 use connect::ws_upgrade;
 use connection_details::ConnectionDetails;
 use futures_util::{
+    StreamExt, TryStreamExt,
     lock::Mutex,
     stream::{SplitSink, SplitStream},
-    StreamExt, TryStreamExt,
 };
 use sqlx::SqlitePool;
 use std::{
     ops::RangeInclusive,
-    sync::{atomic::AtomicBool, Arc},
+    sync::{Arc, atomic::AtomicBool},
 };
-use time::OffsetDateTime;
 use tokio::{net::TcpStream, task::JoinHandle};
-use tokio_tungstenite::{self, tungstenite::Message, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{self, MaybeTlsStream, WebSocketStream, tungstenite::Message};
 use tracing::{error, info};
 
 use crate::{
+    C,
     alarm_schedule::{CronTx, ONE_SECOND_AS_MS},
     app_env::AppEnv,
     app_error::AppError,
@@ -26,7 +26,6 @@ use crate::{
     light::LightControl,
     sleep,
     ws::ws_sender::WSSender,
-    C,
 };
 
 type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
@@ -42,7 +41,7 @@ pub enum InternalMessage {
     Light,
 }
 
-const ALLOWABLE_HOURS: RangeInclusive<u8> = 7u8..=22;
+const ALLOWABLE_HOURS: RangeInclusive<i8> = 7i8..=22;
 
 #[derive(Debug, Default)]
 struct AutoClose(Option<JoinHandle<()>>);
@@ -106,11 +105,7 @@ fn incoming_internal_message(tx: &InternalTx, ws_sender: &WSSender) -> JoinHandl
 /// If the current time is in the alllowable range, then illuminate the lights in a rainbow sequence
 async fn rainbow(db: &SqlitePool, light_status: &Arc<AtomicBool>, app_envs: &AppEnv) {
     let db_timezone = ModelTimezone::get(db).await.unwrap_or_default();
-    if ALLOWABLE_HOURS.contains(
-        &OffsetDateTime::now_utc()
-            .to_offset(db_timezone.get_offset())
-            .hour(),
-    ) {
+    if ALLOWABLE_HOURS.contains(&db_timezone.now_with_offset().time().hour()) {
         LightControl::rainbow(Arc::clone(light_status), app_envs).await;
     }
 }

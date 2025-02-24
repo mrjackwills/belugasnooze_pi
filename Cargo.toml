@@ -24,6 +24,7 @@ blinkt = "0.7"
 dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
+jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
 mimalloc = "0.1"
 reqwest = { version = "0.12", default-features = false, features = [
 	"brotli",
@@ -40,8 +41,6 @@ sqlx = { version = "0.8", default-features = false, features = [
 	"sqlite",
 ] }
 thiserror = "2.0"
-time = { version = "0.3", features = ["local-offset"] }
-time-tz = "2.0"
 tokio = { version = "1.43", features = ["full"] }
 tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"

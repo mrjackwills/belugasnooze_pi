@@ -1,6 +1,5 @@
-use serde::{de, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, de};
 use std::ops::RangeInclusive;
-use time_tz::timezones;
 pub struct IncomingSerializer;
 
 impl IncomingSerializer {
@@ -73,9 +72,9 @@ impl IncomingSerializer {
         D: Deserializer<'de>,
     {
         let parsed = String::deserialize(deserializer)?;
-        match timezones::get_by_name(&parsed) {
-            Some(_) => Ok(parsed),
-            None => Err(de::Error::custom("unknown timezone")),
+        match jiff::tz::TimeZone::get(&parsed) {
+            Ok(_) => Ok(parsed),
+            Err(_) => Err(de::Error::custom("unknown timezone")),
         }
     }
 }
@@ -88,8 +87,8 @@ impl IncomingSerializer {
 mod tests {
     use serde::de::value::{Error as ValueError, StringDeserializer, U8Deserializer};
     use serde::de::{
-        value::{I64Deserializer, SeqDeserializer},
         IntoDeserializer,
+        value::{I64Deserializer, SeqDeserializer},
     };
 
     use crate::S;
@@ -172,12 +171,6 @@ mod tests {
     fn incoming_serializer_timezone_err() {
         let deserializer: StringDeserializer<ValueError> =
             S!("America/NEwYork").into_deserializer();
-        let result = IncomingSerializer::timezone(deserializer);
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "unknown timezone");
-
-        let deserializer: StringDeserializer<ValueError> =
-            "America/New_York".to_lowercase().into_deserializer();
         let result = IncomingSerializer::timezone(deserializer);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "unknown timezone");

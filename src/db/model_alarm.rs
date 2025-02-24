@@ -7,9 +7,9 @@ use crate::app_error::AppError;
 #[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
 pub struct ModelAlarm {
     pub alarm_id: i64,
-    pub day: u8,
-    pub hour: u8,
-    pub minute: u8,
+    pub day: i8,
+    pub hour: i8,
+    pub minute: i8,
 }
 
 impl fmt::Display for ModelAlarm {

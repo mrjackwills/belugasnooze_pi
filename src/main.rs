@@ -14,8 +14,8 @@ use app_error::AppError;
 use db::init_db;
 use simple_signal::{self, Signal};
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
+    atomic::{AtomicBool, Ordering},
 };
 use word_art::Intro;
 use ws::open_connection;
@@ -96,10 +96,7 @@ mod tests {
     use sqlx::SqlitePool;
     use uuid::Uuid;
 
-    use crate::{
-        app_env::{AppEnv, EnvTimeZone},
-        db::init_db,
-    };
+    use crate::{app_env::AppEnv, db::init_db};
     /// Close database connection, and delete all test files
     pub async fn test_cleanup(uuid: Uuid, db: Option<SqlitePool>) {
         if let Some(db) = db {
@@ -120,7 +117,7 @@ mod tests {
             log_level: tracing::Level::INFO,
             start_time: SystemTime::now(),
             rainbow: None,
-            timezone: EnvTimeZone::new("Europe/London"),
+            timezone: jiff::tz::TimeZone::get("Europe/London").unwrap(),
             ws_address: S!("ws_address"),
             ws_apikey: S!("ws_apikey"),
             ws_password: S!("ws_password"),
