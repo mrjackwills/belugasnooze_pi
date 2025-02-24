@@ -7,8 +7,8 @@ use blinkt::Blinkt;
 use std::{
     fmt,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
 };
 use tokio::time::Instant;
@@ -45,11 +45,7 @@ impl LimitMinutes {
 /// Convert from a step (0-10) to the correct wait LimitMinute value
 impl From<u8> for LimitMinutes {
     fn from(step: u8) -> Self {
-        if step < 9 {
-            Self::Five
-        } else {
-            Self::Ninety
-        }
+        if step < 9 { Self::Five } else { Self::Ninety }
     }
 }
 

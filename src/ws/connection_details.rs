@@ -1,6 +1,5 @@
 use std::time::Instant;
-use time::OffsetDateTime;
-use tracing::{debug, info};
+use tracing::info;
 
 use crate::sleep;
 
@@ -57,8 +56,10 @@ impl ConnectionDetails {
         self.wait = Wait::Short;
         self.count = 0;
         self.connection_instant = Some(Instant::now());
-        let now = OffsetDateTime::now_utc();
-        debug!("{} {}", now.date(), now.time());
+        tracing::debug!(
+            "{}",
+            jiff::Zoned::now().timestamp().strftime("%Y-%m-%d %H:%M:%S")
+        );
     }
 
     pub fn get_connect_instant(&self) -> Instant {

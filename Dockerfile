@@ -2,7 +2,7 @@
 # SETUP #
 #########
 
-FROM alpine:3.20 as SETUP
+FROM alpine:3.21 as SETUP
 
 ARG DOCKER_GUID \
 	DOCKER_UID \
@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG BELUGASNOOZE_VERSION=v0.4.9
+ARG BELUGASNOOZE_VERSION=v0.5.0
 
 WORKDIR /app
 
