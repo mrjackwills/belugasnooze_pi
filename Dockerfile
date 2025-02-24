@@ -2,7 +2,7 @@
 # SETUP #
 #########
 
-FROM alpine:3.20 as SETUP
+FROM alpine:3.21 as SETUP
 
 ARG DOCKER_GUID \
 	DOCKER_UID \
