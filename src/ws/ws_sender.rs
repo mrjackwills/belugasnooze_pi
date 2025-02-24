@@ -1,19 +1,18 @@
-use futures_util::lock::Mutex;
 use futures_util::SinkExt;
+use futures_util::lock::Mutex;
 use sqlx::SqlitePool;
 use std::process;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc,
+    atomic::{AtomicBool, Ordering},
 };
 use std::time::Instant;
-use time_tz::timezones;
 use tracing::{debug, error, trace};
 
+use crate::C;
 use crate::alarm_schedule::{CronMessage, CronTx};
 use crate::sysinfo::SysInfo;
 use crate::ws_messages::{MessageValues, ParsedMessage, PiStatus, Response, StructuredResponse};
-use crate::C;
 use crate::{
     app_env::AppEnv,
     db::{ModelAlarm, ModelTimezone},
@@ -126,8 +125,8 @@ impl WSSender {
     /// Change the timezone in database to new given database,
     /// also update timezone in alarm scheduler
     async fn time_zone(&self, zone: String) {
-        if timezones::get_by_name(&zone).is_some() {
-            match ModelTimezone::update(&self.db, &zone).await {
+        if let Ok(z) = jiff::tz::TimeZone::get(&zone) {
+            match ModelTimezone::update(&self.db, &z).await {
                 Err(e) => {
                     tracing::error!("{e}");
                 }
