@@ -43,7 +43,7 @@ fn file_exists(filename: &str) {
                 std::process::exit(1);
             }
         }
-    };
+    }
 }
 
 /// Open Sqlite pool connection, and return

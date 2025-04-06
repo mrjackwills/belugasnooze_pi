@@ -125,7 +125,7 @@ mod tests {
                 assert_eq!(data.minute, 15);
             }
             _ => unreachable!("Shouldn't have matched this"),
-        };
+        }
     }
 
     #[test]
