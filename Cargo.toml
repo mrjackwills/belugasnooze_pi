@@ -25,7 +25,9 @@ dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
-mimalloc = "0.1"
+# err: https://github.com/purpleprotocol/mimalloc_rust/issues/133
+# mimalloc = "0.1"
+libmimalloc-sys = { version = "=0.1.40",  features = ["extended"] }
 reqwest = { version = "0.12", default-features = false, features = [
 	"brotli",
 	"gzip",
