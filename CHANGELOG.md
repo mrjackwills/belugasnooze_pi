@@ -1,6 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.5.1'>v0.5.1</a>
+### 2025-04-06
+
 ### Chores
-+ dependencies updated, [d019b257592065157dc41f7d66af0860b0b0de54]
-+ Rust 1.86 linting, [bcaa703fe4df13a5fb348158a324d56dcec198c7]
++ dependencies updated, [d019b257](https://github.com/mrjackwills/belugasnooze_pi/commit/d019b257592065157dc41f7d66af0860b0b0de54)
++ Rust 1.86 linting, [bcaa703f](https://github.com/mrjackwills/belugasnooze_pi/commit/bcaa703fe4df13a5fb348158a324d56dcec198c7)
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.5.0'>v0.5.0</a>
 ### 2025-02-24
