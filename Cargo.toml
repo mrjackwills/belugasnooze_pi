@@ -1,6 +1,6 @@
 [package]
 name = "belugasnooze"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2024"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
@@ -25,7 +25,9 @@ dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
-mimalloc = "0.1"
+# err: https://github.com/purpleprotocol/mimalloc_rust/issues/133
+# mimalloc = "0.1"
+libmimalloc-sys = { version = "=0.1.40",  features = ["extended"] }
 reqwest = { version = "0.12", default-features = false, features = [
 	"brotli",
 	"gzip",
@@ -41,13 +43,13 @@ sqlx = { version = "0.8", default-features = false, features = [
 	"sqlite",
 ] }
 thiserror = "2.0"
-tokio = { version = "1.43", features = ["full"] }
+tokio = { version = "1.44", features = ["full"] }
 tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [dev-dependencies]
-uuid = {version = "1.14",features = ["v4","fast-rng"]}
+uuid = {version = "1.16",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true

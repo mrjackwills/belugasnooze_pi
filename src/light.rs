@@ -115,8 +115,8 @@ impl LightControl {
                             info!("should be off now");
                             light_status.store(false, Ordering::Relaxed);
                             led_strip.clear();
-                        };
-                    };
+                        }
+                    }
                     sleep!(250);
                 }
                 i_tx.send(InternalMessage::Light).ok();
