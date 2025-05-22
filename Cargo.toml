@@ -25,9 +25,7 @@ dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
-# err: https://github.com/purpleprotocol/mimalloc_rust/issues/133
-# mimalloc = "0.1"
-libmimalloc-sys = { version = "=0.1.40",  features = ["extended"] }
+mimalloc = "0.1"
 reqwest = { version = "0.12", default-features = false, features = [
 	"brotli",
 	"gzip",
@@ -43,7 +41,7 @@ sqlx = { version = "0.8", default-features = false, features = [
 	"sqlite",
 ] }
 thiserror = "2.0"
-tokio = { version = "1.44", features = ["full"] }
+tokio = { version = "1.45", features = ["full"] }
 tokio-tungstenite = { version = "0.26", features = ["rustls-tls-native-roots"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
