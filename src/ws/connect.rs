@@ -52,7 +52,9 @@ pub async fn ws_upgrade(app_envs: &AppEnv) -> Result<WsStream, AppError> {
         app_envs.ws_address,
         get_auth_token(app_envs).await?
     );
-    let (socket, response) = connect_async(url).await?;
+    let (socket, response) = connect_async(url)
+        .await
+        .map_err(|i| AppError::TungsteniteConnect(i.to_string()))?;
     match response.status() {
         StatusCode::SWITCHING_PROTOCOLS => Ok(socket),
         _ => Err(AppError::WsStatus),
