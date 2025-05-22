@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG BELUGASNOOZE_VERSION=v0.5.1
+ARG BELUGASNOOZE_VERSION=v0.5.2
 
 WORKDIR /app
 
