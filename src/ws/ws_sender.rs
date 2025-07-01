@@ -76,13 +76,10 @@ impl WSSender {
     }
 
     /// Add a new alarm to database, and update alarm_schedule alarm vector
+    #[allow(clippy::cognitive_complexity)]
     async fn add_alarm(&self, day: Vec<u8>, hour: u8, minute: u8) {
-        let handles = day
-            .into_iter()
-            .map(|i| ModelAlarm::add(&self.db, (i, hour, minute)))
-            .collect::<Vec<_>>();
-        for handle in handles {
-            if let Err(e) = handle.await {
+        for i in day {
+            if let Err(e) = ModelAlarm::add(&self.db, (i, hour, minute)).await {
                 debug!("{e}");
             }
         }
