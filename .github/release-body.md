@@ -1,14 +1,11 @@
-### 2025-05-22
+### 2025-07-01
 
 ### Chores
-+  Rust 1.87.0 linting, [02d215c864bba6b5c7d1ff4ebfbf68d890b939c0]
-+ dependencies updated, [784b244b7d26e11433f296c312e9e108f6aa363f]
-+ .devcontainer updated, [9e4b529e6b79d6a2f1731d42893ed10999534d8b], [a5dc61453352d447ecd57d5038a9aaf247568007]
-
-### Features
-+ mimalloc, [6254b17515f7873818546fcf0a88076a3b72efc4]
++ dependencies updated, [5781fac3b2cc00c18e92858da6834afab2bf9935]
++ create_release.sh updated, [a092f0ab9c0cae2b717bf8b41d30d279ef3ef11f]
++ _typos.toml updated, [8df3581f81afe841f05b5e71d4eff8d4e238be01]
 
 ### Refactors
-+ use smaller WSConnect error, [2d8d493d6f1ad5a48ad5190c6cc7de3fae8ff427]
++ add_alarm(), [6b65d22b5d4eb4c874c6741ff9adb8714ea5a0a3]
 
 see <a href='https://github.com/mrjackwills/belugasnooze_pi/blob/main/CHANGELOG.md'>CHANGELOG.md</a> for more details
