@@ -112,6 +112,7 @@ async fn rainbow(db: &SqlitePool, light_status: &Arc<AtomicBool>, app_envs: &App
 
 /// need to spawn a new receiver on each connect
 /// try to open WS connection, and spawn a ThreadChannel message handler
+#[allow(clippy::cognitive_complexity)]
 pub async fn open_connection(
     app_envs: AppEnv,
     c_tx: CronTx,
