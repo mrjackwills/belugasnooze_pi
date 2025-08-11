@@ -2,7 +2,7 @@
 # SETUP #
 #########
 
-FROM alpine:3.21 as SETUP
+FROM alpine:3.22 AS setup
 
 ARG DOCKER_GUID \
 	DOCKER_UID \
@@ -38,7 +38,7 @@ RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/${BELU
 # RUNNER #
 ##########
 
-FROM scratch AS RUNNER
+FROM scratch
 
 ARG DOCKER_TIME_CONT \
 	DOCKER_TIME_CITY \
@@ -47,11 +47,11 @@ ARG DOCKER_TIME_CONT \
 
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
-COPY --from=SETUP /app/ /app
-COPY --from=SETUP /etc/group /etc/passwd /etc/
-COPY --from=SETUP /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=setup /app/ /app
+COPY --from=setup /etc/group /etc/passwd /etc/
+COPY --from=setup /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=SETUP --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_data
+COPY --from=setup --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_data
 
 USER ${DOCKER_APP_USER}
 
