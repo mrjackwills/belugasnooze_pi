@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# rust create_release v0.6.0
+# rust create_release v0.6.3
+# 2025-09-19# rust create_release v0.6.3
 
 STAR_LINE='****************************************'
 CWD=$(pwd)
@@ -210,11 +211,13 @@ cargo_build_armv6_linux() {
 
 # Build all releases that GitHub workflow would
 # This will download GB's of docker images
+# $1 is 0 or 1, if 1 won't run ask_continue
 cargo_build_all() {
+	skip_confirm=$1
 	cargo_build_armv6_linux
-	ask_continue
+	[ "$skip_confirm" -ne 1 ] && ask_continue
 	cargo_build_aarch64_linux
-	ask_continue
+	[ "$skip_confirm" -ne 1 ] && ask_continue
 }
 
 # $1 text to colourise
@@ -252,7 +255,7 @@ release_flow() {
 	get_git_remote_url
 
 	cargo_test
-	cargo_build_all
+	cargo_build_all 0
 
 	cd "${CWD}" || error_close "Can't find ${CWD}"
 	check_tag
@@ -320,6 +323,7 @@ build_choice() {
 		1 "aarch64 musl linux" off
 		2 "armv6 musl linux" off
 		3 "all" off
+		4 "all automatic" off
 	)
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 	exitStatus=$?
@@ -341,7 +345,11 @@ build_choice() {
 			exit
 			;;
 		3)
-			cargo_build_all
+			cargo_build_all 0
+			exit
+			;;
+		4)
+			cargo_build_all 1
 			exit
 			;;
 		esac
