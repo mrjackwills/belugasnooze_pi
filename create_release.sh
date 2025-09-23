@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # rust create_release v0.6.3
-# 2025-09-19# rust create_release v0.6.3
+# 2025-09-19
 
 STAR_LINE='****************************************'
 CWD=$(pwd)
@@ -187,6 +187,11 @@ cargo_test() {
 	ask_continue
 }
 
+cargo_clean() {
+	echo -e "${YELLOW}cargo clean${RESET}"
+	cargo clean
+}
+
 # Check to see if cross is installed - if not then install
 check_cross() {
 	if ! [ -x "$(command -v cross)" ]; then
@@ -212,7 +217,10 @@ cargo_build_armv6_linux() {
 # Build all releases that GitHub workflow would
 # This will download GB's of docker images
 # $1 is 0 or 1, if 1 won't run ask_continue
-cargo_build_all() {
+cross_build_all() {
+	if ask_yn "cargo clean"; then
+		cargo_clean
+	fi
 	skip_confirm=$1
 	cargo_build_armv6_linux
 	[ "$skip_confirm" -ne 1 ] && ask_continue
