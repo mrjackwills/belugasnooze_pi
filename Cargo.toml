@@ -1,10 +1,10 @@
 [package]
 name = "belugasnooze"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2024"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
-
+rust-version = "1.90.0"
 
 [lints.rust]
 unsafe_code = "forbid"
