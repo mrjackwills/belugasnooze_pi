@@ -1,8 +1,13 @@
 name: Release CI
+
+permissions:
+  contents: write
+
 on:
   push:
     tags: 
       - 'v[0-9]+.[0-9]+.[0-9]+'
+
 jobs:
   #################################################
   ## Cross platform binary build for release page #
@@ -12,13 +17,10 @@ jobs:
     strategy:
       matrix:
         include:
-
           - target: aarch64-unknown-linux-musl
             output_name: linux_aarch64.tar.gz
-
           - target: arm-unknown-linux-musleabihf
             output_name: linux_armv6.tar.gz
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
