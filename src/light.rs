@@ -1,9 +1,8 @@
 use crate::{
     app_env::AppEnv,
-    sleep,
+    blinkt, sleep,
     ws::{InternalMessage, InternalTx},
 };
-use blinkt::Blinkt;
 use std::{
     fmt,
     sync::{
@@ -67,7 +66,7 @@ impl LightControl {
     /// use `light_limit` to make sure led is only on for 5 minutes max
     pub async fn turn_on(light_status: Arc<AtomicBool>, i_tx: &InternalTx) {
         let start = Instant::now();
-        if let Ok(mut led_strip) = Blinkt::new() {
+        if let Ok(mut led_strip) = blinkt::Blinkt::new() {
             led_strip.clear();
             led_strip.set_all_pixels(255, 200, 15);
             led_strip.set_all_pixels_brightness(1.0);
@@ -100,7 +99,7 @@ impl LightControl {
             let mut step = 0u8;
             let mut start = Instant::now();
 
-            if let Ok(mut led_strip) = Blinkt::new() {
+            if let Ok(mut led_strip) = blinkt::Blinkt::new() {
                 led_strip.clear();
                 led_strip.set_all_pixels(255, 200, 15);
                 led_strip.set_all_pixels_brightness(brightness / 10.0);
@@ -132,7 +131,7 @@ impl LightControl {
     /// Show color on single led light for 50 ms
     async fn show_rainbow(pixel: usize, color: (u8, u8, u8)) {
         let brightness = 1.0;
-        if let Ok(mut led_strip) = Blinkt::new() {
+        if let Ok(mut led_strip) = blinkt::Blinkt::new() {
             led_strip.clear();
             led_strip.set_pixel_brightness(pixel, brightness);
             led_strip.set_pixel(pixel, color.0, color.1, color.2);

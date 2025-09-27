@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG BELUGASNOOZE_VERSION=v0.5.5
+ARG CURRENT_VERSION=v0.5.5
 
 WORKDIR /app
 
@@ -29,10 +29,18 @@ RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 	&& mkdir /db_data \
 	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data
 
-# This gets automatically updated via create_release.sh
-RUN wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/${BELUGASNOOZE_VERSION}/belugasnooze_linux_armv6.tar.gz\
-	&& tar xzvf belugasnooze_linux_armv6.tar.gz belugasnooze && rm belugasnooze_linux_armv6.tar.gz \
-	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
+	# Somewhat convoluted way to automatically select & download the correct package
+RUN ARCH=$(uname -m) && \
+    case "$ARCH" in \
+        aarch64) SUFFIX=aarch64 ;; \
+        armv6l) SUFFIX=armv6 ;; \
+        *) exit 1 ;; \
+    esac \
+    && wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/${CURRENT_VERSION}/belugasnooze_linux_${SUFFIX}.tar.gz \
+    && tar xzvf belugasnooze_linux_${SUFFIX}.tar.gz belugasnooze \
+    && rm belugasnooze_linux_${SUFFIX}.tar.gz \
+    && chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
+
 
 ##########
 # RUNNER #
