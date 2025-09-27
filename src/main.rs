@@ -6,8 +6,8 @@ static GLOBAL: MiMalloc = MiMalloc;
 mod alarm_schedule;
 mod app_env;
 mod app_error;
-mod db;
 mod blinkt;
+mod db;
 mod light;
 mod sysinfo;
 mod word_art;
@@ -25,7 +25,6 @@ use std::sync::{
 };
 use word_art::Intro;
 use ws::open_connection;
-
 
 /// Simple macro to create a new String, or convert from a &str to a String - basically just gets rid of String::from() / .to_owned() etc
 #[macro_export]
