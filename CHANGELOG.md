@@ -1,8 +1,11 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.6.0'>v0.6.0</a>
+### 2025-09-27
+
 ### Chores
-+ dependencies updated, [1a6c420d40a04946f1b9830e76de9df8b27fb2e5]
++ dependencies updated, [1a6c420d](https://github.com/mrjackwills/belugasnooze_pi/commit/1a6c420d40a04946f1b9830e76de9df8b27fb2e5)
 
 ### Features
-+ implement improved blinkt, for arm64 host, [db520ecc09801108890d55af6420ba4985b3a4eb]
++ implement improved blinkt, for arm64 host, [db520ecc](https://github.com/mrjackwills/belugasnooze_pi/commit/db520ecc09801108890d55af6420ba4985b3a4eb)
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.5.5'>v0.5.5</a>
 ### 2025-09-23
