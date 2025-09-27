@@ -135,7 +135,7 @@ update_version_number_in_files() {
 	sed -i -r -E "s=image: (\w+):[0-9]+\.[0-9]+\.[0-9]+=image: \1:${MAJOR}.${MINOR}.${PATCH}=g" ./docker-compose.yml
 
 	# Update version number in the Dockerfile to download latest release from github
-	sed -i -r -E "s/^ARG BELUGASNOOZE_VERSION=v[0-9]+.[0-9]+.[0-9]+/ARG BELUGASNOOZE_VERSION=v${MAJOR}.${MINOR}.${PATCH}/" ./Dockerfile
+	sed -i -r -E "s/^ARG CURRENT_VERSION=v[0-9]+.[0-9]+.[0-9]+/ARG CURRENT_VERSION=v${MAJOR}.${MINOR}.${PATCH}/" ./Dockerfile
 }
 
 # Work out the current version, based on git tags
@@ -263,7 +263,7 @@ release_flow() {
 	get_git_remote_url
 
 	cargo_test
-	cargo_build_all 0
+	cross_build_all 0
 
 	cd "${CWD}" || error_close "Can't find ${CWD}"
 	check_tag
@@ -353,11 +353,11 @@ build_choice() {
 			exit
 			;;
 		3)
-			cargo_build_all 0
+			cross_build_all 0
 			exit
 			;;
 		4)
-			cargo_build_all 1
+			cross_build_all 1
 			exit
 			;;
 		esac

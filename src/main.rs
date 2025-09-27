@@ -6,6 +6,7 @@ static GLOBAL: MiMalloc = MiMalloc;
 mod alarm_schedule;
 mod app_env;
 mod app_error;
+mod blinkt;
 mod db;
 mod light;
 mod sysinfo;
