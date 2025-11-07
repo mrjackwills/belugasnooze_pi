@@ -1,9 +1,6 @@
 use sqlx::SqlitePool;
 use std::sync::{Arc, atomic::AtomicBool};
-use tokio::{
-    sync::mpsc::{Receiver, Sender},
-    task::JoinHandle,
-};
+use tokio::task::JoinHandle;
 
 use crate::{
     C,
@@ -22,8 +19,8 @@ pub enum CronMessage {
     Light,
 }
 
-pub type CronTx = Sender<CronMessage>;
-pub type CronRx = Receiver<CronMessage>;
+pub type CronTx = async_channel::Sender<CronMessage>;
+pub type CronRx = async_channel::Receiver<CronMessage>;
 
 #[derive(Debug)]
 pub struct AlarmSchedule {
@@ -41,7 +38,7 @@ impl AlarmSchedule {
         light_status: Arc<AtomicBool>,
         sqlite: SqlitePool,
     ) -> Result<CronTx, AppError> {
-        let (c_tx, c_rx) = tokio::sync::mpsc::channel(128);
+        let (c_tx, c_rx) = async_channel::bounded(128);
 
         let mut alarm_schedule = Self {
             c_rx,
@@ -60,7 +57,7 @@ impl AlarmSchedule {
     }
 
     async fn message_looper(&mut self) {
-        while let Some(msg) = self.c_rx.recv().await {
+        while let Ok(msg) = self.c_rx.recv().await {
             match msg {
                 CronMessage::ResetLoop => {
                     if let Some(looper) = self.looper.as_ref() {

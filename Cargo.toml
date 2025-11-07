@@ -20,6 +20,7 @@ module_name_repetitions = "allow"
 doc_markdown = "allow"
 
 [dependencies]
+async-channel = "2.5"
 dotenvy = "0.15"
 figlet-rs = "0.1"
 futures-util = "0.3"
