@@ -4,7 +4,9 @@ use std::fmt;
 
 use crate::app_error::AppError;
 
-#[derive(sqlx::FromRow, Debug, Clone, Serialize, Deserialize)]
+#[derive(
+    sqlx::FromRow, Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 pub struct ModelAlarm {
     pub alarm_id: i64,
     pub day: i8,
@@ -90,7 +92,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: day >= 0\n\t\tAND day <= 6"
+            "error returned from database: (code: 275) CHECK constraint failed: day >= 0\n\t\tAND day <= 6"
         );
         test_cleanup(uuid, Some(db)).await;
     }
@@ -105,7 +107,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: hour >= 0\n\t\tAND hour <= 23"
+            "error returned from database: (code: 275) CHECK constraint failed: hour >= 0\n\t\tAND hour <= 23"
         );
         test_cleanup(uuid, Some(db)).await;
     }
@@ -120,7 +122,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().to_string(),
-            "Internal Database Error: error returned from database: (code: 275) CHECK constraint failed: minute >= 0\n\t\tAND minute <= 59"
+            "error returned from database: (code: 275) CHECK constraint failed: minute >= 0\n\t\tAND minute <= 59"
         );
         test_cleanup(uuid, Some(db)).await;
     }

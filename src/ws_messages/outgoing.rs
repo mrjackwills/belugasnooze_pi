@@ -4,7 +4,7 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{db::ModelAlarm, sysinfo::SysInfo};
 
 /// Basic pi info
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PiStatus {
     pub alarms: Vec<ModelAlarm>,
     pub internal_ip: String,
@@ -29,7 +29,7 @@ impl PiStatus {
     }
 }
 /// Responses, either sent as is, or nested in StructuredResponse below
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "snake_case", tag = "name", content = "data")]
 pub enum Response {
     Status(PiStatus),

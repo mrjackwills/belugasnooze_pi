@@ -63,4 +63,7 @@ COPY --from=setup --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_da
 
 USER ${DOCKER_APP_USER}
 
+# COPY --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} ./belugasnooze /app
+
+
 ENTRYPOINT ["/app/belugasnooze"]

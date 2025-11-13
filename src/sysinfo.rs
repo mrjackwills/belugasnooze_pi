@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sqlx::SqlitePool;
 use tokio::fs::read_to_string;
 
 use crate::{app_env::AppEnv, db::ModelTimezone};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct SysInfo {
     pub uptime: usize,
     pub version: String,
@@ -37,14 +37,18 @@ impl SysInfo {
 
     /// Generate sysinfo struct, will valid data
     pub async fn new(db: &SqlitePool, app_envs: &AppEnv) -> Self {
-        let model_timezone = ModelTimezone::get(db).await.unwrap_or_default();
+        let (model_timezone, internal_ip, uptime) = tokio::join!(
+            ModelTimezone::get(db),
+            Self::get_ip(app_envs),
+            Self::get_uptime()
+        );
         Self {
-            internal_ip: Self::get_ip(app_envs).await,
-            uptime: Self::get_uptime().await,
+            internal_ip,
+            uptime,
             uptime_app: std::time::SystemTime::now()
                 .duration_since(app_envs.start_time)
                 .map_or(0, |value| value.as_secs()),
-            time_zone: model_timezone.zone_name,
+            time_zone: model_timezone.unwrap_or_default().zone_name,
             version: env!("CARGO_PKG_VERSION").into(),
         }
     }

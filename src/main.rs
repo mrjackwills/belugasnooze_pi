@@ -1,4 +1,6 @@
+use async_channel::Sender;
 use mimalloc::MiMalloc;
+use simple_signal::{self, Signal};
 
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
@@ -9,22 +11,18 @@ mod app_error;
 mod blinkt;
 mod db;
 mod light;
+mod message_handler;
 mod sysinfo;
 mod word_art;
 mod ws;
 mod ws_messages;
 
-use alarm_schedule::AlarmSchedule;
 use app_env::AppEnv;
 use app_error::AppError;
 use db::init_db;
-use simple_signal::{self, Signal};
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
 use word_art::Intro;
-use ws::open_connection;
+
+use crate::message_handler::{MessageHandler, Msg};
 
 /// Simple macro to create a new String, or convert from a &str to a String - basically just gets rid of String::from() / .to_owned() etc
 #[macro_export]
@@ -57,9 +55,10 @@ macro_rules! C {
     };
 }
 
-fn close_signal(light_status: Arc<AtomicBool>) {
+fn close_signal(tx: &Sender<Msg>) {
+    let tx = C!(tx);
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {
-        light_status.store(false, Ordering::Relaxed);
+        tx.send_blocking(Msg::Exit).ok();
         std::thread::sleep(std::time::Duration::from_millis(250));
         std::process::exit(1);
     });
@@ -75,22 +74,19 @@ async fn start() -> Result<(), AppError> {
     let app_envs = AppEnv::get();
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
+    tracing::info!("beta version");
 
-    let db = init_db(&app_envs).await?;
-    let light_status = Arc::new(AtomicBool::new(false));
-
-    close_signal(Arc::clone(&light_status));
-
-    let (i_tx, _keep_alive) = tokio::sync::broadcast::channel(128);
-
-    let cron_sx = AlarmSchedule::init(C!(i_tx), Arc::clone(&light_status), C!(db)).await?;
-
-    open_connection(app_envs, cron_sx, db, i_tx, light_status).await
+    let sqlite = init_db(&app_envs).await?;
+    let (tx, rx) = async_channel::bounded(2048);
+    close_signal(&tx);
+    MessageHandler::new(app_envs, sqlite, rx, tx).start().await
 }
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
-    tokio::spawn(start()).await.ok();
+    if let Err(e) = tokio::spawn(start()).await {
+        tracing::error!("{e}");
+    }
     Ok(())
 }
 
@@ -111,9 +107,12 @@ mod tests {
         let sql_name = PathBuf::from(format!("/dev/shm/{uuid}.db"));
         let sql_sham = sql_name.join("-shm");
         let sql_wal = sql_name.join("-wal");
-        tokio::fs::remove_file(sql_wal).await.ok();
-        tokio::fs::remove_file(sql_sham).await.ok();
-        tokio::fs::remove_file(sql_name).await.ok();
+        tokio::try_join!(
+            tokio::fs::remove_file(sql_wal),
+            tokio::fs::remove_file(sql_sham),
+            tokio::fs::remove_file(sql_name)
+        )
+        .ok();
     }
 
     pub fn gen_app_envs(uuid: Uuid) -> AppEnv {
@@ -122,7 +121,6 @@ mod tests {
             location_sqlite: format!("/dev/shm/{uuid}.db"),
             log_level: tracing::Level::INFO,
             start_time: SystemTime::now(),
-            rainbow: None,
             timezone: jiff::tz::TimeZone::get("Europe/London").unwrap(),
             ws_address: S!("ws_address"),
             ws_apikey: S!("ws_apikey"),

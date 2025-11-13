@@ -1,93 +1,56 @@
+use async_channel::Sender;
 use sqlx::SqlitePool;
-use std::sync::{Arc, atomic::AtomicBool};
-use tokio::task::JoinHandle;
+use tokio_util::sync::CancellationToken;
 
 use crate::{
     C,
     app_error::AppError,
     db::{ModelAlarm, ModelTimezone},
-    light::LightControl,
+    message_handler::Msg,
     sleep,
-    ws::InternalTx,
 };
 
 pub const ONE_SECOND_AS_MS: u64 = 1000;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum CronMessage {
-    ResetLoop,
-    Light,
-}
-
-pub type CronTx = async_channel::Sender<CronMessage>;
-pub type CronRx = async_channel::Receiver<CronMessage>;
-
 #[derive(Debug)]
 pub struct AlarmSchedule {
-    c_rx: CronRx,
-    c_tx: CronTx,
-    i_tx: InternalTx,
-    light_status: Arc<AtomicBool>,
-    looper: Option<JoinHandle<()>>,
-    sqlite: SqlitePool,
+    tx: Sender<Msg>,
+    token: Option<CancellationToken>,
 }
 
 impl AlarmSchedule {
-    pub async fn init(
-        i_tx: InternalTx,
-        light_status: Arc<AtomicBool>,
-        sqlite: SqlitePool,
-    ) -> Result<CronTx, AppError> {
-        let (c_tx, c_rx) = async_channel::bounded(128);
-
-        let mut alarm_schedule = Self {
-            c_rx,
-            c_tx: C!(c_tx),
-            i_tx,
-            light_status,
-            looper: None,
-            sqlite,
-        };
-        alarm_schedule.generate_alarm_loop().await?;
-        tokio::spawn(async move {
-            alarm_schedule.message_looper().await;
-        });
-
-        Ok(c_tx)
-    }
-
-    async fn message_looper(&mut self) {
-        while let Ok(msg) = self.c_rx.recv().await {
-            match msg {
-                CronMessage::ResetLoop => {
-                    if let Some(looper) = self.looper.as_ref() {
-                        looper.abort();
-                    }
-                    if let Err(e) = self.generate_alarm_loop().await {
-                        println!("Can't generate new alarm loop");
-                        println!("{e}");
-                    }
-                }
-                CronMessage::Light => {
-                    LightControl::alarm_illuminate(Arc::clone(&self.light_status), C!(self.i_tx));
-                }
-            }
+    pub fn new(tx: &Sender<Msg>) -> Self {
+        Self {
+            tx: C!(tx),
+            token: None,
         }
     }
 
-    async fn generate_alarm_loop(&mut self) -> Result<(), AppError> {
-        let alarms = ModelAlarm::get_all(&self.sqlite).await?;
-        let tz = ModelTimezone::get(&self.sqlite).await.unwrap_or_default();
-        let sx = C!(self.c_tx);
-        self.looper = Some(tokio::spawn(async move {
-            Self::init_alarm_loop(alarms, sx, tz).await;
-        }));
+	/// Cancel the current token, set a new one, and return it
+    fn get_set_cancel_token(&mut self) -> CancellationToken {
+        if let Some(token) = &self.token {
+            token.cancel();
+        }
+        let token = CancellationToken::new();
+        self.token = Some(C!(token));
+        token
+    }
+    /// Start the alarm looper thread
+    pub async fn start_alarm_thread(&mut self, sqlite: &SqlitePool) -> Result<(), AppError> {
+        let alarms = ModelAlarm::get_all(sqlite).await?;
+        let tz = ModelTimezone::get(sqlite).await.unwrap_or_default();
+        let tx = self.tx.clone();
+        let token = self.get_set_cancel_token();
+        tokio::spawn(async move {
+            token
+                .run_until_cancelled(Self::init_alarm_loop(alarms, tz, tx))
+                .await
+        });
         Ok(())
     }
 
-    // loop every 1 second,check if current time & day matches alarm, and if so execute alarm illuminate
-    // is private, so that it can only be executed during the self.init() method, so that it is correctly spawned onto it's own tokio thread
-    async fn init_alarm_loop(alarms: Vec<ModelAlarm>, c_tx: CronTx, time_zone: ModelTimezone) {
+    /// loop every 1 second,check if current time & day matches alarm, and if so execute alarm illuminate
+    async fn init_alarm_loop(alarms: Vec<ModelAlarm>, time_zone: ModelTimezone, tx: Sender<Msg>) {
         loop {
             let start = std::time::Instant::now();
             let current_time = time_zone.to_time();
@@ -101,7 +64,7 @@ impl AlarmSchedule {
                     && i.minute == current_time.minute()
                     && current_time.second() == 0
             }) {
-                c_tx.send(CronMessage::Light).await.ok();
+                tx.send(Msg::StartAlarm).await.ok();
             }
             sleep!(ONE_SECOND_AS_MS.saturating_sub(
                 u64::try_from(start.elapsed().as_millis()).unwrap_or(ONE_SECOND_AS_MS)

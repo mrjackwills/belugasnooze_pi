@@ -11,7 +11,6 @@ pub struct AppEnv {
     pub location_ip_address: String,
     pub location_sqlite: String,
     pub log_level: tracing::Level,
-    pub rainbow: Option<()>,
     pub start_time: SystemTime,
     pub timezone: TimeZone,
     pub ws_address: String,
@@ -65,15 +64,6 @@ impl AppEnv {
     }
 
     /// Parse debug and/or trace into tracing level
-    fn parse_rainbow(map: &EnvHashMap) -> Option<()> {
-        if Self::parse_boolean("RAINBOW", map) {
-            Some(())
-        } else {
-            None
-        }
-    }
-
-    /// Parse debug and/or trace into tracing level
     fn parse_log(map: &EnvHashMap) -> tracing::Level {
         if Self::parse_boolean("LOG_TRACE", map) {
             tracing::Level::TRACE
@@ -97,7 +87,6 @@ impl AppEnv {
             )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             log_level: Self::parse_log(&env_map),
-            rainbow: Self::parse_rainbow(&env_map),
             start_time: SystemTime::now(),
             timezone: Self::parse_timezone(&env_map),
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
@@ -178,23 +167,6 @@ mod tests {
         assert!(!result02);
         assert!(!result03);
         assert!(!result04);
-    }
-
-    #[test]
-    fn env_parse_rainbow() {
-        let mut map = HashMap::new();
-        map.insert(S!("RAINBOW"), S!("true"));
-
-        let result = AppEnv::parse_rainbow(&map);
-
-        assert!(result.is_some());
-
-        let mut map = HashMap::new();
-        map.insert(S!("RAINBOW"), S!("FALSE"));
-
-        let result = AppEnv::parse_rainbow(&map);
-
-        assert!(result.is_none());
     }
 
     #[test]
