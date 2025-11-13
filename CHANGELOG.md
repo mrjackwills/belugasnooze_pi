@@ -1,3 +1,6 @@
+### Fixes
++ debug statement removed, [57f0cb4a9e0c7dda8c3f664fe1c6edc9ffc0c101]
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.7.0'>v0.7.0</a>
 ### 2025-11-13
 
