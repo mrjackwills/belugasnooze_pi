@@ -1,5 +1,11 @@
 ### Chores
-+ Depenencies updated, [707d7507d9a5f1588d71b6efe767d932df3c3b85]
++ dependencies updated, [5c0839d6da751586783840da79a6b59623fa0d4e], [707d7507d9a5f1588d71b6efe767d932df3c3b85]
+
+### Features
++ async_channels & CancelationToken, [db3a1a43b90f68264b1fa1a447902c3dde5b9283], [2bc5a0035bd8e0840a456272f34f92bf16532a34]
+
+### Chores
++ Dependencies updated, [707d7507d9a5f1588d71b6efe767d932df3c3b85]
 
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.6.0'>v0.6.0</a>
 ### 2025-09-27
@@ -438,7 +444,7 @@
 + anyhow removed, AppError enum used, [1a29406f](https://github.com/mrjackwills/belugasnooze_pi/commit/1a29406f7786ac375d59128f0a186fc4bcb2e939),
 
 ### Fixes
-+ create_release update version numbers & Dockefile location, [72cd427e](https://github.com/mrjackwills/belugasnooze_pi/commit/72cd427e14b29d7e55ebdbcf81d127ff141ce88f),
++ create_release update version numbers & Dockerfile location, [72cd427e](https://github.com/mrjackwills/belugasnooze_pi/commit/72cd427e14b29d7e55ebdbcf81d127ff141ce88f),
 + sql connection settings updated, mod sql > mod db, [23ad29c7](https://github.com/mrjackwills/belugasnooze_pi/commit/23ad29c7e583574f9333419590618f3de3cc8239),
 
 ### Refactors
