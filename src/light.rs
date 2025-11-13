@@ -1,154 +1,185 @@
-use crate::{
-    app_env::AppEnv,
-    blinkt, sleep,
-    ws::{InternalMessage, InternalTx},
-};
-use std::{
-    fmt,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
-};
-use tokio::time::Instant;
-use tracing::info;
+use crate::{C, blinkt, message_handler::Msg, sleep};
+use async_channel::{Receiver, Sender};
+use tokio_util::sync::CancellationToken;
 
-const RAINBOW_COLORS: [(u8, u8, u8); 8] = [
-    (255, 0, 0),
-    (255, 127, 0),
-    (255, 255, 0),
-    (0, 255, 0),
-    (0, 0, 255),
-    (39, 0, 51),
-    (139, 0, 255),
-    (255, 255, 255),
-];
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum LimitMinutes {
-    Five,
+    Five(Option<()>),
     FortyFive,
-    Ninety,
 }
 
 impl LimitMinutes {
+    async fn sleep(self, tx: Sender<LightMsg>) {
+        sleep!(self.get_ms());
+        tx.send(self.get_message()).await.ok();
+    }
+
+    const fn get_message(self) -> LightMsg {
+        match self {
+            Self::Five(msg) => {
+                if msg.is_some() {
+                    LightMsg::Alarm
+                } else {
+                    LightMsg::Off
+                }
+            }
+            Self::FortyFive => LightMsg::Off,
+        }
+    }
+
     const fn get_sec(&self) -> u64 {
         match self {
-            Self::Five => 60 * 5,
-            Self::FortyFive => 60 * 45,
-            Self::Ninety => 60 * 90,
+            Self::Five(_) => 5 * 60,
+            Self::FortyFive => 45 * 60,
         }
     }
-}
 
-/// Convert from a step (0-10) to the correct wait LimitMinute value
-impl From<u8> for LimitMinutes {
-    fn from(step: u8) -> Self {
-        if step < 9 { Self::Five } else { Self::Ninety }
+    const fn get_ms(&self) -> u64 {
+        self.get_sec() * 1000
     }
 }
 
-impl fmt::Display for LimitMinutes {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let x = match self {
-            Self::FortyFive => "45",
-            Self::Five => "5",
-            Self::Ninety => "90",
-        };
-        write!(f, "{x}")
-    }
+pub struct LightControl {
+    blinkt: Option<blinkt::Blinkt>,
+    brightness: f32,
+    cancel_token: Option<CancellationToken>,
+    colours: (u8, u8, u8),
+    light_tx: Sender<LightMsg>,
+    msg_tx: Sender<Msg>,
+    status: bool,
+    step: u8,
 }
 
-pub struct LightControl;
+#[derive(Debug, Clone)]
+pub enum LightMsg {
+    Alarm,
+    Exit,
+    Get(Sender<bool>),
+    Off,
+    Toggle(bool),
+}
 
 impl LightControl {
-    /// whilst `light_status` is true, set all lights to on
-    /// use `light_limit` to make sure led is only on for 5 minutes max
-    pub async fn turn_on(light_status: Arc<AtomicBool>, i_tx: &InternalTx) {
-        let start = Instant::now();
-        if let Ok(mut led_strip) = blinkt::Blinkt::new() {
-            led_strip.clear();
-            led_strip.set_all_pixels(255, 200, 15);
-            led_strip.set_all_pixels_brightness(1.0);
-            while light_status.load(Ordering::Relaxed) {
-                Self::light_limit(start, &LimitMinutes::Five);
-                led_strip.show().ok();
-                sleep!(250);
-                if Self::light_limit(start, &LimitMinutes::FortyFive) {
-                    light_status.store(false, Ordering::Relaxed);
-                }
-            }
+    fn new(msg_tx: &Sender<Msg>, tx: &Sender<LightMsg>) -> Self {
+        Self {
+            blinkt: blinkt::Blinkt::new().map_or_else(
+                |e| {
+                    tracing::error!("No Blinkt found: {e}");
+                    None
+                },
+                Some,
+            ),
+            brightness: 0.0,
+            cancel_token: None,
+            colours: (0, 0, 0),
+            light_tx: C!(tx),
+            msg_tx: C!(msg_tx),
+            status: false,
+            step: 0,
         }
-        i_tx.send(InternalMessage::Light).ok();
     }
 
-    /// Increment the brightness & associated values
-    fn increment_step(step: &mut u8, brightness: &mut f32, start: &mut Instant) {
-        *step += 1;
-        *brightness += 1.0;
-        *start = Instant::now();
+    /// Send settings to the blinkt, to actually turn it on or off
+    fn display(&mut self) {
+        if let Some(blinkt) = &mut self.blinkt {
+            blinkt.clear();
+            blinkt.set_all_pixels_brightness(self.brightness);
+            blinkt.set_all_pixels(self.colours.0, self.colours.1, self.colours.2);
+            blinkt.show().ok();
+        }
     }
 
-    /// Turn light on in steps of 10% brightness, 5 minutes for each step, except last step which stays on for 45 minutes
-    /// Will stop if the `light_status` atomic bool is changed elsewhere during the execution
-    pub fn alarm_illuminate(light_status: Arc<AtomicBool>, i_tx: InternalTx) {
-        light_status.store(true, Ordering::Relaxed);
+    /// Turn off the blinkt
+    fn turn_off(&mut self) {
+        self.brightness = 0.0;
+        self.colours = (0, 0, 0);
+        self.status = false;
+        self.display();
+    }
+
+    /// Default colours for the LED strip
+    const fn set_default_colour(&mut self) {
+        self.colours = (255, 200, 15);
+    }
+
+    /// Create and set and cancel token, and copy a sender
+    fn get_token_sender(&mut self) -> (CancellationToken, Sender<LightMsg>) {
+        let token = CancellationToken::new();
+        self.cancel_token = Some(C!(token));
+        (token, C!(self.light_tx))
+    }
+
+    /// Cancel the sleeping thread
+    fn cancel_thead(&self) {
+        if let Some(token) = &self.cancel_token {
+            token.cancel();
+        }
+    }
+
+    /// Set the light status
+    fn activate(&mut self, limit: LimitMinutes, brightness: f32) {
+        self.brightness = brightness;
+        self.set_default_colour();
+        self.status = true;
+        let (token, tx) = self.get_token_sender();
+        self.display();
         tokio::spawn(async move {
-            i_tx.send(InternalMessage::Light).ok();
-            let mut brightness = 1.0;
-            let mut step = 0u8;
-            let mut start = Instant::now();
-
-            if let Ok(mut led_strip) = blinkt::Blinkt::new() {
-                led_strip.clear();
-                led_strip.set_all_pixels(255, 200, 15);
-                led_strip.set_all_pixels_brightness(brightness / 10.0);
-
-                while light_status.load(Ordering::Relaxed) {
-                    led_strip.show().ok();
-                    let limit = LimitMinutes::from(step);
-                    if Self::light_limit(start, &limit) {
-                        Self::increment_step(&mut step, &mut brightness, &mut start);
-                        led_strip.set_all_pixels_brightness(brightness / 10.0);
-                        if matches!(limit, LimitMinutes::Ninety) {
-                            info!("should be off now");
-                            light_status.store(false, Ordering::Relaxed);
-                            led_strip.clear();
-                        }
-                    }
-                    sleep!(250);
-                }
-                i_tx.send(InternalMessage::Light).ok();
-            }
+            token.run_until_cancelled(limit.sleep(tx)).await;
         });
     }
 
-    /// Return true if start time longer than given limit
-    fn light_limit(start: Instant, limit: &LimitMinutes) -> bool {
-        start.elapsed().as_secs() > limit.get_sec()
+    /// Turn the light on with the default 5-minute timeout.
+    fn turn_on(&mut self) {
+        self.activate(LimitMinutes::Five(None), 1.0);
     }
 
-    /// Show color on single led light for 50 ms
-    async fn show_rainbow(pixel: usize, color: (u8, u8, u8)) {
-        let brightness = 1.0;
-        if let Ok(mut led_strip) = blinkt::Blinkt::new() {
-            led_strip.clear();
-            led_strip.set_pixel_brightness(pixel, brightness);
-            led_strip.set_pixel(pixel, color.0, color.1, color.2);
-            led_strip.show().ok();
-            sleep!(50);
+    /// Turn the light on for an alarm step.
+    async fn alarm_on(&mut self) {
+        self.cancel_thead();
+        self.msg_tx.send(Msg::SendLEDStatus).await.ok();
+        self.step += 1;
+        let limit = if self.step < 10 {
+            LimitMinutes::Five(Some(()))
+        } else {
+            LimitMinutes::FortyFive
+        };
+        let brightness = f32::from(self.step) / 10.0;
+        self.activate(limit, brightness);
+    }
+
+    /// Toggle the status of the blinkt
+    async fn toggle(&mut self, value: bool) {
+        self.cancel_thead();
+        if value {
+            self.turn_on();
+        } else {
+            self.turn_off();
+        }
+        self.msg_tx.send(Msg::SendLEDStatus).await.ok();
+    }
+
+    /// Message listener
+    async fn recv(&mut self, rx: Receiver<LightMsg>) {
+        loop {
+            if let Ok(x) = rx.recv().await {
+                match x {
+                    LightMsg::Alarm => self.alarm_on().await,
+                    LightMsg::Exit => self.turn_off(),
+                    LightMsg::Get(oneshot) => oneshot.send(self.status).await.unwrap_or_default(),
+                    LightMsg::Off => self.toggle(false).await,
+                    LightMsg::Toggle(status) => self.toggle(status).await,
+                }
+            }
         }
     }
 
-    /// Loop over array of rgb colors, send each to the led strip one at a time
-    pub async fn rainbow(x: Arc<AtomicBool>, app_envs: &AppEnv) {
-        if app_envs.rainbow.is_some() && !x.load(Ordering::Relaxed) {
-            for (pixel, color) in RAINBOW_COLORS.into_iter().enumerate() {
-                Self::show_rainbow(pixel, color).await;
-            }
-            for (pixel, color) in RAINBOW_COLORS.into_iter().rev().enumerate() {
-                Self::show_rainbow(RAINBOW_COLORS.len() - 1 - pixel, color).await;
-            }
-        }
+    /// Start the receiving channel
+    pub fn init(msg_tx: &Sender<Msg>) -> Sender<LightMsg> {
+        let (tx, rx) = async_channel::bounded(128);
+        let mut light_control = Self::new(msg_tx, &tx);
+        tokio::spawn(async move {
+            light_control.recv(rx).await;
+        });
+        tx
     }
 }

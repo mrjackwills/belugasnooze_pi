@@ -1,5 +1,4 @@
-use super::WsStream;
-use crate::{app_env::AppEnv, app_error::AppError};
+use crate::{app_env::AppEnv, app_error::AppError, message_handler::WsStream};
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::{self, connect_async, tungstenite::http::StatusCode};
 

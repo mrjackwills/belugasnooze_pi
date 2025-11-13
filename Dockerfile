@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG CURRENT_VERSION=v0.6.0
+ARG CURRENT_VERSION=v0.7.0
 
 WORKDIR /app
 
@@ -31,15 +31,15 @@ RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 
 	# Somewhat convoluted way to automatically select & download the correct package
 RUN ARCH=$(uname -m) && \
-    case "$ARCH" in \
-        aarch64) SUFFIX=aarch64 ;; \
-        armv6l) SUFFIX=armv6 ;; \
-        *) exit 1 ;; \
-    esac \
-    && wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/${CURRENT_VERSION}/belugasnooze_linux_${SUFFIX}.tar.gz \
-    && tar xzvf belugasnooze_linux_${SUFFIX}.tar.gz belugasnooze \
-    && rm belugasnooze_linux_${SUFFIX}.tar.gz \
-    && chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
+	case "$ARCH" in \
+		aarch64) SUFFIX=aarch64 ;; \
+		armv6l) SUFFIX=armv6 ;; \
+		*) exit 1 ;; \
+	esac \
+	&& wget https://github.com/mrjackwills/belugasnooze_pi/releases/download/${CURRENT_VERSION}/belugasnooze_linux_${SUFFIX}.tar.gz \
+	&& tar xzvf belugasnooze_linux_${SUFFIX}.tar.gz belugasnooze \
+	&& rm belugasnooze_linux_${SUFFIX}.tar.gz \
+	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /app/belugasnooze
 
 
 ##########
@@ -62,5 +62,8 @@ COPY --from=setup /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=setup --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /db_data
 
 USER ${DOCKER_APP_USER}
+
+# COPY --chown=${DOCKER_APP_USER}:${DOCKER_APP_GROUP} ./belugasnooze /app
+
 
 ENTRYPOINT ["/app/belugasnooze"]
