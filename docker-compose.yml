@@ -1,6 +1,6 @@
 services:
   belugasnooze_pi_client:
-    image: belugasnooze_pi_client:0.6.0
+    image: belugasnooze_pi_client:0.7.0
     build:
       context: .
       dockerfile: Dockerfile

@@ -26,7 +26,7 @@ impl AlarmSchedule {
         }
     }
 
-	/// Cancel the current token, set a new one, and return it
+    /// Cancel the current token, set a new one, and return it
     fn get_set_cancel_token(&mut self) -> CancellationToken {
         if let Some(token) = &self.token {
             token.cancel();

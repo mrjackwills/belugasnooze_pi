@@ -155,7 +155,7 @@ impl WSSender {
             .await;
     }
 
-	/// Send a message to close the socket
+    /// Send a message to close the socket
     pub async fn close(&self) {
         self.tx.send(Msg::WsClose).await.ok();
     }
