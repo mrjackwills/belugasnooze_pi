@@ -97,7 +97,7 @@ impl LightControl {
         self.display();
     }
 
-	/// Default colours for the LED strip
+    /// Default colours for the LED strip
     const fn set_default_colour(&mut self) {
         self.colours = (255, 200, 15);
     }
