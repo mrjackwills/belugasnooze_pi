@@ -74,8 +74,6 @@ async fn start() -> Result<(), AppError> {
     let app_envs = AppEnv::get();
     setup_tracing(&app_envs);
     Intro::new(&app_envs).show();
-    tracing::info!("beta version");
-
     let sqlite = init_db(&app_envs).await?;
     let (tx, rx) = async_channel::bounded(2048);
     close_signal(&tx);
