@@ -81,11 +81,14 @@ async fn start() -> Result<(), AppError> {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), AppError> {
-    if let Err(e) = tokio::spawn(start()).await {
-        tracing::error!("{e}");
-    }
-    Ok(())
+async fn main() {
+    tokio::spawn(async move {
+        if let Err(e) = start().await {
+            tracing::error!("{e:}");
+        }
+    })
+    .await
+    .ok();
 }
 
 #[cfg(test)]
