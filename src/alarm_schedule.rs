@@ -37,9 +37,10 @@ impl AlarmSchedule {
     }
     /// Start the alarm looper thread
     pub async fn start_alarm_thread(&mut self, sqlite: &SqlitePool) -> Result<(), AppError> {
-        let alarms = ModelAlarm::get_all(sqlite).await?;
-        let tz = ModelTimezone::get(sqlite).await.unwrap_or_default();
-        let tx = self.tx.clone();
+        let futs = tokio::join!(ModelAlarm::get_all(sqlite), ModelTimezone::get(sqlite));
+        let (alarms, tz) = (futs.0?, futs.1.unwrap_or_default());
+
+        let tx = C!(self.tx);
         let token = self.get_set_cancel_token();
         tokio::spawn(async move {
             token
