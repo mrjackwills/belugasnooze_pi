@@ -67,9 +67,11 @@ impl MessageHandler {
 
     /// Start the message handler
     pub async fn start(&mut self) -> Result<(), AppError> {
-        self.alarm_schedule.start_alarm_thread(&self.sqlite).await?;
-
-        open_connection(&self.app_env, &self.tx, &mut self.connection_details).await;
+        tokio::join!(
+            self.alarm_schedule.start_alarm_thread(&self.sqlite),
+            open_connection(&self.app_env, &self.tx, &mut self.connection_details)
+        )
+        .0?;
 
         while let Ok(msg) = self.rx.recv().await {
             match msg {

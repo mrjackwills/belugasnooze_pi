@@ -2,7 +2,7 @@
 # SETUP #
 #########
 
-FROM alpine:3.22 AS setup
+FROM alpine:3.23 AS setup
 
 ARG DOCKER_GUID \
 	DOCKER_UID \
@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG CURRENT_VERSION=v0.7.1
+ARG CURRENT_VERSION=v0.7.2
 
 WORKDIR /app
 

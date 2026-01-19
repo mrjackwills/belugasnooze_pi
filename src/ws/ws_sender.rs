@@ -79,15 +79,13 @@ impl WSSender {
     /// Would need to set the light status to false, but that could also set the light off if on not during an alarm sequence
     async fn delete_all(&self) {
         ModelAlarm::delete_all(&self.sqlite).await.ok();
-        self.update_loop().await;
-        self.send_status().await;
+        tokio::join!(self.update_loop(), self.send_status());
     }
 
     /// Delete from database a given alarm, by id, and also remove from alarm_schedule alarm vector
     async fn delete_one(&self, id: i64) {
         ModelAlarm::delete(&self.sqlite, id).await.unwrap_or(());
-        self.update_loop().await;
-        self.send_status().await;
+        tokio::join!(self.update_loop(), self.send_status());
     }
 
     /// This also needs to be send from alarm sequencer
@@ -148,9 +146,15 @@ impl WSSender {
 
     /// Generate, and send, pi information
     pub async fn send_status(&self) {
-        let info = SysInfo::new(&self.sqlite, &self.app_envs).await;
-        let alarms = ModelAlarm::get_all(&self.sqlite).await.unwrap_or_default();
-        let info = PiStatus::new(info, alarms, self.connected_instant.elapsed().as_secs());
+        let (info, alarms) = tokio::join!(
+            SysInfo::new(&self.sqlite, &self.app_envs),
+            ModelAlarm::get_all(&self.sqlite)
+        );
+        let info = PiStatus::new(
+            info,
+            alarms.unwrap_or_default(),
+            self.connected_instant.elapsed().as_secs(),
+        );
         self.send_ws_response(Response::Status(info), Some(true))
             .await;
     }

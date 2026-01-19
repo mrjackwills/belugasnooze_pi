@@ -11,6 +11,7 @@ mod app_error;
 mod blinkt;
 mod db;
 mod light;
+mod macros;
 mod message_handler;
 mod sysinfo;
 mod word_art;
@@ -23,37 +24,6 @@ use db::init_db;
 use word_art::Intro;
 
 use crate::message_handler::{MessageHandler, Msg};
-
-/// Simple macro to create a new String, or convert from a &str to a String - basically just gets rid of String::from() / .to_owned() etc
-#[macro_export]
-macro_rules! S {
-    () => {
-        String::new()
-    };
-    ($s:expr) => {
-        String::from($s)
-    };
-}
-
-#[macro_export]
-/// Sleep for a given number of milliseconds, is an async fn.
-/// If no parameter supplied, defaults to 1000ms
-macro_rules! sleep {
-    () => {
-        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
-    };
-    ($ms:expr) => {
-        tokio::time::sleep(std::time::Duration::from_millis($ms)).await;
-    };
-}
-
-/// Simple macro to call `.clone()` on whatever is passed in
-#[macro_export]
-macro_rules! C {
-    ($i:expr) => {
-        $i.clone()
-    };
-}
 
 fn close_signal(tx: &Sender<Msg>) {
     let tx = C!(tx);
@@ -81,11 +51,14 @@ async fn start() -> Result<(), AppError> {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), AppError> {
-    if let Err(e) = tokio::spawn(start()).await {
-        tracing::error!("{e}");
-    }
-    Ok(())
+async fn main() {
+    tokio::spawn(async move {
+        if let Err(e) = start().await {
+            tracing::error!("{e:}");
+        }
+    })
+    .await
+    .ok();
 }
 
 #[cfg(test)]
@@ -96,7 +69,7 @@ mod tests {
     use sqlx::SqlitePool;
     use uuid::Uuid;
 
-    use crate::{app_env::AppEnv, db::init_db};
+    use crate::{S, app_env::AppEnv, db::init_db};
     /// Close database connection, and delete all test files
     pub async fn test_cleanup(uuid: Uuid, db: Option<SqlitePool>) {
         if let Some(db) = db {

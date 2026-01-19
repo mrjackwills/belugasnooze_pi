@@ -4,7 +4,7 @@ use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 enum LimitMinutes {
-    Five(Option<()>),
+    Ten(Option<()>),
     FortyFive,
 }
 
@@ -16,7 +16,7 @@ impl LimitMinutes {
 
     const fn get_message(self) -> LightMsg {
         match self {
-            Self::Five(msg) => {
+            Self::Ten(msg) => {
                 if msg.is_some() {
                     LightMsg::Alarm
                 } else {
@@ -29,7 +29,7 @@ impl LimitMinutes {
 
     const fn get_sec(&self) -> u64 {
         match self {
-            Self::Five(_) => 5 * 60,
+            Self::Ten(_) => 10 * 60,
             Self::FortyFive => 45 * 60,
         }
     }
@@ -93,8 +93,10 @@ impl LightControl {
     fn turn_off(&mut self) {
         self.brightness = 0.0;
         self.colours = (0, 0, 0);
+        self.step = 0;
         self.status = false;
         self.display();
+        self.cancel_thead();
     }
 
     /// Default colours for the LED strip
@@ -130,7 +132,7 @@ impl LightControl {
 
     /// Turn the light on with the default 5-minute timeout.
     fn turn_on(&mut self) {
-        self.activate(LimitMinutes::Five(None), 1.0);
+        self.activate(LimitMinutes::Ten(None), 1.0);
     }
 
     /// Turn the light on for an alarm step.
@@ -139,7 +141,7 @@ impl LightControl {
         self.msg_tx.send(Msg::SendLEDStatus).await.ok();
         self.step += 1;
         let limit = if self.step < 10 {
-            LimitMinutes::Five(Some(()))
+            LimitMinutes::Ten(Some(()))
         } else {
             LimitMinutes::FortyFive
         };
