@@ -34,5 +34,4 @@ pub async fn open_connection(
             tx.send(Msg::WsClose).await.ok();
         }
     }
-    // });
 }
