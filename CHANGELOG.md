@@ -1,6 +1,7 @@
 ### Chores
 + Cargo.toml linting fix, [5587bbac00a4bccfb616922d45d35de2650c7fe0]
 + dependencies updated, [2f22bd938b896ffc5170605a475ebe5e1a3ecba2]
++ Dockerfile Alpine linux version bump, [8124b4b4e1501f47b40aa8de35acb7e0b3d29e72]
 + GitHub workflow updated, [ac2854dae508333fcae6a178e7a6976821e4411d]
 
 ### Features
