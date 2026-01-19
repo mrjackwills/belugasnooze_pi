@@ -25,7 +25,6 @@ use word_art::Intro;
 
 use crate::message_handler::{MessageHandler, Msg};
 
-
 fn close_signal(tx: &Sender<Msg>) {
     let tx = C!(tx);
     simple_signal::set_handler(&[Signal::Int, Signal::Term], move |_| {

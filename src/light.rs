@@ -96,7 +96,7 @@ impl LightControl {
         self.step = 0;
         self.status = false;
         self.display();
-		self.cancel_thead();
+        self.cancel_thead();
     }
 
     /// Default colours for the LED strip
