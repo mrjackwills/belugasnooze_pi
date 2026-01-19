@@ -26,11 +26,11 @@ figlet-rs = "0.1"
 futures-util = "0.3"
 jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
 mimalloc = "0.1"
-reqwest = { version = "0.12", default-features = false, features = [
+reqwest = { version = "0.13", default-features = false, features = [
 	"brotli",
 	"gzip",
 	"json",
-	"rustls-tls-native-roots",
+	"default-tls"
 ] }
 rppal = "0.22.1"
 serde = { version = "1.0", features = ["derive"] }
@@ -42,14 +42,14 @@ sqlx = { version = "0.8", default-features = false, features = [
 	"sqlite",
 ] }
 thiserror = "2.0"
-tokio = { version = "1.48", features = ["full"] }
+tokio = { version = "1.49", features = ["full"] }
 tokio-tungstenite = { version = "0.28", features = ["rustls-tls-native-roots"] }
 tokio-util = "0.7"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [dev-dependencies]
-uuid = {version = "1.18",features = ["v4","fast-rng"]}
+uuid = {version = "1.19",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true
