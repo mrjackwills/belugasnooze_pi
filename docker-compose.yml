@@ -27,9 +27,6 @@ services:
       - "/dev/gpiochip0"
     networks:
       - belugasnooze_net
-    logging:
-      options:
-        max-size: 4mb
     deploy:
       resources:
         limits:
