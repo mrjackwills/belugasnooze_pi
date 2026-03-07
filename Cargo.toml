@@ -4,7 +4,7 @@ version = "0.7.2"
 edition = "2024"
 authors = ["Jack Wills <email@mrjackwills.com>"]
 description = "belugasnooze - A pi based wake up light sunrise alarm clock"
-rust-version = "1.90.0"
+rust-version = "1.92.0"
 
 [lints.rust]
 unsafe_code = "forbid"
@@ -40,14 +40,14 @@ sqlx = { version = "0.8", default-features = false, features = [
 	"sqlite",
 ] }
 thiserror = "2.0"
-tokio = { version = "1.49", features = ["full"] }
+tokio = { version = "1.50", features = ["full"] }
 tokio-tungstenite = { version = "0.28", features = ["rustls-tls-native-roots"] }
 tokio-util = "0.7"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [dev-dependencies]
-uuid = {version = "1.19",features = ["v4","fast-rng"]}
+uuid = {version = "1.21",features = ["v4","fast-rng"]}
 
 [profile.release]
 lto = true
