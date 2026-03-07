@@ -1,3 +1,15 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.7.3'>v0.7.3</a>
+### 2026-03-07
+
+### Chores
++ GitHub workflow dependencies updated, [bdc87e6e](https://github.com/mrjackwills/belugasnooze_pi/commit/bdc87e6e597e3a63d57ebab929aa00f39206e825)
++ update Docker memory limit, [74be4551](https://github.com/mrjackwills/belugasnooze_pi/commit/74be455113d4ec60af2f8a4d39089c46f9116548)
++ dependencies updated, [fdb988f8](https://github.com/mrjackwills/belugasnooze_pi/commit/fdb988f8f33a2d447672c1eb8bc47fe583dbe255)
+
+### Fixes
++ remove docker max log size, [cf87baa6](https://github.com/mrjackwills/belugasnooze_pi/commit/cf87baa6519ec3041bcf97f047c3ea9328cb569b)
++ run.sh chmod, [68958fc1](https://github.com/mrjackwills/belugasnooze_pi/commit/68958fc1fb3843a902233ef38b56323e42290bbd)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.7.2'>v0.7.2</a>
 ### 2026-01-19
 
