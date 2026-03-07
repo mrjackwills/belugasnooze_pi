@@ -30,7 +30,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 16mb
+          memory: 64mb
 networks:
   belugasnooze_net:
     name: belugasnooze_net
