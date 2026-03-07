@@ -1,5 +1,5 @@
 ### Chores
-+ GitHub worflow dependencies updated, [bdc87e6e597e3a63d57ebab929aa00f39206e825]
++ GitHub workflow dependencies updated, [bdc87e6e597e3a63d57ebab929aa00f39206e825]
 + update Docker memory limit, [74be455113d4ec60af2f8a4d39089c46f9116548]
 + dependencies updated, [fdb988f8f33a2d447672c1eb8bc47fe583dbe255]
 
