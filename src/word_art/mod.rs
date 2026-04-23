@@ -3,14 +3,14 @@ use std::fmt::Write;
 
 mod font;
 
-use figlet_rs::FIGfont;
+use figlet_rs::FIGlet;
 use font::{Color, FontName};
 
 const RESET: &str = "\x1b[0m";
 
 /// Convert input string to ASCII art
 fn create_art(input: &str, fontname: FontName) -> String {
-    FIGfont::from_content(FontName::get(fontname)).map_or(String::new(), |font| {
+    FIGlet::from_content(FontName::get(fontname)).map_or(String::new(), |font| {
         let figure = font.convert(input);
         figure.map_or(String::new(), |text| text.to_string())
     })

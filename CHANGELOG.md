@@ -1,3 +1,9 @@
+# <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.7.4'>v0.7.4</a>
+### 2026-04-23
+
+### Chores
++ dependencies updated, [fad6de28](https://github.com/mrjackwills/belugasnooze_pi/commit/fad6de281c1005d9c691ca53c5b2e873eeea332f)
+
 # <a href='https://github.com/mrjackwills/belugasnooze_pi/releases/tag/v0.7.3'>v0.7.3</a>
 ### 2026-03-07
 
