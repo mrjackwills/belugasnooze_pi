@@ -15,7 +15,7 @@ ENV VIRT=".build_packages"
 ENV TZ=${DOCKER_TIME_CONT}/${DOCKER_TIME_CITY}
 
 # This gets automatically updated via create_release.sh
-ARG CURRENT_VERSION=v0.7.3
+ARG CURRENT_VERSION=v0.7.4
 
 WORKDIR /app
 
