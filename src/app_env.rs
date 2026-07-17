@@ -8,8 +8,10 @@ type EnvHashMap = HashMap<String, String>;
 
 #[derive(Debug, Clone)]
 pub struct AppEnv {
+    pub status_file_name: String,
     pub location_ip_address: String,
     pub location_sqlite: String,
+    pub location_status_dir: String,
     pub log_level: tracing::Level,
     pub start_time: SystemTime,
     pub timezone: TimeZone,
@@ -85,9 +87,14 @@ impl AppEnv {
                 "LOCATION_IP_ADDRESS",
                 &env_map,
             )?)?,
+            location_status_dir: Self::check_file_exists(Self::parse_string(
+                "LOCATION_STATUS_DIR",
+                &env_map,
+            )?)?,
             location_sqlite: Self::parse_db_name("LOCATION_SQLITE", &env_map)?,
             log_level: Self::parse_log(&env_map),
             start_time: SystemTime::now(),
+            status_file_name: Self::parse_string("STATUS_FILE_NAME", &env_map)?,
             timezone: Self::parse_timezone(&env_map),
             ws_address: Self::parse_string("WS_ADDRESS", &env_map)?,
             ws_apikey: Self::parse_string("WS_APIKEY", &env_map)?,

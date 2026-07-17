@@ -1,5 +1,4 @@
 use std::time::Instant;
-use tracing::info;
 
 use crate::sleep;
 
@@ -45,7 +44,7 @@ impl ConnectionDetails {
 
     /// delay the recconnect attempt by x seconds, depedning on ho wmany attempts already made
     pub async fn reconnect_delay(&self) {
-        info!(self.count);
+        tracing::info!(self.count);
         if self.count > 0 {
             sleep!(self.wait.as_ms());
         }

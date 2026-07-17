@@ -23,23 +23,27 @@
 		"source=/etc/timezone,target=/etc/timezone,type=bind,readonly"
 	],
 
+	
 	"customizations": {
 		"vscode": {
+				// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"adpyke.vscode-sql-formatter",
 				"bmuskalla.vscode-tldr",
 				"christian-kohler.path-intellisense",
 				"citreae535.sparse-crates",
-				"gruntfuggly.todo-tree",
+				"fanaticpythoner.better-todo-tree",
+				"foxundermoon.shell-format",
 				"ms-vscode.live-server",
 				"mutantdino.resourcemonitor",
-				"rangav.vscode-thunder-client",
 				"redhat.vscode-yaml",
 				"rust-lang.rust-analyzer",
 				"tamasfe.even-better-toml",
 				"timonwong.shellcheck",
+				"twxs.cmake",
 				"vadimcn.vscode-lldb"
 			],
+
 			"settings": {
 				"lldb.executable": "/usr/bin/lldb",
 				// VS Code don't watch files under ./target
@@ -50,15 +54,18 @@
 		}
 	},
 
-	"postCreateCommand": "cargo install cargo-watch typos-cli cross",
+	"postCreateCommand": "cargo install cross typos-cli; mkdir /tmp/status_dir",
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
-
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2":{},
+		"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:4": {
+			"version": "latest",
+			"moby": false,
+			"dockerDashComposeVersion": "v2"
+		},
 		"ghcr.io/devcontainers/features/git:1": {
-				"version":"os-provided"
-			}
+			"version": "os-provided"
+		}
 	}
 }

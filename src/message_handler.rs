@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use async_channel::{Receiver, Sender};
 use sqlx::SqlitePool;
 use tokio::net::TcpStream;
@@ -21,6 +23,51 @@ pub type WSWriter = futures_util::stream::SplitSink<
 >;
 
 #[derive(Debug)]
+struct StatusFile(PathBuf);
+
+impl StatusFile {
+    fn new(app_env: &AppEnv) -> Self {
+        Self(Path::new(&app_env.location_status_dir).join(&app_env.status_file_name))
+    }
+
+    /// Check if status fie exists
+    async fn exists(&self) -> bool {
+        match tokio::fs::try_exists(&self.0).await {
+            Ok(exists) => exists,
+            Err(e) => {
+                tracing::error!("{e}");
+                false
+            }
+        }
+    }
+
+    /// Try to create a status file
+    async fn create(&self) {
+        if !self.exists().await
+            && let Err(e) = tokio::fs::File::create_new(&self.0).await
+        {
+            tracing::error!("{e}")
+        }
+    }
+
+    /// Remove the status file
+    async fn remove(&self) {
+        if self.exists().await
+            && let Err(e) = tokio::fs::remove_file(&self.0).await
+        {
+            tracing::error!("{e}");
+        }
+    }
+
+    async fn toggle(&self, create: Option<()>) {
+        if create.is_some() {
+            self.create().await
+        } else {
+            self.remove().await
+        }
+    }
+}
+#[derive(Debug)]
 pub enum Msg {
     Exit,
     GetLEDStatus(Sender<bool>),
@@ -30,6 +77,7 @@ pub enum Msg {
     SendLEDStatus,
     SetLED(bool),
     StartAlarm,
+    StatusFile(Option<()>),
     ToSend((Response, Option<bool>)),
     WsClose,
     WsConnected(Box<WsStream>),
@@ -43,6 +91,7 @@ pub struct MessageHandler {
     light_tx: Sender<LightMsg>,
     rx: Receiver<Msg>,
     socket: Option<Socket>,
+    status_file: StatusFile,
     sqlite: SqlitePool,
     tx: Sender<Msg>,
     ws_sender: WSSender,
@@ -73,6 +122,9 @@ impl MessageHandler {
         )
         .0?;
 
+        // Turn the light off at start
+        self.light_tx.send(LightMsg::Off).await.ok();
+
         while let Ok(msg) = self.rx.recv().await {
             match msg {
                 Msg::Exit => {
@@ -84,6 +136,7 @@ impl MessageHandler {
                 Msg::GetLEDStatus(sender) => {
                     self.light_tx.send(LightMsg::Get(sender)).await.ok();
                 }
+                Msg::StatusFile(create) => self.status_file.toggle(create).await,
                 Msg::Ping => {
                     if let Some(socket) = &mut self.socket {
                         socket.on_ping(&self.tx);
@@ -132,6 +185,7 @@ impl MessageHandler {
     pub fn new(app_env: AppEnv, sqlite: SqlitePool, rx: Receiver<Msg>, tx: Sender<Msg>) -> Self {
         let ws_sender = ws::WSSender::new(&app_env, &sqlite, &tx);
         let alarm_schedule = AlarmSchedule::new(&tx);
+        let status_file = StatusFile::new(&app_env);
 
         Self {
             alarm_schedule,
@@ -140,6 +194,7 @@ impl MessageHandler {
             light_tx: LightControl::init(&tx),
             rx,
             socket: None,
+            status_file,
             sqlite,
             tx,
             ws_sender,
