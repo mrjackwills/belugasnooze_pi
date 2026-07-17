@@ -73,6 +73,9 @@ impl MessageHandler {
         )
         .0?;
 
+        // Turn the light off at start
+        self.light_tx.send(LightMsg::Off).await.ok();
+
         while let Ok(msg) = self.rx.recv().await {
             match msg {
                 Msg::Exit => {
