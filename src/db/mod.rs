@@ -6,7 +6,6 @@ pub use model_timezone::ModelTimezone;
 
 use sqlx::{ConnectOptions, SqlitePool, sqlite::SqliteJournalMode};
 use std::fs;
-use tracing::error;
 
 use crate::app_env::AppEnv;
 
@@ -31,14 +30,14 @@ fn file_exists(filename: &str) {
         match fs::create_dir_all(path) {
             Ok(()) => (),
             Err(e) => {
-                error!("db_create_dir::{e}");
+                tracing::error!("db_create_dir::{e}");
                 std::process::exit(1);
             }
         }
         match fs::File::create(filename) {
             Ok(_) => (),
             Err(e) => {
-                error!("db_create::{e}");
+                tracing::error!("db_create::{e}");
                 std::process::exit(1);
             }
         }
@@ -78,7 +77,7 @@ async fn create_tables(db: &SqlitePool) {
     match sqlx::query(init_db).execute(db).await {
         Ok(_) => (),
         Err(e) => {
-            error!("create_table::{e}");
+            tracing::error!("create_table::{e}");
             std::process::exit(1);
         }
     }

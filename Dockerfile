@@ -27,7 +27,7 @@ RUN addgroup -g ${DOCKER_GUID} -S ${DOCKER_APP_GROUP} \
 	&& echo ${TZ} > /etc/timezone \
 	&& apk del ${VIRT} \
 	&& mkdir /db_data \
-	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data
+	&& chown ${DOCKER_APP_USER}:${DOCKER_APP_GROUP} /db_data /status_dir
 
 	# Somewhat convoluted way to automatically select & download the correct package
 RUN ARCH=$(uname -m) && \

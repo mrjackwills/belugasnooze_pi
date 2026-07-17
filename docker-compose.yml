@@ -13,7 +13,8 @@ services:
     volumes:
       - $HOME/belugasnooze.d/db_data:/db_data
       - $HOME/belugasnooze.d/.env:/app_env/.env:ro
-      - /ramdrive/ip.addr:/ip_address/ip.addr:ro
+      - /ramdrive/ip.addr:/ip.addr:ro
+      - /ramdrive/status_dir:/status_dir
     cap_drop:
       - all
     group_add:

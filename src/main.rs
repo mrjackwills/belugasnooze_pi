@@ -89,6 +89,8 @@ mod tests {
     pub fn gen_app_envs(uuid: Uuid) -> AppEnv {
         AppEnv {
             location_ip_address: S!("./ip.addr"),
+            location_status_dir: S!("/tmp/status_file"),
+            status_file_name: S!("belugasnooze.status"),
             location_sqlite: format!("/dev/shm/{uuid}.db"),
             log_level: tracing::Level::INFO,
             start_time: SystemTime::now(),

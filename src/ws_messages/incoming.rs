@@ -1,7 +1,6 @@
 use super::serializer::IncomingSerializer as is;
 
 use serde::{Deserialize, Serialize};
-use tracing::debug;
 
 #[derive(Debug)]
 pub enum MessageValues {
@@ -74,11 +73,11 @@ pub fn to_struct(input: &str) -> Option<MessageValues> {
         let error_serialized = serde_json::from_str::<ErrorData>(input);
         error_serialized.map_or_else(
             |_| {
-                debug!("not a known input message");
+                tracing::debug!("not a known input message");
                 None
             },
             |data| {
-                debug!("Matched error_serialized data");
+                tracing::debug!("Matched error_serialized data");
                 Some(MessageValues::Invalid(data))
             },
         )

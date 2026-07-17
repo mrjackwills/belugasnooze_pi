@@ -90,13 +90,14 @@ impl LightControl {
     }
 
     /// Turn off the blinkt
-    fn turn_off(&mut self) {
+    async fn turn_off(&mut self) {
         self.brightness = 0.0;
         self.colours = (0, 0, 0);
         self.step = 0;
         self.status = false;
         self.display();
         self.cancel_thead();
+        self.msg_tx.send(Msg::StatusFile(None)).await.ok();
     }
 
     /// Default colours for the LED strip
@@ -147,6 +148,7 @@ impl LightControl {
         };
         let brightness = f32::from(self.step) / 10.0;
         self.activate(limit, brightness);
+        self.msg_tx.send(Msg::StatusFile(Some(()))).await.ok();
     }
 
     /// Toggle the status of the blinkt
@@ -155,7 +157,7 @@ impl LightControl {
         if value {
             self.turn_on();
         } else {
-            self.turn_off();
+            self.turn_off().await;
         }
         self.msg_tx.send(Msg::SendLEDStatus).await.ok();
     }
@@ -166,7 +168,7 @@ impl LightControl {
             if let Ok(x) = rx.recv().await {
                 match x {
                     LightMsg::Alarm => self.alarm_on().await,
-                    LightMsg::Exit => self.turn_off(),
+                    LightMsg::Exit => self.turn_off().await,
                     LightMsg::Get(oneshot) => oneshot.send(self.status).await.unwrap_or_default(),
                     LightMsg::Off => self.toggle(false).await,
                     LightMsg::Toggle(status) => self.toggle(status).await,
